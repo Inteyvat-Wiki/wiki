@@ -1,0 +1,64 @@
+{
+    "common": {
+        "pyro": "火",
+        "hydro": "水",
+        "anemo": "风",
+        "electro": "雷",
+        "dendro": "草",
+        "cryo": "冰",
+        "geo": "岩",
+        "sword": "单手剑",
+        "claymore": "双手剑",
+        "polearm": "长柄武器",
+        "bow": "弓",
+        "catalyst": "法器"
+    },
+    "menu": {
+        "home": "主页",
+        "character": "角色",
+        "weapon": "武器",
+        "artifact": "圣遗物",
+        "material": "物产志",
+        "living-being": "生物志",
+        "geography": "地理志",
+        "travel-log": "旅行日志",
+        "book": "书籍",
+        "readable": "阅读物",
+        "settings": "设置"
+    },
+    "character": {
+        "element": "元素",
+        "weapon": "武器",
+        "star": "稀有度",
+        "hp": "生命值上限",
+        "atk": "攻击力",
+        "def": "防御力",
+        "substat": "副属性",
+        "basic-info": "基本信息",
+        "skills": "技能",
+        "talents": "天赋",
+        "constellations": "命之座",
+        "stories": "角色故事",
+        "voiceovers": "角色对话",
+        "images": "图片"
+    },
+    "skill": {
+        "normal_attack": "普通攻击",
+        "elemental_skill": "元素战技",
+        "elemental_burst": "元素爆发",
+        "passive_talent": "固有天赋"
+    },
+    "talent": {
+        "ascension_talent": "突破天赋",
+        "passive_talent": "固有天赋",
+        "additional_talent": "额外天赋"
+    },
+    "constellation": {
+        "constellation1": "命之座 第1层",
+        "constellation2": "命之座 第2层",
+        "constellation3": "命之座 第3层",
+        "constellation4": "命之座 第4层",
+        "constellation5": "命之座 第5层",
+        "constellation6": "命之座 第6层"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "menu": {
+        "home": "Home",
+        "character": "Characters",
+        "weapon": "Weapons",
+        "artifact": "Artifacts",
+        "material": "Materials",
+        "living-being": "Living Beings",
+        "geography": "Geography",
+        "travel-log": "Travel Log",
+        "book": "Books",
+        "readable": "Readable"
+    }
+}

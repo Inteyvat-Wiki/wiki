@@ -1,0 +1,7 @@
+.round_icon {
+    border-radius: 20%;
+}
+.round_icon_with_bg {
+    border-radius: 20%;
+    background-color: #cfcfcf;
+}
