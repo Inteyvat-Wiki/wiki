@@ -2,12 +2,14 @@ import type { Character } from '~/types/character';
 import type { Characters } from '~/types/characters';
 
 const api = $fetch.create({
-    onRequest({ options }) {
-        const { locale } = useI18n()
+    async onRequest({ options }) {
+        const { locale } = useI18n();
+        const settings = await get_settings_value();
 
         options.query = {
             ...options.query,
-            lang: locale.value
+            lang: locale.value,
+            settings: JSON.stringify(settings),
         }
     }
 })

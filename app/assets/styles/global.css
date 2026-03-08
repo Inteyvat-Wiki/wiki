@@ -1,7 +1,9 @@
 .round_icon {
     border-radius: 20%;
+    overflow: hidden;
 }
 .round_icon_with_bg {
     border-radius: 20%;
+    overflow: hidden;
     background-color: #cfcfcf;
 }

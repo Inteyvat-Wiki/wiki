@@ -26,6 +26,15 @@
         "readable": "阅读物",
         "settings": "设置"
     },
+    "settings": {
+        "traveller": "旅行者",
+        "traveller_name": "旅行者名称",
+        "default_traveller_name": "旅行者",
+        "wanderer_name": "流浪者名称",
+        "default_wanderer_name": "流浪者",
+        "littleone_name": "小家伙名称",
+        "default_littleone_name": "小家伙"
+    },
     "character": {
         "element": "元素",
         "weapon": "武器",

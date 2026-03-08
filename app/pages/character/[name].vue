@@ -1,5 +1,5 @@
 <template>
-    <el-container>
+    <el-container v-if="character">
         <el-main>
             <div ref="show_links_element_container">
                 <div id="basic-info">
@@ -56,7 +56,8 @@
                         <el-col :span="24">
                             <el-card>
                                 <title-with-icon :icon="null" :title="$t('character.voiceovers')" />
-                                <character-voiceovers-card :voiceovers="character.voiceovers" style="margin-top: 10px;" />
+                                <character-voiceovers-card :voiceovers="character.voiceovers"
+                                    style="margin-top: 10px;" />
                             </el-card>
                         </el-col>
                     </el-row>
@@ -110,8 +111,9 @@
 </template>
 
 <script setup lang="ts">
-const route = useRoute();
-const character = await getCharacter(route.params.name);
+import type { Character } from '~/types/character';
+
+const character = ref<Character>();
 
 const show_links_element_container = ref();
 const popover_visible = ref(false);
@@ -121,15 +123,21 @@ const popover_content = ref({
     description: '',
 });
 
-onMounted(() => {
+onMounted(async () => {
+    character.value = await getCharacter(useRoute().params.name as string);
+});
+
+watch([show_links_element_container, character], () => {
+    if (!character.value || !show_links_element_container.value) return;
+    
     const link_contents: Record<number, any> = {}
 
-    for (let i of character.skills) if (i.id) link_contents[i.id] = i;
-    for (let i of character.talents) if (i.id) link_contents[i.id] = i;
-    for (let i of character.constellations) if (i.id) link_contents[i.id] = i;
-    for (let i of character.link_description) if (i.id) link_contents[i.id] = i;
+    for (let i of character.value.skills) if (i.id) link_contents[i.id] = i;
+    for (let i of character.value.talents) if (i.id) link_contents[i.id] = i;
+    for (let i of character.value.constellations) if (i.id) link_contents[i.id] = i;
+    for (let i of character.value.link_description) if (i.id) link_contents[i.id] = i;
 
-    show_links_element_container.value?.addEventListener('click', (event: Event) => {
+    show_links_element_container.value.addEventListener('click', (event: Event) => {
         const target = (event.target as HTMLElement).closest('.linked_content') as HTMLElement;
 
         if (target?.dataset?.id) {
@@ -143,7 +151,7 @@ onMounted(() => {
             popover_visible.value = false;
         }
     });
-});
+})
 </script>
 
 <style lang="css">

@@ -13,13 +13,21 @@
                 </el-footer>
             </el-container>
         </el-aside>
-        <el-scrollbar>
+        <el-scrollbar style="width: 100%;">
             <el-main>
                 <NuxtPage :key="$route.path" />
             </el-main>
         </el-scrollbar>
     </el-container>
 </template>
+
+<script setup lang="ts">
+import { init_settings } from '~/utils/settings';
+
+onMounted(() => {
+    init_settings();
+});
+</script>
 
 <style>
 body {

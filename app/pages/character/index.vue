@@ -1,8 +1,9 @@
 <template>
-    <el-container>
+    <el-container v-if="characters">
         <el-main>
             <el-row :gutter="50" style="width: 100%; row-gap: 50px;">
-                <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="character in show_character_list" :key="character.id" style="row-gap: 50px;">
+                <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="character in show_character_list" :key="character.id"
+                    style="row-gap: 50px;">
                     <NuxtLink :to="`/character/${character.id}`" style="text-decoration: none;">
                         <el-card shadow="hover">
                             <avatar-display-card :title="character.name" :icon="character.icon"
@@ -39,9 +40,17 @@
 </template>
 
 <script setup lang="ts">
-const characters = await getCharacters();
+import type { Characters } from '~/types/characters';
+
+const characters = ref<Characters>();
+
+onMounted(async () => {
+    characters.value = await getCharacters();
+});
+
 const show_character_list = computed(() => {
-    return characters.filter((character) => {
+    if (!characters.value) return [];
+    return characters.value.filter((character) => {
         if (selected_elements.value.length > 0 && !selected_elements.value.includes(character.element)) {
             return false;
         }

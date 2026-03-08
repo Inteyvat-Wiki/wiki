@@ -1,7 +1,7 @@
 <template>
     <el-descriptions border :column="1">
         <template #title>
-            <title-with-icon :title="character.name" :icon="character.icon" />
+            <title-with-icon :title="character.name" :icon="character.icon" :preview="true" />
         </template>
         <el-descriptions-item :label="$t('character.element')" :min-width="'100px'">
             {{ $t(`common.${character.element}`) }}
