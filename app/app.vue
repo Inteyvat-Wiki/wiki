@@ -15,7 +15,7 @@
         </el-aside>
         <el-scrollbar>
             <el-main>
-                <NuxtPage />
+                <NuxtPage :key="$route.fullPath" />
             </el-main>
         </el-scrollbar>
     </el-container>
