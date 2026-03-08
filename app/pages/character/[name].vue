@@ -110,10 +110,8 @@
 </template>
 
 <script setup lang="ts">
-const { locale } = useI18n();
-
 const route = useRoute();
-const character = await getCharacter(route.params.name, locale.value);
+const character = await getCharacter(route.params.name);
 
 const show_links_element_container = ref();
 const popover_visible = ref(false);

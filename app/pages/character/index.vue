@@ -39,9 +39,7 @@
 </template>
 
 <script setup lang="ts">
-const { locale } = useI18n();
-
-const characters = await getCharacters(locale.value);
+const characters = await getCharacters();
 const show_character_list = computed(() => {
     return characters.filter((character) => {
         if (selected_elements.value.length > 0 && !selected_elements.value.includes(character.element)) {
