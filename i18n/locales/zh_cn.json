@@ -13,6 +13,9 @@
         "bow": "弓",
         "catalyst": "法器"
     },
+    "normal": {
+        "copied": "已复制"
+    },
     "menu": {
         "home": "主页",
         "character": "角色",
@@ -69,5 +72,14 @@
         "constellation4": "命之座 第4层",
         "constellation5": "命之座 第5层",
         "constellation6": "命之座 第6层"
+    },
+    "weapon": {
+        "type": "武器类型",
+        "star": "稀有度",
+        "description": "描述",
+        "base": "基础攻击力",
+        "basic-info": "基本信息",
+        "effect": "武器效果",
+        "story": "故事"
     }
 }

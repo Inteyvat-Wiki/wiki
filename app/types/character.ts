@@ -1,9 +1,11 @@
+import type { ElementType, WeaponType } from "~/types/common";
+
 export type Character = {
     name: string,
     icon: string,
     splash: string,
-    element: 'pyro' | 'hydro' | 'anemo' | 'electro' | 'dendro' | 'cryo' | 'geo',
-    weapon: 'sword' | 'claymore' | 'polearm' | 'bow' | 'catalyst',
+    element: ElementType,
+    weapon: WeaponType,
     star: 4 | 5,
     info: {
         title: string,
@@ -63,5 +65,5 @@ export type Character = {
         title: string,
         image: string,
         description: string | null,
-    }[]
+    }[],
 };

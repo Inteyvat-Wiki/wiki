@@ -11,9 +11,7 @@
                         </el-col>
                         <el-col :span="24" :lg="12">
                             <el-card>
-                                <el-image :src="character.splash" :preview-src-list="[character.splash]"
-                                    hide-on-click-modal
-                                    style="width: 100%; height: auto; display: block; object-fit: contain;" />
+                                <character-splash-card :character="character" />
                             </el-card>
                         </el-col>
                     </el-row>

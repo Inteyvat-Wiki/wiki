@@ -7,3 +7,17 @@
     overflow: hidden;
     background-color: #cfcfcf;
 }
+
+:root {
+    --star-5-color: #db8724;
+    --star-4-color: #b581cb;
+    --star-3-color: #5092ba;
+    --star-2-color: #58a37f;
+    --star-1-color: #8b8b8b;
+
+    --star-5-color-half: #db87247f;
+    --star-4-color-half: #b581cb7f;
+    --star-3-color-half: #5092ba7f;
+    --star-2-color-half: #58a37f7f;
+    --star-1-color-half: #8b8b8b7f;
+}

@@ -2,8 +2,7 @@
     <el-collapse>
         <el-tabs>
             <el-tab-pane v-for="(story, index) in stories" :key="index" :label="story.title">
-                <div v-html="story.content"></div>
-                <br>
+                <normal-text :text="story.content" />
             </el-tab-pane>
         </el-tabs>
     </el-collapse>

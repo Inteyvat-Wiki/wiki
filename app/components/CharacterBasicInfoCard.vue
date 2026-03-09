@@ -10,7 +10,9 @@
             {{ $t(`common.${character.weapon}`) }}
         </el-descriptions-item>
         <el-descriptions-item :label="$t('character.star')" :min-width="'100px'">
-            <el-rate v-model="character.star" disabled :disabled-void-icon="'null'" />
+            <el-icon v-for="i in character.star" :key="i" style="color: #f7ba2a">
+                <StarFilled />
+            </el-icon>
         </el-descriptions-item>
         <el-descriptions-item v-for="item in character.info" :key="item.title" :label="item.title" :min-width="'100px'">
             {{ item.description }}
@@ -50,6 +52,7 @@
 <script setup lang="ts">
 import type { Character } from '~/types/character';
 import Sparkle from '~/assets/icons/sparkle.svg';
+import { StarFilled } from '@element-plus/icons-vue';
 
 const props = defineProps<{
     character: Character;

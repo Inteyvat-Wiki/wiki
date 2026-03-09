@@ -2,10 +2,9 @@
     <el-container v-if="characters">
         <el-main>
             <el-row :gutter="50" style="width: 100%; row-gap: 50px;">
-                <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="character in show_character_list" :key="character.id"
-                    style="row-gap: 50px;">
+                <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="character in show_character_list" :key="character.id">
                     <NuxtLink :to="`/character/${character.id}`" style="text-decoration: none;">
-                        <el-card shadow="hover">
+                        <el-card shadow="hover" :style="`border: 1px solid var(--star-${character.star}-color-half);`">
                             <avatar-display-card :title="character.name" :icon="character.icon"
                                 :left_subicon="`/images/mess/${character.element}.png`"
                                 :right_subicon="`/images/mess/${character.weapon}.png`" />
