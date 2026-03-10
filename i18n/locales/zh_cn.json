@@ -81,5 +81,16 @@
         "basic-info": "基本信息",
         "effect": "武器效果",
         "story": "故事"
+    },
+    "artifact": {
+        "star": "稀有度",
+        "1-piece-effect": "1件套效果",
+        "2-piece-effect": "2件套效果",
+        "3-piece-effect": "3件套效果",
+        "4-piece-effect": "4件套效果",
+        "5-piece-effect": "5件套效果",
+        "basic-info": "基本信息",
+        "effect": "武器效果",
+        "story": "故事"
     }
 }

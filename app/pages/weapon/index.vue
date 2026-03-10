@@ -2,7 +2,7 @@
     <el-container v-if="weapons">
         <el-main>
             <el-row :gutter="20" style="width: 100%; row-gap: 50px;">
-                <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="weapon in show_character_list" :key="weapon.id">
+                <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="weapon in show_weapon_list" :key="weapon.id">
                     <NuxtLink :to="`/weapon/${weapon.id}`" style="text-decoration: none;">
                         <el-card shadow="hover" :style="{ border: `1px solid var(--star-${weapon.star}-color-half)` }">
                             <avatar-display-card :title="weapon.name" :icon="weapon.icon"
@@ -47,7 +47,7 @@ onMounted(async () => {
     weapons.value = await getWeapons();
 });
 
-const show_character_list = computed(() => {
+const show_weapon_list = computed(() => {
     if (!weapons.value) return [];
     return weapons.value.filter((weapon) => {
         if (selected_types.value.length > 0 && !selected_types.value.includes(weapon.type)) {

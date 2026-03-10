@@ -1,5 +1,5 @@
 <template>
-    <normal-text :text="story" />
+    <normal-text :text="story" :border="true" />
 </template>
 
 <script setup lang="ts">
