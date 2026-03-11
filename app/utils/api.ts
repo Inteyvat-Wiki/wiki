@@ -4,6 +4,7 @@ import type { Weapon } from '~/types/weapon';
 import type { Weapons } from '~/types/weapons';
 import type { Artifact } from '~/types/artifact';
 import type { Artifacts } from '~/types/artifacts';
+import type { Menu } from '~/types/menu';
 
 const api = $fetch.create({
     async onRequest({ options }) {
@@ -46,4 +47,9 @@ export async function getArtifact(name: any): Promise<Artifact> {
 export async function getArtifacts(): Promise<Artifacts> {
     const data = await api(`/api/artifacts`);
     return data as Artifacts;
+}
+
+export async function get_menu(): Promise<Menu> {
+    const data = await api(`/api/menu`);
+    return data;
 }
