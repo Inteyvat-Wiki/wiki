@@ -1,5 +1,5 @@
 <template>
-    <div :class="props.border ? 'quote-box' : ''" style="position: relative; padding-right: 25px;">
+    <div :class="props.border ? 'quote-box' : ''" style="position: relative; padding-right: 40px;">
         <el-text>
             <div ref="content" v-html="text"></div>
         </el-text>
