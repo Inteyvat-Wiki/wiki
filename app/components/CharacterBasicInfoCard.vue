@@ -15,7 +15,7 @@
             </el-icon>
         </el-descriptions-item>
         <el-descriptions-item v-for="item in character.info" :key="item.title" :label="item.title" :min-width="'100px'">
-            {{ item.description }}
+            <div v-html="item.description"></div>
         </el-descriptions-item>
     </el-descriptions>
     <div style="margin-top: 15px; display: flex; justify-content: center;">

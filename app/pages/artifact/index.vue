@@ -4,9 +4,7 @@
             <el-row :gutter="50" style="width: 100%; row-gap: 50px;">
                 <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="artifact in show_artifact_list" :key="artifact.id">
                     <NuxtLink :to="`/artifact/${artifact.id}`" style="text-decoration: none;">
-                        <el-card shadow="hover" :style="{ border: `1px solid var(--star-${Math.max(...artifact.stars)}-color-half)` }">
-                            <avatar-display-card :title="artifact.name" :icon="artifact.icon" />
-                        </el-card>
+                        <avatar-display-card :title="artifact.name" :icon="artifact.icon" :border_star="Math.max(...artifact.stars)" />
                     </NuxtLink>
                 </el-col>
                 <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="i in 24" :key="i" style="height: 0px;">

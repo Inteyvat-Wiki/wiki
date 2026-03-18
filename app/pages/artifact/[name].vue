@@ -64,8 +64,12 @@ onMounted(async () => {
 
 const artifact_item_name = ['flower', 'plume', 'sands', 'goblet', 'circlet'];
 const artifact_item = computed(() => {
-    return artifact_item_name.map((item_name) => {
-        return artifact.value?.[item_name as keyof Artifact] as ArtifactItem;
-    });
+    return artifact_item_name.reduce((result: ArtifactItem[], name) => {
+        const item = artifact.value?.[name as keyof Artifact];
+        if (item) {
+            result.push(item as ArtifactItem);
+        }
+        return result;
+    }, []);
 });
 </script>

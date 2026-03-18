@@ -4,10 +4,8 @@
             <el-row :gutter="20" style="width: 100%; row-gap: 50px;">
                 <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="weapon in show_weapon_list" :key="weapon.id">
                     <NuxtLink :to="`/weapon/${weapon.id}`" style="text-decoration: none;">
-                        <el-card shadow="hover" :style="{ border: `1px solid var(--star-${weapon.star}-color-half)` }">
-                            <avatar-display-card :title="weapon.name" :icon="weapon.icon"
-                                :left_top_subicon="`/images/mess/${weapon.type}.png`" />
-                        </el-card>
+                        <avatar-display-card :title="weapon.name" :icon="weapon.icon" :border_star="weapon.star"
+                            :left_top_subicon="`/images/mess/${weapon.type}.png`" />
                     </NuxtLink>
                 </el-col>
                 <el-col :xs="12" :sm="12" :md="8" :lg="4" v-for="i in 24" :key="i" style="height: 0px;">

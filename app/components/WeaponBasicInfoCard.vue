@@ -1,7 +1,7 @@
 <template>
     <el-descriptions border :column="1">
         <template #title>
-            <title-with-icon :title="weapon.name" :icon="weapon.icon" :preview="true" />
+            <title-with-icon :title="weapon.name" :icon="weapon.icon" />
         </template>
         <el-descriptions-item :label="$t('weapon.type')" :min-width="'100px'">
             {{ $t(`common.${weapon.type}`) }}

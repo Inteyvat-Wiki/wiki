@@ -93,5 +93,12 @@
         "basic-info": "基本信息",
         "effect": "武器效果",
         "story": "故事"
+    },
+    "material": {
+        "star": "稀有度",
+        "type": "类型",
+        "effect": "效果",
+        "description": "描述",
+        "description_full": "详细描述"
     }
 }
