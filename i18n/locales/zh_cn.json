@@ -81,7 +81,9 @@
         "base": "基础攻击力",
         "basic-info": "基本信息",
         "effect": "武器效果",
-        "story": "故事"
+        "story": "故事",
+        "refine_material": "精炼材料",
+        "refine_material_description": "描述"
     },
     "artifact": {
         "star": "稀有度",
