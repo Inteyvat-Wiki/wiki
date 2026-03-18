@@ -102,5 +102,12 @@
         "effect": "效果",
         "description": "描述",
         "description_full": "详细描述"
+    },
+
+    "text": {
+        "mate_pronoun_boyd": "公主",
+        "mate_pronoun_girld": "王子",
+        "pronoun_he": "他",
+        "pronoun_she": "她"
     }
 }
