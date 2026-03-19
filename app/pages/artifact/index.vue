@@ -32,4 +32,7 @@ const show_artifact_list = computed(() => {
     }).reverse();
 });
 
+useHead({
+    title: $t('menu.artifact'),
+})
 </script>

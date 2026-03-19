@@ -20,7 +20,8 @@
                                         :min-width="'100px'">
                                         {{ item.type }}
                                     </el-descriptions-item>
-                                    <el-descriptions-item v-for="info in item.info" :key="info.title" :label="info.title" :min-width="'100px'">
+                                    <el-descriptions-item v-for="info in item.info" :key="info.title"
+                                        :label="info.title" :min-width="'100px'">
                                         <div v-html="info.description"></div>
                                     </el-descriptions-item>
                                 </el-descriptions>
@@ -77,4 +78,10 @@ const material = ref<Material>();
 onMounted(async () => {
     material.value = await get_material(useRoute().params.name as string);
 });
+    
+useHead({
+    title: computed(() => material.value
+        ? ((material.value[material.value.length - 1] as any).name + (material.value.length > 1 ? ` (+${material.value.length - 1})` : ''))
+        : $t('normal.loading')),
+})
 </script>

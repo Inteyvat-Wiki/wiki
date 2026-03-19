@@ -90,4 +90,8 @@ const weapon = ref<Weapon>();
 onMounted(async () => {
     weapon.value = await getWeapon(useRoute().params.name as string);
 });
+
+useHead({
+    title: computed(() => weapon.value ? weapon.value.name : $t('pages.loading')),
+})
 </script>

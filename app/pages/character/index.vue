@@ -63,4 +63,7 @@ const weapon_list = ['sword', 'claymore', 'polearm', 'bow', 'catalyst'];
 const selected_elements = ref<string[]>([]);
 const selected_weapons = ref<string[]>([]);
 
+useHead({
+    title: $t('menu.character'),
+})
 </script>

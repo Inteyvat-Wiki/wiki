@@ -35,4 +35,8 @@ const menu_icon = ref<Menu>();
 onMounted(async () => {
     menu_icon.value = await get_menu();
 });
+
+useHead({
+    title: $t('menu.home'),
+})
 </script>

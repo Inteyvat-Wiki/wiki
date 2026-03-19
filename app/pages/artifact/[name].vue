@@ -72,4 +72,8 @@ const artifact_item = computed(() => {
         return result;
     }, []);
 });
+
+useHead({
+    title: computed(() => artifact.value ? artifact.value.name : $t('normal.loading')),
+})
 </script>

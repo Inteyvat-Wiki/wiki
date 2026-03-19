@@ -150,6 +150,10 @@ watch([show_links_element_container, character], () => {
         }
     });
 })
+
+useHead({
+    title: computed(() => character.value ? character.value.name : $t('normal.loading')),
+})
 </script>
 
 <style lang="css">

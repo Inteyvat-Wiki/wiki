@@ -63,4 +63,7 @@ const star_list = [5, 4, 3, 2, 1];
 const selected_types = ref<string[]>([]);
 const selected_stars = ref<number[]>([]);
 
+useHead({
+    title: $t('menu.weapon'),
+})
 </script>
