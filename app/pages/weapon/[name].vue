@@ -92,6 +92,6 @@ onMounted(async () => {
 });
 
 useHead({
-    title: computed(() => weapon.value ? weapon.value.name : $t('pages.loading')),
+    title: computed(() => weapon.value ? weapon.value.name : $t('normal.loading')),
 })
 </script>
