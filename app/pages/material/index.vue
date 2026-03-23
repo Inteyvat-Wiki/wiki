@@ -78,4 +78,7 @@ watch(selected_types, (newType) => {
     localStorage.setItem('material_selected_types', newType);
 });
 
+useHead({
+    title: $t('menu.material'),
+})
 </script>

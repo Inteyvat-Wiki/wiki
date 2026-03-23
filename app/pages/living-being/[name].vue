@@ -1,7 +1,7 @@
 <template>
-    <el-container v-if="material">
+    <el-container v-if="living_being">
         <el-main>
-            <div v-for="item in material" :id="item.name" :key="item.name" style="margin-bottom: 20px;">
+            <div v-for="item in living_being" :id="item.name" :key="item.name" style="margin-bottom: 20px;">
                 <div id="basic-info">
                     <el-row :gutter="20" style="row-gap: 20px; width: 100%;">
                         <el-col :span="24" :lg="16">
@@ -10,13 +10,7 @@
                                     <template #title>
                                         <title-with-icon :title="item.name" :icon="item.icon" />
                                     </template>
-                                    <el-descriptions-item v-if="item.star" :label="$t('material.star')"
-                                        :min-width="'100px'">
-                                        <el-icon v-for="i in item.star" :key="i" style="color: #f7ba2a">
-                                            <StarFilled />
-                                        </el-icon>
-                                    </el-descriptions-item>
-                                    <el-descriptions-item v-if="item.type" :label="$t('material.type')"
+                                    <el-descriptions-item v-if="item.type" :label="$t('living-being.type')"
                                         :min-width="'100px'">
                                         {{ item.type }}
                                     </el-descriptions-item>
@@ -37,15 +31,6 @@
                         </el-col>
                     </el-row>
                 </div>
-                <div v-if="item.effect" id="effect" style="margin-top: 20px;">
-                    <el-row :gutter="20" style="row-gap: 20px; width: 100%;">
-                        <el-col :span="24">
-                            <el-card>
-                                <div class="el-descriptions" v-html="item.effect"></div>
-                            </el-card>
-                        </el-col>
-                    </el-row>
-                </div>
                 <div v-if="item.description_full" id="description_full" style="margin-top: 20px;">
                     <el-row :gutter="20" style="row-gap: 20px; width: 100%;">
                         <el-col :span="24">
@@ -60,7 +45,7 @@
         <el-aside width="100px">
             <el-affix :offset="60">
                 <el-anchor :offset="70">
-                    <el-anchor-link v-for="item in material" :href="`#${item.name}`" :key="item.name">
+                    <el-anchor-link v-for="item in living_being" :href="`#${item.name}`" :key="item.name">
                         {{ item.name }}
                     </el-anchor-link>
                 </el-anchor>
@@ -70,18 +55,17 @@
 </template>
 
 <script setup lang="ts">
-import type { Material } from '~/types/material';
-import { StarFilled } from '@element-plus/icons-vue';
+import type { LivingBeing } from '~/types/living_being';
 
-const material = ref<Material>();
+const living_being = ref<LivingBeing>();
 
 onMounted(async () => {
-    material.value = await get_material(useRoute().params.name as string);
+    living_being.value = await get_living_being(useRoute().params.name as string);
 });
 
 useHead({
-    title: computed(() => material.value
-        ? ((material.value[material.value.length - 1] as any).name + (material.value.length > 1 ? ` (+${material.value.length - 1})` : ''))
+    title: computed(() => living_being.value
+        ? ((living_being.value[living_being.value.length - 1] as any).name + (living_being.value.length > 1 ? ` (+${living_being.value.length - 1})` : ''))
         : $t('normal.loading')),
 })
 </script>

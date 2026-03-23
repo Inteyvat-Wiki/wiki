@@ -104,6 +104,21 @@
         "description": "描述",
         "description_full": "详细描述"
     },
+    "living-being": {
+        "type": "类型",
+        "enemy_elemental": "元素生命",
+        "enemy_hilichurl": "丘丘部族",
+        "enemy_abyss": "深渊",
+        "enemy_fatui": "愚人众",
+        "enemy_automaton": "自律机关",
+        "enemy_human": "人类势力",
+        "enemy_others": "异种魔兽",
+        "enemy_boss": "值得铭记的强敌",
+        "animal_bird": "飞禽",
+        "animal_beast": "走兽",
+        "animal_fish": "游鱼",
+        "animal_others": "其他"
+    },
 
     "text": {
         "mate_pronoun_boyd": "公主",

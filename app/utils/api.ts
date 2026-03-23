@@ -6,6 +6,8 @@ import type { Artifact } from '~/types/artifact';
 import type { Artifacts } from '~/types/artifacts';
 import type { Material } from '~/types/material';
 import type { Materials } from '~/types/materials';
+import type { LivingBeing } from '~/types/living_being';
+import type { LivingBeings } from '~/types/living_beings';
 import type { Menu } from '~/types/menu';
 
 const api = $fetch.create({
@@ -59,6 +61,16 @@ export async function get_material(name: any): Promise<Material> {
 export async function get_materials(): Promise<Materials> {
     const data = await api(`/api/materials`);
     return data as Materials;
+}
+
+export async function get_living_being(name: any): Promise<LivingBeing> {
+    const data = await api(`/api/living-being/${name}`);
+    return data as LivingBeing;
+}
+
+export async function get_living_beings(): Promise<LivingBeings> {
+    const data = await api(`/api/living-beings`);
+    return data as LivingBeings;
 }
 
 export async function get_menu(): Promise<Menu> {
