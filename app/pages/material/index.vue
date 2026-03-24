@@ -8,7 +8,7 @@
                             <template #left_top v-if="material.count > 1">
                                 <el-tag type="primary" size="small" style="margin-top: -25px; margin-left: -10px;">{{
                                     `+${material.count - 1}`
-                                    }}</el-tag>
+                                }}</el-tag>
                             </template>
                         </avatar-display-card>
                     </NuxtLink>
@@ -19,7 +19,7 @@
         </el-main>
         <el-aside width="100px" style="overflow-x: hidden;">
             <el-affix :offset="30">
-                <el-radio-group v-model="selected_types">
+                <el-radio-group v-model="selected_type">
                     <el-radio v-for="type in type_list" :value="type" :key="type" border
                         style="height: 45px; margin-top: 5px; width: 100%;">
                         <div class="round_icon">
@@ -34,14 +34,14 @@
 </template>
 
 <script setup lang="ts">
-import type { Materials } from '~/types/materials';
+import type { Materials } from '~/types/material';
 
 const materials = ref<Materials>();
 
 const show_material_list = computed(() => {
     if (!materials.value) return [];
     return materials.value.filter((material) => {
-        if (selected_types.value && selected_types.value !== material.type) {
+        if (selected_type.value && selected_type.value !== material.type) {
             return false;
         }
         return true;
@@ -57,13 +57,13 @@ const type_list = [
     'precious', 'chest', 'gadget',
     'wood', 'fish', 'food',
 ];
-const selected_types = ref<string>('material');
+const selected_type = ref<string>('material');
 const type_icon = ref<Record<string, string>>({});
 
 onMounted(async () => {
     materials.value = await get_materials();
 
-    for (let i of materials.value) {
+    for (let i of materials.value || []) {
         if (!type_icon.value[i.type]) {
             type_icon.value[i.type] = i.icon;
         }
@@ -71,10 +71,10 @@ onMounted(async () => {
 });
 
 onMounted(() => {
-    selected_types.value = localStorage.getItem('material_selected_types') || 'material';
+    selected_type.value = localStorage.getItem('material_selected_types') || 'material';
 });
 
-watch(selected_types, (newType) => {
+watch(selected_type, (newType) => {
     localStorage.setItem('material_selected_types', newType);
 });
 

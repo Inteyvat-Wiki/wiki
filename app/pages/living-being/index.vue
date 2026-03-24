@@ -9,7 +9,7 @@
                             <template #left_top v-if="living_being.count > 1">
                                 <el-tag type="primary" size="small" style="margin-top: -25px; margin-left: -10px;">{{
                                     `+${living_being.count - 1}`
-                                    }}</el-tag>
+                                }}</el-tag>
                             </template>
                         </avatar-display-card>
                     </NuxtLink>
@@ -20,7 +20,7 @@
         </el-main>
         <el-aside width="150px" style="overflow-x: hidden;">
             <el-affix :offset="30">
-                <el-radio-group v-model="selected_types">
+                <el-radio-group v-model="selected_type">
                     <el-radio v-for="type in type_list" :value="type" :key="type" border
                         style="height: 45px; margin-top: 5px; width: 100%;">
                         {{ $t(`living-being.${type}`) }}
@@ -33,14 +33,14 @@
 </template>
 
 <script setup lang="ts">
-import type { LivingBeings } from '~/types/living_beings';
+import type { LivingBeings } from '~/types/living_being';
 
 const living_beings = ref<LivingBeings>();
 
 const show_living_being_list = computed(() => {
     if (!living_beings.value) return [];
     return living_beings.value.filter((living_being) => {
-        if (selected_types.value && selected_types.value !== living_being.type) {
+        if (selected_type.value && selected_type.value !== living_being.type) {
             return false;
         }
         return true;
@@ -51,24 +51,17 @@ const type_list = [
     'enemy_elemental', 'enemy_hilichurl', 'enemy_abyss', 'enemy_fatui', 'enemy_automaton', 'enemy_human', 'enemy_others', 'enemy_boss',
     'animal_bird', 'animal_beast', 'animal_fish', 'animal_others'
 ];
-const selected_types = ref<string>('living_being');
-const type_icon = ref<Record<string, string>>({});
+const selected_type = ref<string>('living_being');
 
 onMounted(async () => {
     living_beings.value = await get_living_beings();
-
-    for (let i of living_beings.value) {
-        if (!type_icon.value[i.type]) {
-            type_icon.value[i.type] = i.icon;
-        }
-    }
 });
 
 onMounted(() => {
-    selected_types.value = localStorage.getItem('living_being_selected_types') || 'enemy_elemental';
+    selected_type.value = localStorage.getItem('living_being_selected_types') || 'enemy_elemental';
 });
 
-watch(selected_types, (newType) => {
+watch(selected_type, (newType) => {
     localStorage.setItem('living_being_selected_types', newType);
 });
 

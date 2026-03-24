@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Weapons } from '~/types/weapons';
+import type { Weapons } from '~/types/weapon';
 import { StarFilled } from '@element-plus/icons-vue';
 
 const weapons = ref<Weapons>();

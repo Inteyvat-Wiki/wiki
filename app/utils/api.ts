@@ -1,13 +1,9 @@
-import type { Character } from '~/types/character';
-import type { Characters } from '~/types/characters';
-import type { Weapon } from '~/types/weapon';
-import type { Weapons } from '~/types/weapons';
-import type { Artifact } from '~/types/artifact';
-import type { Artifacts } from '~/types/artifacts';
-import type { Material } from '~/types/material';
-import type { Materials } from '~/types/materials';
-import type { LivingBeing } from '~/types/living_being';
-import type { LivingBeings } from '~/types/living_beings';
+import type { Character, Characters } from '~/types/character';
+import type { Weapon, Weapons } from '~/types/weapon';
+import type { Artifact, Artifacts } from '~/types/artifact';
+import type { Material, Materials } from '~/types/material';
+import type { LivingBeing, LivingBeings } from '~/types/living_being';
+import type { Geography, Geographies } from '~/types/geography';
 import type { Menu } from '~/types/menu';
 
 const api = $fetch.create({
@@ -71,6 +67,16 @@ export async function get_living_being(name: any): Promise<LivingBeing> {
 export async function get_living_beings(): Promise<LivingBeings> {
     const data = await api(`/api/living-beings`);
     return data as LivingBeings;
+}
+
+export async function get_geography(name: any): Promise<Geography> {
+    const data = await api(`/api/geography/${name}`);
+    return data as Geography;
+}
+
+export async function get_geographies(): Promise<Geographies> {
+    const data = await api(`/api/geographies`);
+    return data as Geographies;
 }
 
 export async function get_menu(): Promise<Menu> {

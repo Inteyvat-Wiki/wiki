@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Characters } from '~/types/characters';
+import type { Characters } from '~/types/character';
 
 const characters = ref<Characters>();
 

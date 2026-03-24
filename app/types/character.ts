@@ -67,3 +67,12 @@ export type Character = {
         description: string | null,
     }[],
 };
+
+export type Characters = {
+    id: string,
+    name: string,
+    icon: string,
+    element: string,
+    weapon: string,
+    star: number,
+}[];

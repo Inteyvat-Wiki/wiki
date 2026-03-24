@@ -23,3 +23,11 @@ export type Weapon = {
         description: string,
     } | null,
 };
+
+export type Weapons = {
+    id: string,
+    name: string,
+    icon: string,
+    type: WeaponType,
+    star: number,
+}[];
