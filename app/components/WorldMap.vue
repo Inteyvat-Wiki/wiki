@@ -40,12 +40,11 @@
 
 
 <script setup lang="ts">
-import type { Mapback, Maplayer } from '~/types/map';
+import type { MapList, Mapback, Maplayer } from '~/types/map';
 
 
 const props = defineProps<{
     region: string,
-    focused_layer_group_name: string | null,
     focused_layer_name: string | null,
     current_conditions: Record<string, string> | null,
 }>();
@@ -54,10 +53,29 @@ const emit = defineEmits<{
     (e: 'update_center', value: { x: number, y: number } | null): void,
 }>();
 
+const map_list = ref<MapList>();
+const layer_group_names = ref<Record<string, string>>({});
 const default_conditions = ref<Record<string, string> | null>(null);
+
 onMounted(async () => {
+    map_list.value = await get_map_list();
     default_conditions.value = await get_default_map_conditions() || {};
+
+    for (const region in map_list.value) {
+        for (const group_name in map_list.value[region]) {
+            for (const layer of map_list.value[region][group_name]?.layers || []) {
+                if (layer.name) {
+                    layer_group_names.value[layer.name] = group_name;
+                }
+            }
+        }
+    }
 });
+
+function get_group_name(layer_name: string | null): string | null {
+    return layer_name ? layer_group_names.value[layer_name] || null : null;
+}
+
 function check_condition(condition: string | undefined): boolean {
     if (!condition) return true;
     return RegExp(condition).test(JSON.stringify(props.current_conditions || default_conditions.value || {}));
@@ -67,13 +85,13 @@ const mapback = ref<Mapback>();
 const maplayer = ref<Maplayer | null>();
 onMounted(async () => {
     mapback.value = await get_mapback(props.region);
-    maplayer.value = props.focused_layer_group_name ? await get_maplayer(props.focused_layer_group_name) : null;
+    maplayer.value = get_group_name(props.focused_layer_name) ? await get_maplayer(get_group_name(props.focused_layer_name)) : null;
 });
 watch(() => props.region, async () => {
     mapback.value = await get_mapback(props.region);
 });
-watch(() => props.focused_layer_group_name, async () => {
-    maplayer.value = props.focused_layer_group_name ? await get_maplayer(props.focused_layer_group_name) : null;
+watch(() => get_group_name(props.focused_layer_name), async () => {
+    maplayer.value = get_group_name(props.focused_layer_name) ? await get_maplayer(get_group_name(props.focused_layer_name)) : null;
 });
 
 const index_scope = computed(() => {

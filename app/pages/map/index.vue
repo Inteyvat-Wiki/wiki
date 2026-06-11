@@ -1,7 +1,6 @@
 <template>
     <div style="position: relative; height: 100%; width: 100%;">
-        <world-map :region="region" :focused_layer_group_name="focused_layer_group_name"
-            :focused_layer_name="focused_layer_name" :current_conditions="current_conditions"
+        <world-map :region="region" :focused_layer_name="focused_layer_name" :current_conditions="current_conditions"
             @update_center="center = $event"></world-map>
         <div style="position: absolute; left: 10px; bottom: 20px; z-index: 1000;">
             <el-button @click="show_settings = !show_settings">{{ $t('map.settings') }}</el-button>
@@ -94,7 +93,6 @@ watchEffect(() => {
 
     if (focused_layer_group_name.value != new_focused_layer_group) {
         focused_layer_group_name.value = new_focused_layer_group;
-        focused_layer_name.value = "";
     }
 });
 
