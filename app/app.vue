@@ -13,11 +13,14 @@
                 </el-footer>
             </el-container>
         </el-aside>
-        <el-scrollbar style="width: 100%;">
+        <el-scrollbar style="width: 100%;" v-if="$route.path != '/map'">
             <el-main>
                 <NuxtPage :key="$route.path" />
             </el-main>
         </el-scrollbar>
+        <template v-else>
+            <NuxtPage :key="$route.path" />
+        </template>
     </el-container>
 </template>
 

@@ -4,11 +4,12 @@ import type { Artifact, Artifacts } from '~/types/artifact';
 import type { Material, Materials } from '~/types/material';
 import type { LivingBeing, LivingBeings } from '~/types/living_being';
 import type { Geography, Geographies } from '~/types/geography';
+import type { Mapback, Maplayer, MapList, MapConditions } from '~/types/map';
 import type { Menu } from '~/types/menu';
 
 const api = $fetch.create({
     async onRequest({ options }) {
-        const { locale } = useI18n();
+        const locale = useNuxtApp().$i18n.locale;
         const settings = await get_settings_value();
 
         options.query = {
@@ -77,6 +78,26 @@ export async function get_geography(name: any): Promise<Geography> {
 export async function get_geographies(): Promise<Geographies> {
     const data = await api(`/api/geographies`);
     return data as Geographies;
+}
+
+export async function get_mapback(name: any): Promise<Mapback> {
+    const data = await api(`/api/map/mapback/${name}`);
+    return data as Mapback;
+}
+
+export async function get_maplayer(name: any): Promise<Maplayer> {
+    const data = await api(`/api/map/maplayer/${name}`);
+    return data as Maplayer;
+}
+
+export async function get_map_list(): Promise<MapList> {
+    const data = await api(`/api/maps`);
+    return data as MapList;
+}
+
+export async function get_map_conditions(): Promise<MapConditions> {
+    const data = await api(`/api/map/map_conditions`);
+    return data as MapConditions;
 }
 
 export async function get_menu(): Promise<Menu> {

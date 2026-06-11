@@ -1,8 +1,15 @@
+import { resolve } from 'path'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/i18n', '@element-plus/nuxt', 'nuxt-svgo'],
+  modules: [
+    '@nuxtjs/i18n',
+    '@element-plus/nuxt',
+    'nuxt-svgo',
+    '@nuxtjs/leaflet'
+  ],
   i18n: {
     defaultLocale: 'zh_cn',
     locales: [
@@ -17,7 +24,17 @@ export default defineNuxtConfig({
       pathPrefix: false,
     },
   ],
+  nitro: {
+    publicAssets: [
+      { dir: 'public' },
+      {
+        baseURL: '/images',
+        dir: resolve(__dirname, 'data/images')
+      },
+    ]
+  },
   css: [
-    '~/assets/styles/global.css'
+    '~/assets/styles/global.css',
+    'leaflet/dist/leaflet.css'
   ]
 })
