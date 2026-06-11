@@ -7,8 +7,9 @@
         "material": "Materials",
         "living-being": "Living Beings",
         "geography": "Geography",
+        "map": "Map",
         "travel-log": "Travel Log",
-        "book": "Books",
-        "readable": "Readable"
+        "readable": "Readable",
+        "settings": "Settings"
     }
 }

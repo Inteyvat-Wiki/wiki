@@ -17,8 +17,8 @@ const menu = [
     { name: 'material', path: '/material' },
     { name: 'living-being', path: '/living-being' },
     { name: 'geography', path: '/geography' },
+    { name: 'map', path: '/map' },
     { name: 'travel-log', path: '/travel-log' },
-    { name: 'book', path: '/book' },
     { name: 'readable', path: '/readable' },
     { name: 'settings', path: '/settings' },
 ]
