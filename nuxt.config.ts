@@ -1,4 +1,5 @@
 import { resolve } from 'path'
+import { DEFAULT_LOCALE, LOCALES } from './shared/i18n'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -11,11 +12,8 @@ export default defineNuxtConfig({
     '@nuxtjs/leaflet'
   ],
   i18n: {
-    defaultLocale: 'zh_cn',
-    locales: [
-      { code: 'zh_cn', name: '简体中文', file: 'zh_cn.json' },
-      { code: 'en', name: 'English', file: 'en.json' },
-    ],
+    defaultLocale: DEFAULT_LOCALE,
+    locales: [...LOCALES],
     strategy: 'prefix_except_default',
   },
   components: [

@@ -2,7 +2,6 @@
   <el-select
     v-model="currentLocale"
     style="width: 140px"
-    @change="switchLanguage"
   >
     <el-option
       v-for="locale in locales"
@@ -14,13 +13,14 @@
 </template>
 
 <script setup lang="ts">
-const { locale, locales } = useI18n()
-const switchLocalePath = useSwitchLocalePath()
+import type { LocaleCode } from '~~/shared/i18n'
 
-const currentLocale = ref(locale.value)
+const { locale, locales, setLocale } = useI18n()
 
-function switchLanguage(lang: "zh_cn" | "en") {
-  locale.value = lang
-  window.location.assign(switchLocalePath(lang))
-}
+const currentLocale = computed({
+  get: () => locale.value as LocaleCode,
+  set: (lang: LocaleCode) => {
+    void setLocale(lang)
+  },
+})
 </script>

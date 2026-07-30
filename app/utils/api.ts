@@ -6,15 +6,17 @@ import type { LivingBeing, LivingBeings } from '~/types/living_being';
 import type { Geography, Geographies } from '~/types/geography';
 import type { Mapback, Maplayer, MapList, MapConditions } from '~/types/map';
 import type { Menu } from '~/types/menu';
+import type { LocaleCode } from '~~/shared/i18n';
 
 const api = $fetch.create({
     async onRequest({ options }) {
         const locale = useNuxtApp().$i18n.locale;
+        const lang: LocaleCode = locale.value as LocaleCode;
         const settings = await get_settings_value();
 
         options.query = {
             ...options.query,
-            lang: locale.value,
+            lang,
             settings: JSON.stringify(settings),
         }
     }
