@@ -33,8 +33,8 @@
         <el-descriptions-item :label="$t('weapon.base')">
             {{ weapon.stats.base[weapon_ascension]?.[weapon_level] }}
         </el-descriptions-item>
-        <el-descriptions-item :label="weapon.stats.substats_name">
-            {{ weapon.stats.substats[weapon_ascension]?.[weapon_level] }}
+        <el-descriptions-item :label="weapon.stats.substats_name ?? ''">
+            {{ weapon.stats.substats?.[weapon_ascension]?.[weapon_level] }}
         </el-descriptions-item>
     </el-descriptions>
 </template>

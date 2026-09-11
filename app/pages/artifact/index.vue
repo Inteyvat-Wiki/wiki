@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Artifacts } from '~/types/artifacts';
+import type { Artifacts } from '~/types/artifact';
 
 const artifacts = ref<Artifacts>();
 
