@@ -8,6 +8,42 @@
     background-color: #cfcfcf;
 }
 
+/* 让 el-text 服从父容器的对齐方式，不使用 Element Plus 默认的居中对齐 */
+:root .el-text {
+    align-self: auto;
+}
+
+/* RUBY#[D]/[S] 注音：零宽锚点置于插入位置，小字居中悬浮于主要文本上方 */
+.ruby_annotation {
+    display: inline-block;
+    width: 0;
+    height: 1em;
+    position: relative;
+    vertical-align: baseline;
+    pointer-events: none;
+}
+
+.ruby_annotation::after {
+    content: attr(data-ruby);
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.7em;
+    line-height: 1.2;
+    color: var(--el-text-color-secondary);
+}
+
+/* 含悬浮注释的对话行，为注释与上一行及说话人标题预留空间 */
+.dialog-line:has(.ruby_annotation) {
+    margin-top: 8px;
+}
+
+.dialog-content:has(.ruby_annotation) {
+    padding-top: 8px;
+}
+
 :root {
     --star-5-color: #db8724;
     --star-4-color: #b581cb;
