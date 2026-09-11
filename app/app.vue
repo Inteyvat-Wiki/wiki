@@ -13,10 +13,10 @@
                 </el-footer>
             </el-container>
         </el-aside>
-        <el-scrollbar style="width: 100%;" v-if="$route.path != '/map'">
-            <el-main>
+        <el-scrollbar class="page-scrollbar" v-if="$route.path != '/map'">
+            <div class="page-content">
                 <NuxtPage :key="$route.path" />
-            </el-main>
+            </div>
         </el-scrollbar>
         <template v-else>
             <NuxtPage :key="$route.path" />
@@ -40,5 +40,17 @@ body {
 .layout {
     display: flex;
     height: 100vh;
+}
+
+.page-scrollbar {
+    width: 100%;
+}
+
+.page-content {
+    min-height: 100%;
+}
+
+.page-scrollbar .el-main {
+    overflow: visible;
 }
 </style>

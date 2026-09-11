@@ -63,7 +63,7 @@
         </el-main>
         <el-aside width="100px">
             <el-affix :offset="60">
-                <el-anchor :offset="70">
+                <el-anchor :offset="70" container=".page-scrollbar .el-scrollbar__wrap">
                     <el-anchor-link :href="`#basic-info`">
                         {{ $t('weapon.basic-info') }}
                     </el-anchor-link>
