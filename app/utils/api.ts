@@ -7,6 +7,7 @@ import type { Geography, Geographies } from '~/types/geography';
 import type { Mapback, Maplayer, MapList, MapConditions } from '~/types/map';
 import type { Menu } from '~/types/menu';
 import type { LocaleCode } from '~~/shared/i18n';
+import type { ChapterGroup, ChapterGroups, Task, Tasks } from '~/types/travel_log';
 
 const api = $fetch.create({
     async onRequest({ options }) {
@@ -105,4 +106,24 @@ export async function get_map_conditions(): Promise<MapConditions> {
 export async function get_menu(): Promise<Menu> {
     const data = await api(`/api/menu`);
     return data;
+}
+
+export async function get_chapter_groups(): Promise<ChapterGroups> {
+    const data = await api('/api/chapter-groups');
+    return data as ChapterGroups;
+}
+
+export async function get_chapter_group(name: string): Promise<ChapterGroup> {
+    const data = await api(`/api/chapter-group/${name}`);
+    return data as ChapterGroup;
+}
+
+export async function get_tasks(): Promise<Tasks> {
+    const data = await api('/api/tasks');
+    return data as Tasks;
+}
+
+export async function get_task(name: string): Promise<Task> {
+    const data = await api(`/api/task/${name}`);
+    return data as Task;
 }

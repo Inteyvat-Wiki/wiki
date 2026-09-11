@@ -139,6 +139,55 @@
         "viewpoint": "观景点",
         "dungeon": "秘境"
     },
+    "travel-log": {
+        "chapters": "章节",
+        "tasks": "任务",
+        "chapter": "所属章节",
+        "description": "任务描述",
+        "unlock_description": "解锁功能",
+        "prev_tasks": "前置任务",
+        "suggest_tasks": "建议后续",
+        "steps": "任务步骤",
+        "step": "步骤",
+        "current_step": "当前步骤",
+        "set_current_step": "设为当前步骤",
+        "fix_current_step": "固定当前步骤",
+        "unfix_current_step": "取消固定当前步骤",
+        "hidden_step": "隐藏步骤",
+        "hidden_task": "隐藏任务",
+        "dialog": "对话",
+        "display_mode": {
+            "both": "选项 + 气泡",
+            "options": "仅选项",
+            "bubbles": "仅气泡"
+        },
+        "branch": {
+            "random": "随机结果",
+            "result": "交互结果",
+            "option": "结果 {index}"
+        },
+        "optional_dialogs": "当前可用的可选对话",
+        "conditions": "对话条件",
+        "yes": "是",
+        "no": "否",
+        "chapter_count": "{count} 个章节",
+        "task_count": "{count} 个任务",
+        "search_tasks": "搜索任务、描述或章节",
+        "type": {
+            "archon_quests": "魔神任务",
+            "story_quests": "传说任务",
+            "hangout_quests": "邀约事件",
+            "event_quests": "活动任务",
+            "world_quests": "世界任务",
+            "commission_quests": "委托任务"
+        },
+        "state": {
+            "unstarted": "未开始",
+            "ongoing": "进行中",
+            "finished": "已完成",
+            "failed": "已失败"
+        }
+    },
     "map": {
         "settings": "地图设置",
         "map_condition": "地图状态",

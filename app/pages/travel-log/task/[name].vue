@@ -1,0 +1,566 @@
+<template>
+    <el-container v-if="task">
+        <el-main>
+            <el-page-header @back="navigateTo(localePath('/travel-log'))">
+                <template #content>
+                    <span class="page-title">{{ task.name || $t('travel-log.hidden_task') }}</span>
+                </template>
+                <template #extra>
+                    <div class="page-header-extra">
+                        <el-tag v-if="task_list_item">{{ $t(`travel-log.type.${task_list_item.type}`) }}</el-tag>
+                        <el-segmented v-model="talk_display_mode" :options="display_mode_options" />
+                    </div>
+                </template>
+            </el-page-header>
+
+            <el-card style="margin-top: 20px;">
+                <el-descriptions border :column="1">
+                    <el-descriptions-item v-if="task.chapter" :label="$t('travel-log.chapter')">
+                        {{ task.chapter }}
+                    </el-descriptions-item>
+                    <el-descriptions-item v-if="task.description" :label="$t('travel-log.description')">
+                        <div v-html="task.description"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item v-if="task.unlock_description" :label="$t('travel-log.unlock_description')">
+                        <div v-html="task.unlock_description"></div>
+                    </el-descriptions-item>
+                    <el-descriptions-item v-if="task.previous_tasks.length > 0" :label="$t('travel-log.prev_tasks')">
+                        <div class="task-links">
+                            <NuxtLink v-for="task_name in task.previous_tasks" :key="task_name"
+                                :to="localePath(`/travel-log/task/${task_name}`)">
+                                {{ task_names[task_name] || task_name }}
+                            </NuxtLink>
+                        </div>
+                    </el-descriptions-item>
+                    <el-descriptions-item v-if="task.suggested_tasks.length > 0" :label="$t('travel-log.suggest_tasks')">
+                        <div class="task-links">
+                            <NuxtLink v-for="task_name in task.suggested_tasks" :key="task_name"
+                                :to="localePath(`/travel-log/task/${task_name}`)">
+                                {{ task_names[task_name] || task_name }}
+                            </NuxtLink>
+                        </div>
+                    </el-descriptions-item>
+                </el-descriptions>
+            </el-card>
+
+            <el-row :gutter="20" class="task-workspace">
+                <el-col :span="24" :lg="16">
+                    <el-card>
+                        <template #header>
+                            <span style="font-weight: bold;">{{ $t('travel-log.steps') }}</span>
+                        </template>
+                        <el-collapse v-model="expanded_step_keys" class="task-steps">
+                            <el-collapse-item v-for="item in steps" :key="item.key" :name="String(item.key)"
+                                :id="`step-${item.key}`" :class="{
+                                    'task-step-current': item.key === current_step_key,
+                                    'task-step-hidden': item.step.hidden,
+                                }">
+                                <template #title>
+                                    <div class="task-step-title"
+                                        :class="{ 'task-step-title-hidden': item.step.hidden }">
+                                        <span class="task-step-name">{{ get_step_title(item) }}</span>
+                                        <el-tag v-if="item.key === current_step_key" type="primary" size="small">
+                                            {{ $t('travel-log.current_step') }}
+                                        </el-tag>
+                                        <div style="padding-right: 10px;">
+                                            <el-button :type="get_step_button_type(item.key)"
+                                                :icon="get_step_button_icon(item.key)"
+                                                :title="get_step_button_title(item.key)"
+                                                :aria-label="get_step_button_title(item.key)" size="small" circle plain
+                                                class="step-current-button" @mousedown.stop
+                                                @click.stop="select_current_step(item.key)" />
+                                        </div>
+                                    </div>
+                                </template>
+                                <div v-if="get_step_talk_state(item).selected_key !== undefined" class="step-talks">
+                                    <div v-if="get_step_talk_state(item).candidate_keys.length > 1"
+                                        class="step-talk-selector">
+                                        <el-radio-group :model-value="get_step_talk_state(item).selected_key"
+                                            class="step-talk-options"
+                                            @update:model-value="select_step_talk(item.key, $event)">
+                                            <el-radio v-for="talk_key in get_step_talk_state(item).candidate_keys"
+                                                :key="talk_key" :value="talk_key" border>
+                                                {{ get_talk_title(task.talks[talk_key]!) }}
+                                            </el-radio>
+                                        </el-radio-group>
+                                    </div>
+                                    <task-talk :key="get_step_talk_state(item).selected_key"
+                                        :talk="task.talks[get_step_talk_state(item).selected_key!]!"
+                                        :mode="talk_display_mode" :condition_values="condition_values"
+                                        :current_step="item.key" :step_keys="step_keys"
+                                        @initial_conditions="set_talk_initial_conditions(`step-${item.key}`, $event)" />
+                                </div>
+                            </el-collapse-item>
+                        </el-collapse>
+                    </el-card>
+                </el-col>
+
+                <el-col :span="24" :lg="8">
+                    <el-affix :offset="20" class="side-panel-affix">
+                        <div class="side-panel">
+                            <el-splitter layout="vertical" class="side-panel-splitter">
+                                <el-splitter-panel v-if="selectable_conditions.length > 0"
+                                    v-model:size="conditions_panel_size" :min="0" collapsible
+                                    class="side-panel-section">
+                                    <el-card class="side-panel-card">
+                                        <template #header>
+                                            <span style="font-weight: bold;">{{ $t('travel-log.conditions') }}</span>
+                                        </template>
+                                        <task-conditions v-model="condition_values"
+                                            :conditions="selectable_conditions" />
+                                    </el-card>
+                                </el-splitter-panel>
+                                <el-splitter-panel v-model:size="extra_talks_panel_size" :min="0" collapsible
+                                    class="side-panel-section">
+                                    <el-card class="side-panel-card">
+                                        <template #header>
+                                            <div class="extra-header">
+                                                <span style="font-weight: bold;">{{ $t('travel-log.optional_dialogs') }}</span>
+                                                <el-tag type="info" size="small">{{ visible_extra_talks.length }}</el-tag>
+                                            </div>
+                                        </template>
+                                        <div v-if="visible_extra_talks.length > 0" class="extra-talks">
+                                            <task-talk v-for="item in visible_extra_talks" :key="item.key"
+                                                :talk="item.talk" :extra="true"
+                                                :mode="talk_display_mode" :condition_values="condition_values"
+                                                :current_step="current_step_key" :step_keys="step_keys"
+                                                @initial_conditions="set_talk_initial_conditions(`extra-${item.key}`, $event)" />
+                                        </div>
+                                    </el-card>
+                                </el-splitter-panel>
+                            </el-splitter>
+                        </div>
+                    </el-affix>
+                </el-col>
+            </el-row>
+        </el-main>
+    </el-container>
+</template>
+
+<script setup lang="ts">
+import type {
+    Task,
+    TaskSummary,
+    TalkDisplayMode,
+    TaskStep,
+    TaskCondition,
+    TaskTalk,
+    Tasks,
+} from '~/types/travel_log';
+import type { TaskConditionValues } from '~/utils/task_condition';
+import { evaluate_task_conditions } from '~/utils/task_condition';
+import { Aim, Location, Lock } from '@element-plus/icons-vue';
+
+type StepTalkState = {
+    candidate_keys: number[],
+    selected_key?: number,
+};
+
+const route = useRoute();
+const localePath = useLocalePath();
+const task = ref<Task>();
+const tasks = ref<Tasks>([]);
+const current_step_key = ref(0);
+const current_step_fixed = ref(false);
+const expanded_step_keys = ref<string[]>([]);
+const condition_values = ref<TaskConditionValues>({});
+const dialog_initial_conditions = ref<Record<string, TaskCondition[]>>({});
+const selected_step_talk_keys = ref<Record<number, number | undefined>>({});
+const scroll_container = ref<HTMLElement>();
+const talk_display_mode = ref<TalkDisplayMode>('both');
+const conditions_panel_size = ref<string | number>('45%');
+const extra_talks_panel_size = ref<string | number>('55%');
+const talk_display_mode_storage_key = 'travel_log_talk_display_mode_v2';
+
+const task_names = computed<Record<string, string>>(() =>
+    Object.fromEntries(tasks.value.map(item => [
+        item.id,
+        item.name || $t('travel-log.hidden_task'),
+    ])));
+const task_list_item = computed<TaskSummary | undefined>(() =>
+    tasks.value.find(item => item.id === route.params.name));
+
+const display_mode_options = computed(() => [
+    { label: $t('travel-log.display_mode.both'), value: 'both' },
+    { label: $t('travel-log.display_mode.options'), value: 'options_only' },
+    { label: $t('travel-log.display_mode.bubbles'), value: 'bubbles_only' },
+]);
+
+const steps = computed(() => {
+    if (!task.value) return [];
+    return Object.entries(task.value.steps)
+        .map(([key, step]) => ({ key: Number(key), step }))
+        .sort((left, right) => left.key - right.key);
+});
+const step_keys = computed(() => steps.value.map(item => item.key));
+const direct_talk_keys = computed(() => new Set(
+    steps.value.flatMap(item => item.step.talks)));
+
+const extra_talks = computed(() => {
+    if (!task.value) return [];
+    return Object.entries(task.value.talks)
+        .map(([key, talk]) => ({ key: Number(key), talk }))
+        .filter(item => !direct_talk_keys.value.has(item.key));
+});
+
+const selectable_conditions = computed<TaskCondition[]>(() => {
+    const result = new Map<string, TaskCondition>();
+    for (const talk of Object.values(task.value?.talks || {})) {
+        for (const token of talk.conditions) {
+            if (typeof token === 'string') continue;
+            if (token.type === 'step' && !token.task) continue;
+            result.set(JSON.stringify(token), token);
+        }
+    }
+    for (const scope of active_condition_scopes.value) {
+        for (const condition of dialog_initial_conditions.value[scope] || []) {
+            result.set(JSON.stringify(condition), condition);
+        }
+    }
+    return [...result.values()];
+});
+
+const active_condition_scopes = computed(() => new Set([
+    ...steps.value.flatMap(item =>
+        get_step_talk_state(item).selected_key === undefined ? [] : [`step-${item.key}`]),
+    ...visible_extra_talks.value.map(item => `extra-${item.key}`),
+]));
+
+function set_talk_initial_conditions(scope: string, conditions: TaskCondition[]) {
+    dialog_initial_conditions.value = {
+        ...dialog_initial_conditions.value,
+        [scope]: conditions,
+    };
+}
+
+const visible_extra_talks = computed<{ key: number, talk: TaskTalk }[]>(() =>
+    extra_talks.value.filter(({ talk }) =>
+        evaluate_task_conditions(
+            talk.conditions,
+            current_step_key.value,
+            step_keys.value,
+            condition_values.value,
+        ) === true));
+
+function is_talk_available(talk: TaskTalk, step_key: number) {
+    if (talk.conditions.length === 0) return true;
+    return evaluate_task_conditions(
+        talk.conditions,
+        step_key,
+        step_keys.value,
+        condition_values.value,
+    ) === true;
+}
+
+const step_talk_states = computed(() => {
+    const used_talk_keys = new Set<number>();
+    const result = new Map<number, StepTalkState>();
+
+    for (const item of steps.value) {
+        const available_keys = item.step.talks.filter(talk_key => {
+            if (used_talk_keys.has(talk_key)) return false;
+            const talk = task.value?.talks[talk_key];
+            return talk !== undefined && is_talk_available(talk, item.key);
+        });
+        const highest_priority = Math.max(
+            0,
+            ...available_keys.map(talk_key => task.value?.talks[talk_key]?.priority ?? 0),
+        );
+        const candidate_keys = available_keys.filter(talk_key =>
+            (task.value?.talks[talk_key]?.priority ?? 0) === highest_priority);
+        const saved_key = selected_step_talk_keys.value[item.key];
+        const selected_key = saved_key !== undefined && candidate_keys.includes(saved_key)
+            ? saved_key
+            : candidate_keys[0];
+
+        if (selected_key !== undefined) used_talk_keys.add(selected_key);
+        result.set(item.key, { candidate_keys, selected_key });
+    }
+
+    return result;
+});
+
+watch(step_talk_states, states => {
+    const next: Record<number, number | undefined> = {};
+    for (const [step_key, state] of states) {
+        if (state.selected_key !== undefined) next[step_key] = state.selected_key;
+    }
+
+    const current = selected_step_talk_keys.value;
+    const keys = new Set([...Object.keys(current), ...Object.keys(next)]);
+    if ([...keys].every(key => current[Number(key)] === next[Number(key)])) return;
+    selected_step_talk_keys.value = next;
+}, { immediate: true });
+
+function get_step_talk_state(item: { key: number, step: TaskStep }) {
+    return step_talk_states.value.get(item.key) || { candidate_keys: [] };
+}
+
+function select_step_talk(step_key: number, talk_key: unknown) {
+    if (typeof talk_key !== 'number') return;
+    const state = step_talk_states.value.get(step_key);
+    if (!state || talk_key === undefined || !state.candidate_keys.includes(talk_key)) return;
+    selected_step_talk_keys.value = {
+        ...selected_step_talk_keys.value,
+        [step_key]: talk_key,
+    };
+}
+
+function get_talk_title(talk: TaskTalk) {
+    return talk.objects.join(' / ') || $t('travel-log.dialog');
+}
+
+function select_current_step(step_key: number) {
+    if (step_key !== current_step_key.value) {
+        current_step_key.value = step_key;
+        current_step_fixed.value = false;
+        return;
+    }
+    current_step_fixed.value = !current_step_fixed.value;
+}
+
+function get_step_button_type(step_key: number) {
+    if (step_key !== current_step_key.value) return 'default';
+    return current_step_fixed.value ? 'warning' : 'primary';
+}
+
+function get_step_button_icon(step_key: number) {
+    if (step_key !== current_step_key.value) return Aim;
+    return current_step_fixed.value ? Lock : Location;
+}
+
+function get_step_button_title(step_key: number) {
+    if (step_key !== current_step_key.value) return $t('travel-log.set_current_step');
+    return current_step_fixed.value
+        ? $t('travel-log.unfix_current_step')
+        : $t('travel-log.fix_current_step');
+}
+
+function update_current_step_from_scroll() {
+    if (current_step_fixed.value || !task.value || !scroll_container.value) return;
+    const container_top = scroll_container.value.getBoundingClientRect().top;
+    const activation_line = container_top + scroll_container.value.clientHeight * 0.2;
+    let current_key: number | undefined;
+
+    for (const item of steps.value) {
+        const el = document.getElementById(`step-${item.key}`);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= activation_line) {
+            current_key = item.key;
+        } else {
+            break;
+        }
+    }
+
+    if (current_key !== undefined && current_key !== current_step_key.value) {
+        current_step_key.value = current_key;
+    }
+}
+
+function get_step_title(item: { key: number, step: TaskStep }) {
+    if (item.step.hidden) return $t('travel-log.hidden_step');
+    return item.step.description || `${$t('travel-log.step')} ${item.key}`;
+}
+
+const task_title = computed(() => task.value
+    ? task.value.name || $t('travel-log.hidden_task')
+    : $t('normal.loading'));
+
+async function set_initial_step() {
+    expanded_step_keys.value = steps.value.map(item => item.key.toString());
+    const query_step = Number(route.query.step);
+    const key = step_keys.value.includes(query_step) ? query_step : step_keys.value[0];
+    if (key === undefined) return;
+
+    current_step_key.value = key;
+    current_step_fixed.value = false;
+    if (route.hash !== `#step-${key}`) return;
+    await nextTick();
+    document.getElementById(`step-${key}`)?.scrollIntoView({ block: 'start' });
+}
+
+onMounted(async () => {
+    const saved_mode = localStorage.getItem(talk_display_mode_storage_key) as TalkDisplayMode | null;
+    if (saved_mode === 'both' || saved_mode === 'options_only' || saved_mode === 'bubbles_only') {
+        talk_display_mode.value = saved_mode;
+    }
+    [task.value, tasks.value] = await Promise.all([
+        get_task(route.params.name as string),
+        get_tasks(),
+    ]);
+    const container = document.querySelector<HTMLElement>('.page-scrollbar .el-scrollbar__wrap');
+    if (container) {
+        scroll_container.value = container;
+        container.addEventListener('scroll', update_current_step_from_scroll, { passive: true });
+    }
+    await set_initial_step();
+    await nextTick();
+    update_current_step_from_scroll();
+});
+
+onBeforeUnmount(() => {
+    scroll_container.value?.removeEventListener('scroll', update_current_step_from_scroll);
+});
+
+watch(() => route.query.step, () => void set_initial_step());
+watch(talk_display_mode, value => localStorage.setItem(talk_display_mode_storage_key, value));
+
+useHead({
+    title: task_title,
+});
+</script>
+
+<style scoped>
+.page-title {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.page-header-extra {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.task-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+
+.task-links a {
+    color: var(--el-color-primary);
+    text-decoration: none;
+}
+
+.task-workspace {
+    width: 100%;
+    row-gap: 20px;
+    margin-top: 20px;
+}
+
+.task-steps {
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.task-step-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    width: 100%;
+    padding-right: 8px;
+    color: var(--el-text-color-primary);
+}
+
+.task-step-name {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow-wrap: anywhere;
+}
+
+.step-current-button {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.task-step-title-hidden {
+    color: var(--el-text-color-placeholder);
+}
+
+.step-talks,
+.extra-talks {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.step-talks {
+    margin-top: 12px;
+}
+
+.step-talk-selector {
+    margin-bottom: 12px;
+}
+
+.step-talk-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.step-talk-options :deep(.el-radio) {
+    height: auto;
+    min-height: 30px;
+    margin-right: 0;
+    white-space: normal;
+}
+
+.extra-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.side-panel {
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100vh - 40px);
+    max-height: calc(100vh - 40px);
+    overflow: hidden;
+    padding-right: 4px;
+}
+
+.side-panel-splitter {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.side-panel-section {
+    box-sizing: border-box;
+    min-height: 0;
+    overflow: hidden !important;
+}
+
+.side-panel-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.side-panel-card :deep(.el-card__body) {
+    box-sizing: border-box;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.side-panel-affix {
+    width: 100%;
+}
+
+:deep(.el-collapse-item__content) {
+    padding-bottom: 20px;
+}
+
+@media (max-width: 1199px) {
+    .side-panel {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
+    }
+
+    .side-panel-splitter {
+        height: min(600px, 70vh);
+        min-height: 360px;
+    }
+}
+</style>

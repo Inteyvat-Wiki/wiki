@@ -1,4 +1,7 @@
 {
+    "normal": {
+        "loading": "Loading"
+    },
     "menu": {
         "home": "Home",
         "character": "Characters",
@@ -11,5 +14,54 @@
         "travel-log": "Travel Log",
         "readable": "Readable",
         "settings": "Settings"
+    },
+    "travel-log": {
+        "chapters": "Chapters",
+        "tasks": "Quests",
+        "chapter": "Chapter",
+        "description": "Description",
+        "unlock_description": "Unlock Feature",
+        "prev_tasks": "Previous Quests",
+        "suggest_tasks": "Suggested Next Quests",
+        "steps": "Quest Steps",
+        "step": "Step",
+        "current_step": "Current",
+        "set_current_step": "Set as current step",
+        "fix_current_step": "Fix current step",
+        "unfix_current_step": "Unfix current step",
+        "hidden_step": "Hidden Step",
+        "hidden_task": "Hidden Quest",
+        "dialog": "Dialogue",
+        "display_mode": {
+            "both": "Options + Bubbles",
+            "options": "Options only",
+            "bubbles": "Bubbles only"
+        },
+        "branch": {
+            "random": "Random Result",
+            "result": "Interaction Result",
+            "option": "Result {index}"
+        },
+        "optional_dialogs": "Available Optional Dialogue",
+        "conditions": "Dialogue Conditions",
+        "yes": "Yes",
+        "no": "No",
+        "chapter_count": "{count} chapters",
+        "task_count": "{count} quests",
+        "search_tasks": "Search quests, descriptions, or chapters",
+        "type": {
+            "archon_quests": "Archon Quests",
+            "story_quests": "Story Quests",
+            "hangout_quests": "Hangout Events",
+            "event_quests": "Event Quests",
+            "world_quests": "World Quests",
+            "commission_quests": "Commissions"
+        },
+        "state": {
+            "unstarted": "not started",
+            "ongoing": "in progress",
+            "finished": "complete",
+            "failed": "failed"
+        }
     }
 }
