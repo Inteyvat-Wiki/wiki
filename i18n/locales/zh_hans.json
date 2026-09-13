@@ -98,15 +98,10 @@
         "effect": "武器效果",
         "story": "故事"
     },
-    "material": {
-        "star": "稀有度",
-        "type": "类型",
-        "effect": "效果",
-        "description": "描述",
-        "description_full": "详细描述"
+    "item": {
+        "star": "稀有度"
     },
     "living-being": {
-        "type": "类型",
         "enemy_elemental": "元素生命",
         "enemy_hilichurl": "丘丘部族",
         "enemy_abyss": "深渊",
