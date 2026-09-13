@@ -1,5 +1,5 @@
 <template>
-    <el-container v-if="weapon">
+    <el-container v-if="weapon" class="page-with-anchor">
         <el-main>
             <div id="basic-info">
                 <el-row :gutter="20" style="row-gap: 20px; width: 100%;">
@@ -62,7 +62,7 @@
             </div>
         </el-main>
         <el-aside width="100px">
-            <el-affix :offset="60">
+            <el-affix :offset="60" :z-index="0">
                 <el-anchor :offset="70" container=".page-scrollbar .el-scrollbar__wrap">
                     <el-anchor-link :href="`#basic-info`">
                         {{ $t('weapon.basic-info') }}

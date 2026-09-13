@@ -1,5 +1,5 @@
 <template>
-    <el-container v-if="character">
+    <el-container v-if="character" class="page-with-anchor">
         <el-main>
             <div ref="show_links_element_container">
                 <div id="basic-info">
@@ -72,7 +72,7 @@
             </div>
         </el-main>
         <el-aside width="100px">
-            <el-affix :offset="60">
+            <el-affix :offset="60" :z-index="0">
                 <el-anchor :offset="70" container=".page-scrollbar .el-scrollbar__wrap">
                     <el-anchor-link :href="`#basic-info`">
                         {{ $t('character.basic-info') }}

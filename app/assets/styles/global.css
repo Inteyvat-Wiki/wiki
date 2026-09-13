@@ -8,6 +8,15 @@
     background-color: #cfcfcf;
 }
 
+.page-with-anchor > .el-main {
+    padding-right: 8px;
+}
+
+.page-with-anchor > .el-aside {
+    padding-right: 8px;
+    overflow-x: hidden;
+}
+
 /* 让 el-text 服从父容器的对齐方式，不使用 Element Plus 默认的居中对齐 */
 :root .el-text {
     align-self: auto;

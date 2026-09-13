@@ -1,5 +1,5 @@
 <template>
-    <el-container v-if="props.item">
+    <el-container v-if="props.item" class="page-with-anchor">
         <el-main>
             <template v-for="{ item, anchorId } in anchorItems" :key="anchorId">
                 <div style="margin-top: 20px; margin-bottom: 20px;">
@@ -65,7 +65,7 @@
                 </div>
             </template>
         </el-main>
-        <el-aside width="100px" class="item-common__aside">
+        <el-aside width="100px">
             <el-affix :offset="60" :z-index="0">
                 <el-anchor :offset="70" container=".page-scrollbar .el-scrollbar__wrap">
                     <el-anchor-link v-for="{ item, anchorId } in anchorItems" :href="`#${anchorId}`" :key="anchorId">
@@ -110,10 +110,3 @@ function getAnchorId(name: string, index: number) {
     return slug ? `item-${index}-${slug}` : `item-${index}`;
 }
 </script>
-
-<style>
-.item-common__aside {
-    padding-right: 8px;
-    overflow-x: hidden;
-}
-</style>
