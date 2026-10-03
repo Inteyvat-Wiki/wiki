@@ -1,7 +1,7 @@
 <template>
     <div :class="props.border ? 'quote-box' : ''" style="position: relative; padding-right: 40px;">
         <el-text>
-            <div ref="content" v-html="text"></div>
+            <div ref="content"><inline-text :text="text" /></div>
         </el-text>
         <el-button :icon="ElIconDocumentCopy" size="small" circle
             :style="`position: absolute; top: ${props.border ? 10 : 0}px; right: ${props.border ? 10 : 0}px;`"

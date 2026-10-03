@@ -72,22 +72,29 @@ export type TaskDialogNext = {
     branches?: TaskDialogBranch[],
 };
 
-export type TaskDialogSetOperation = {
-    type: 'set',
+export type TaskVariableOperation = {
+    type: 'variable',
+    action: 'set' | 'input',
     id: string,
-    value: number | boolean,
+    value?: number | boolean,
     conditions?: TaskConditionToken[],
     branches?: TaskDialogBranch[],
 };
 
-export type TaskDialogInputOperation = {
-    type: 'input',
-    id: string,
+export type TaskItemOperation = {
+    type: 'item',
+    action: 'obtain' | 'give' | 'remove',
+    items: { id: number, count: number | null, name?: string, icon?: string, page?: string }[],
+    choices?: { id: number, name?: string, icon?: string, page?: string }[],
+    count?: number,
+    giving_id?: number,
+    reward_id?: number,
+    remove?: boolean,
     conditions?: TaskConditionToken[],
     branches?: TaskDialogBranch[],
 };
 
-export type TaskDialogOperation = TaskDialogSetOperation | TaskDialogInputOperation;
+export type TaskOperation = TaskVariableOperation | TaskItemOperation;
 
 export type TaskDialog = {
     content: string,
@@ -95,7 +102,7 @@ export type TaskDialog = {
     speaker?: string,
     speaker_subtitle?: string,
     next_dialogs: TaskDialogNext[],
-    operations?: TaskDialogOperation[],
+    operations?: TaskOperation[],
 };
 
 export type TaskTriggerPoint = {
@@ -105,6 +112,7 @@ export type TaskTriggerPoint = {
 };
 
 export type TaskTalk = {
+    operations?: TaskOperation[],
     priority: number,
     conditions: TaskConditionToken[],
     objects: string[],
@@ -114,12 +122,14 @@ export type TaskTalk = {
 };
 
 export type TaskStep = {
+    operations?: TaskOperation[],
     hidden: boolean,
     description: string,
     talks: number[],
 };
 
 export type Task = {
+    operations?: TaskOperation[],
     name: string | null,
     description: string | null,
     unlock_description: string | null,

@@ -9,6 +9,7 @@ import type { ChapterGroup, ChapterGroups, Task, Tasks } from '~/types/travel_lo
 import type { QuestItem, QuestItems } from '~/types/quest_item';
 import type { Menu } from '~/types/menu';
 import type { LocaleCode } from '~~/shared/i18n';
+import type { InlineLinkCategory, InlineLinkInfo } from '~~/shared/inline_link';
 
 const api = $fetch.create({
     async onRequest({ options }) {
@@ -23,6 +24,11 @@ const api = $fetch.create({
         }
     }
 })
+
+export async function get_inline_link(category: InlineLinkCategory, id: string): Promise<InlineLinkInfo> {
+    const path: string = `/api/inline-link/${category}/${id}`;
+    return await api<InlineLinkInfo>(path);
+}
 
 export async function getCharacter(name: any): Promise<Character> {
     const data = await api(`/api/character/${name}`);

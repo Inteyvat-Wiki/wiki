@@ -1,7 +1,8 @@
 <template>
     <div class="talk-dialogs">
         <template v-for="item in displayed_items" :key="item.key">
-            <div v-if="item.kind === 'conditions'" class="dialog-conditions">
+            <task-item-operations v-if="item.kind === 'items'" :operations="[item.operation]" />
+            <div v-else-if="item.kind === 'conditions'" class="dialog-conditions">
                 <task-conditions v-model="inline_condition_values" :conditions="item.conditions" />
             </div>
             <div v-else-if="item.kind === 'branch'" class="dialog-branch">
@@ -45,6 +46,8 @@ import type {
     TaskConditionToken,
     TaskDialogNext,
     TaskTalk,
+    TaskOperation,
+    TaskItemOperation,
 } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
 import { evaluate_task_conditions } from '~/utils/task_condition';
@@ -92,7 +95,8 @@ type BranchDisplayItem = {
     options: number[],
 };
 
-type DisplayItem = DialogDisplayItem | ChoiceDisplayItem | ConditionDisplayItem | BranchDisplayItem;
+type ItemDisplayItem = { kind: 'items', key: string, operation: TaskItemOperation };
+type DisplayItem = DialogDisplayItem | ChoiceDisplayItem | ConditionDisplayItem | BranchDisplayItem | ItemDisplayItem;
 
 type PathState = {
     values: TaskConditionValues,
@@ -214,18 +218,21 @@ const display_state = computed(() => {
         }
     }
 
-    function apply_operations(key: number, state: PathState, render = true): PathState {
+    function apply_operations(key: number, state: PathState, render = true,
+        operations: TaskOperation[] = props.talk.dialogs[key]?.operations || []): PathState {
         const next_state = copy_state(state);
-        const dialog = props.talk.dialogs[key];
-        if (!dialog) return next_state;
 
-        for (const operation of dialog.operations || []) {
+        for (const [index, operation] of operations.entries()) {
             if (!matches_branches(operation.branches)) continue;
             if (render) register_initial_conditions(operation.conditions, next_state);
             if (evaluate_conditions(operation.conditions, next_state) !== true) continue;
 
-            if (operation.type === 'set') {
-                next_state.values[operation.id] = operation.value;
+            if (operation.type === 'item') {
+                if (render) items.push({ kind: 'items', key: `items-${key}-${index}`, operation });
+                continue;
+            }
+            if (operation.action === 'set') {
+                next_state.values[operation.id] = operation.value ?? 0;
                 next_state.assigned.add(operation.id);
                 continue;
             }
@@ -316,12 +323,13 @@ const display_state = computed(() => {
         if (first) append_path(first.dialog, next_state, new Set(path).add(key));
     }
 
-    const initial_state: PathState = {
+    let initial_state: PathState = {
         values: { ...props.condition_values, ...inline_condition_values.value },
         assigned: new Set(),
     };
+    append_branch_controls(props.talk.initial_dialogs || [], props.talk.operations, 'initial');
+    initial_state = apply_operations(0, initial_state, true, props.talk.operations || []);
     if (props.talk.initial_dialogs?.length) {
-        append_branch_controls(props.talk.initial_dialogs, [], 'initial');
         const initial = props.talk.initial_dialogs.filter(next => {
             if (!get_next_dialog(next) || !matches_branches(next.branches)) return false;
             register_initial_conditions(next.conditions, initial_state);

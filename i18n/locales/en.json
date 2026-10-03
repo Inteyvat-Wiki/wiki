@@ -48,6 +48,17 @@
             "option": "Result {index}"
         },
         "optional_dialogs": "Available Optional Dialogue",
+        "item_operation": {
+            "obtain": "Obtain",
+            "give": "Submit",
+            "remove": "Remove",
+            "consumed": "Consumed on submission",
+            "all": "All",
+            "choose": "Submit {count} from the following items",
+            "item_id": "Item #{id}",
+            "giving_id": "Submission #{id}",
+            "rewards": "Quest Completion Rewards"
+        },
         "conditions": "Dialogue Conditions",
         "yes": "Yes",
         "no": "No",

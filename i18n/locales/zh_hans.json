@@ -167,6 +167,17 @@
             "option": "结果 {index}"
         },
         "optional_dialogs": "当前可用的可选对话",
+        "item_operation": {
+            "obtain": "获得",
+            "give": "交付",
+            "remove": "移除",
+            "consumed": "交付后扣除",
+            "all": "全部",
+            "choose": "从以下物品中交付 {count} 个",
+            "item_id": "物品 #{id}",
+            "giving_id": "交付配置 #{id}",
+            "rewards": "任务完成奖励"
+        },
         "conditions": "对话条件",
         "yes": "是",
         "no": "否",

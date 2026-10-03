@@ -20,7 +20,7 @@
                                         <template v-for="info in item.info">
                                             <el-descriptions-item v-if="info.type == 'description'" :label="info.title"
                                                 :min-width="'100px'">
-                                                <div v-html="info.description"></div>
+                                                <inline-text :text="info.description" />
                                             </el-descriptions-item>
                                         </template>
                                     </el-descriptions>
@@ -44,7 +44,7 @@
                                         <template #header v-if="info.title">
                                             <span>{{ info.title }}</span>
                                         </template>
-                                        <div class="el-descriptions" v-html="info.description"></div>
+                                        <div class="el-descriptions"><inline-text :text="info.description" /></div>
                                     </el-card>
                                 </el-col>
                             </el-row>

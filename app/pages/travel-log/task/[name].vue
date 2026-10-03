@@ -96,6 +96,7 @@
                                         :current_step="item.key" :step_keys="step_keys"
                                         @initial_conditions="set_talk_initial_conditions(`step-${item.key}`, $event)" />
                                 </div>
+                                <task-item-operations :operations="item.step.operations" />
                             </el-collapse-item>
                         </el-collapse>
                     </el-card>
@@ -140,6 +141,10 @@
                     </el-affix>
                 </el-col>
             </el-row>
+            <el-card v-if="task.operations?.some(operation => operation.type === 'item')" style="margin-top: 20px;">
+                <template #header>{{ $t('travel-log.item_operation.rewards') }}</template>
+                <task-item-operations :operations="task.operations" />
+            </el-card>
         </el-main>
     </el-container>
 </template>
