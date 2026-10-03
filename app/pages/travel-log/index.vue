@@ -1,5 +1,5 @@
 <template>
-    <el-container v-if="chapter_groups && tasks">
+    <el-container v-if="chapter_groups && tasks && quest_items">
         <el-main>
             <el-row justify="space-between" align="middle" :gutter="20" style="row-gap: 16px; margin-bottom: 10px;">
                 <el-col :span="24" :md="12">
@@ -16,10 +16,8 @@
             </el-tabs>
 
             <template v-if="view_mode === 'chapters'">
-                <el-row v-if="shown_chapter_groups.length > 0" :gutter="20"
-                    style="width: 100%; row-gap: 20px;">
-                    <el-col v-for="group in shown_chapter_groups" :key="group.id"
-                        :span="24" :sm="12" :lg="8">
+                <el-row v-if="shown_chapter_groups.length > 0" :gutter="20" style="width: 100%; row-gap: 20px;">
+                    <el-col v-for="group in shown_chapter_groups" :key="group.id" :span="24" :sm="12" :lg="8">
                         <NuxtLink :to="localePath(`/travel-log/chapter/${group.id}`)" class="card-link">
                             <el-card shadow="hover" class="chapter-group-card">
                                 <div class="chapter-group-content">
@@ -42,16 +40,15 @@
                 </el-row>
             </template>
 
-            <template v-else>
-                <el-input v-model="search_text" :placeholder="$t('travel-log.search_tasks')"
-                    :prefix-icon="Search" clearable style="max-width: 420px; margin-bottom: 20px;" />
+            <template v-if="view_mode === 'tasks'">
+                <el-input v-model="search_text" :placeholder="$t('travel-log.search_tasks')" :prefix-icon="Search"
+                    clearable style="max-width: 420px; margin-bottom: 20px;" />
                 <el-row v-if="shown_tasks.length > 0" :gutter="20" style="width: 100%; row-gap: 20px;">
                     <el-col v-for="task in shown_tasks" :key="task.id" :span="24" :md="12" :lg="8">
                         <NuxtLink :to="localePath(`/travel-log/task/${task.id}`)" class="card-link">
                             <el-card shadow="hover" class="task-card">
                                 <div class="task-card-content">
-                                    <div class="task-card-title"
-                                        :class="{ 'task-card-title-hidden': !task.name }">
+                                    <div class="task-card-title" :class="{ 'task-card-title-hidden': !task.name }">
                                         {{ get_task_title(task) }}
                                     </div>
                                     <el-text v-if="task.chapter" type="info">{{ task.chapter }}</el-text>
@@ -64,6 +61,21 @@
                     </el-col>
                 </el-row>
             </template>
+
+            <template v-if="view_mode === 'quest_item'">
+                <el-row :gutter="20" style="width: 100%; row-gap: 20px;">
+                    <el-col :xs="8" :sm="6" :md="4" :lg="2" v-for="quest_item in quest_items" :key="quest_item.id">
+                        <NuxtLink :to="localePath(`/travel-log/quest-item/${quest_item.id}`)"
+                            style="text-decoration: none;">
+                            <avatar-display-card :title="quest_item.name" :icon="quest_item.icon"
+                                :border_star="quest_item.star || undefined" font_size="1.0em">
+                            </avatar-display-card>
+                        </NuxtLink>
+                    </el-col>
+                    <el-col :xs="8" :sm="6" :md="4" :lg="2" v-for="i in 24" :key="i" style="height: 0px;">
+                    </el-col>
+                </el-row>
+            </template>
         </el-main>
     </el-container>
 </template>
@@ -71,11 +83,13 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
 import type { ChapterGroup, ChapterGroups, TaskSummary, Tasks, TaskType } from '~/types/travel_log';
+import type { QuestItems } from '~/types/quest_item';
 
 const localePath = useLocalePath();
 const chapter_groups = ref<ChapterGroups>();
 const tasks = ref<Tasks>();
-const view_mode = ref<'chapters' | 'tasks'>('chapters');
+const quest_items = ref<QuestItems>();
+const view_mode = ref<'chapters' | 'tasks' | 'quest_item'>('chapters');
 const selected_type = ref<TaskType>('archon_quests');
 const search_text = ref('');
 
@@ -91,6 +105,7 @@ const type_list: TaskType[] = [
 const view_options = computed(() => [
     { label: $t('travel-log.chapters'), value: 'chapters' },
     { label: $t('travel-log.tasks'), value: 'tasks' },
+    { label: $t('travel-log.quest_item'), value: 'quest_item' },
 ]);
 
 const shown_chapter_groups = computed(() =>
@@ -115,15 +130,16 @@ function get_task_count(group: ChapterGroup) {
 }
 
 onMounted(async () => {
-    [chapter_groups.value, tasks.value] = await Promise.all([
+    [chapter_groups.value, tasks.value, quest_items.value] = await Promise.all([
         get_chapter_groups(),
         get_tasks(),
+        get_quest_items(),
     ]);
 
     const saved_type = localStorage.getItem('travel_log_selected_type') as TaskType | null;
-    const saved_view = localStorage.getItem('travel_log_view_mode') as 'chapters' | 'tasks' | null;
+    const saved_view = localStorage.getItem('travel_log_view_mode') as 'chapters' | 'tasks' | 'quest_item' | null;
     if (saved_type && type_list.includes(saved_type)) selected_type.value = saved_type;
-    if (saved_view === 'chapters' || saved_view === 'tasks') view_mode.value = saved_view;
+    if (saved_view === 'chapters' || saved_view === 'tasks' || saved_view === 'quest_item') view_mode.value = saved_view;
 });
 
 watch(selected_type, value => localStorage.setItem('travel_log_selected_type', value));

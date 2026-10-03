@@ -135,8 +135,13 @@
         "dungeon": "秘境"
     },
     "travel-log": {
+        "copy_dialog": "复制当前选择的对话",
+        "copy_task": "复制任务对话",
+        "copy_empty": "暂无可复制的对话",
+        "copy_failed": "复制失败，请检查剪贴板权限",
         "chapters": "章节",
         "tasks": "任务",
+        "quest_item": "任务道具",
         "chapter": "所属章节",
         "description": "任务描述",
         "unlock_description": "解锁功能",

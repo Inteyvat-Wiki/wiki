@@ -61,6 +61,21 @@
                                 </el-col>
                             </el-row>
                         </div>
+                        <div v-if="info.type == 'text-list'" style="margin-top: 20px;">
+                            <el-row :gutter="20" style="row-gap: 20px; width: 100%;">
+                                <el-col :span="24">
+                                    <el-card>
+                                        <template #header v-if="info.title">
+                                            <span>{{ info.title }}</span>
+                                        </template>
+                                        <template v-for="(description, index) in info.description" :key="index">
+                                            <normal-text :text="description" :border="true" />
+                                            <hr v-if="index < info.description.length - 1" class="content-separator" />
+                                        </template>
+                                    </el-card>
+                                </el-col>
+                            </el-row>
+                        </div>
                     </template>
                 </div>
             </template>
@@ -77,7 +92,7 @@
     </el-container>
 </template>
 
-<script setup lang="ts" generic="ItemTypes extends string">
+<script setup lang="ts" generic="ItemTypes extends string | null">
 import type { ItemCommon } from '~/types/common';
 import { StarFilled } from '@element-plus/icons-vue';
 
@@ -110,3 +125,11 @@ function getAnchorId(name: string, index: number) {
     return slug ? `item-${index}-${slug}` : `item-${index}`;
 }
 </script>
+
+<style scoped>
+.content-separator {
+    border: 0;
+    border-top: 1px solid var(--el-border-color-light);
+    margin: 20px 0;
+}
+</style>

@@ -4,10 +4,13 @@
             <el-collapse-item name="talk">
                 <template #title>
                     <div class="talk-title">
-                        <span>{{ talk_title }}</span>
+                        <span class="talk-title-text">{{ talk_title }}</span>
+                        <el-button :icon="ElIconDocumentCopy" size="small" circle class="copy-button"
+                            :title="$t('travel-log.copy_dialog')" :aria-label="$t('travel-log.copy_dialog')"
+                            @mousedown.stop @keydown.stop @click.stop="copy_dialog" />
                     </div>
                 </template>
-                <talk-dialogs :talk="talk" :mode="mode" :condition_values="condition_values"
+                <talk-dialogs ref="dialogs" :talk="talk" :mode="mode" :condition_values="condition_values"
                     :current_step="current_step" :step_keys="step_keys"
                     @initial_conditions="$emit('initial_conditions', $event)" />
             </el-collapse-item>
@@ -18,6 +21,8 @@
 <script setup lang="ts">
 import type { TalkDisplayMode, TaskTalk } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
+import { copy_dialog_text } from '~/utils/dialog_copy';
+import TalkDialogs from '~/components/TalkDialogs.vue';
 
 const props = defineProps<{
     talk: TaskTalk,
@@ -32,8 +37,19 @@ defineEmits<{
 }>();
 
 const expanded_keys = ref(props.extra ? [] : ['talk']);
+const dialogs = ref<InstanceType<typeof TalkDialogs>>();
 const talk_title = computed(() =>
     props.talk.objects.join(' / ') || $t('travel-log.dialog'));
+
+function get_dialog_text() {
+    return dialogs.value?.get_dialog_text() || '';
+}
+
+async function copy_dialog() {
+    await copy_dialog_text(get_dialog_text());
+}
+
+defineExpose({ get_dialog_text });
 </script>
 
 <style scoped>
@@ -41,11 +57,25 @@ const talk_title = computed(() =>
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 12px;
+    min-width: 0;
+    width: 100%;
+    padding-right: 12px;
+    box-sizing: border-box;
     min-height: 30px;
     font-size: var(--el-font-size-medium);
     line-height: 1.5;
     font-weight: bold;
+}
+
+.talk-title-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.copy-button {
+    flex-shrink: 0;
+    margin: 0;
 }
 
 .task-talk {

@@ -5,9 +5,10 @@ import type { Material, Materials } from '~/types/material';
 import type { LivingBeing, LivingBeings } from '~/types/living_being';
 import type { Geography, Geographies } from '~/types/geography';
 import type { Mapback, Maplayer, MapList, MapConditions } from '~/types/map';
+import type { ChapterGroup, ChapterGroups, Task, Tasks } from '~/types/travel_log';
+import type { QuestItem, QuestItems } from '~/types/quest_item';
 import type { Menu } from '~/types/menu';
 import type { LocaleCode } from '~~/shared/i18n';
-import type { ChapterGroup, ChapterGroups, Task, Tasks } from '~/types/travel_log';
 
 const api = $fetch.create({
     async onRequest({ options }) {
@@ -126,4 +127,14 @@ export async function get_tasks(): Promise<Tasks> {
 export async function get_task(name: string): Promise<Task> {
     const data = await api(`/api/task/${name}`);
     return data as Task;
+}
+
+export async function get_quest_items(): Promise<QuestItems> {
+    const data = await api('/api/quest-items');
+    return data as QuestItems;
+}
+
+export async function get_quest_item(name: string): Promise<QuestItem> {
+    const data = await api(`/api/quest-item/${name}`);
+    return data as QuestItem;
 }

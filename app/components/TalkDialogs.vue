@@ -48,6 +48,7 @@ import type {
 } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
 import { evaluate_task_conditions } from '~/utils/task_condition';
+import { format_dialog } from '~/utils/dialog_copy';
 
 const props = defineProps<{
     talk: TaskTalk,
@@ -387,6 +388,16 @@ function get_choice_bubble(item: ChoiceDisplayItem): DialogDisplayItem | undefin
     const option = get_selected_option(item);
     return option ? { kind: 'dialog', key: option.key, dialog: option.dialog } : undefined;
 }
+
+function get_dialog_text() {
+    return displayed_items.value.flatMap(item => {
+        const dialog = item.kind === 'dialog' ? item.dialog
+            : item.kind === 'choice' ? get_selected_option(item)?.dialog : undefined;
+        return dialog ? [format_dialog(dialog)] : [];
+    }).filter(Boolean).join('\n');
+}
+
+defineExpose({ get_dialog_text });
 
 const popover_visible_map = reactive<Record<number, boolean>>({});
 watch(selected_choices, () => {

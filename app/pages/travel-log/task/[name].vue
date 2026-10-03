@@ -3,7 +3,12 @@
         <el-main>
             <el-page-header @back="navigateTo(localePath('/travel-log'))">
                 <template #content>
-                    <span class="page-title">{{ task.name || $t('travel-log.hidden_task') }}</span>
+                    <div class="page-title">
+                        <span>{{ task.name || $t('travel-log.hidden_task') }}</span>
+                        <el-button :icon="ElIconDocumentCopy" size="small" circle class="copy-button"
+                            :title="$t('travel-log.copy_task')" :aria-label="$t('travel-log.copy_task')"
+                            @click="copy_task_dialogs" />
+                    </div>
                 </template>
                 <template #extra>
                     <div class="page-header-extra">
@@ -85,6 +90,7 @@
                                         </el-radio-group>
                                     </div>
                                     <task-talk :key="get_step_talk_state(item).selected_key"
+                                        :ref="instance => set_talk_ref(`step-${item.key}`, instance)"
                                         :talk="task.talks[get_step_talk_state(item).selected_key!]!"
                                         :mode="talk_display_mode" :condition_values="condition_values"
                                         :current_step="item.key" :step_keys="step_keys"
@@ -121,6 +127,7 @@
                                         </template>
                                         <div v-if="visible_extra_talks.length > 0" class="extra-talks">
                                             <task-talk v-for="item in visible_extra_talks" :key="item.key"
+                                                :ref="instance => set_talk_ref(`extra-${item.key}`, instance)"
                                                 :talk="item.talk" :extra="true"
                                                 :mode="talk_display_mode" :condition_values="condition_values"
                                                 :current_step="current_step_key" :step_keys="step_keys"
@@ -150,6 +157,8 @@ import type {
 import type { TaskConditionValues } from '~/utils/task_condition';
 import { evaluate_task_conditions } from '~/utils/task_condition';
 import { Aim, Location, Lock } from '@element-plus/icons-vue';
+import TaskTalkComponent from '~/components/TaskTalk.vue';
+import { copy_dialog_text } from '~/utils/dialog_copy';
 
 type StepTalkState = {
     candidate_keys: number[],
@@ -171,6 +180,23 @@ const talk_display_mode = ref<TalkDisplayMode>('both');
 const conditions_panel_size = ref<string | number>('45%');
 const extra_talks_panel_size = ref<string | number>('55%');
 const talk_display_mode_storage_key = 'travel_log_talk_display_mode_v2';
+const talk_refs = new Map<string, InstanceType<typeof TaskTalkComponent>>();
+
+function set_talk_ref(scope: string, instance: unknown) {
+    if (instance) talk_refs.set(scope, instance as InstanceType<typeof TaskTalkComponent>);
+    else talk_refs.delete(scope);
+}
+
+async function copy_task_dialogs() {
+    await nextTick();
+    const scopes = [
+        ...steps.value.map(item => `step-${item.key}`),
+        ...visible_extra_talks.value.map(item => `extra-${item.key}`),
+    ];
+    const text = scopes.map(scope => talk_refs.get(scope)?.get_dialog_text())
+        .filter(Boolean).join('\n\n');
+    await copy_dialog_text(text);
+}
 
 const task_names = computed<Record<string, string>>(() =>
     Object.fromEntries(tasks.value.map(item => [
@@ -412,8 +438,16 @@ useHead({
 
 <style scoped>
 .page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-weight: bold;
     font-size: 1.2em;
+}
+
+.copy-button {
+    flex-shrink: 0;
+    margin: 0;
 }
 
 .page-header-extra {

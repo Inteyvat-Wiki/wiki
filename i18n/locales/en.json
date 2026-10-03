@@ -1,5 +1,6 @@
 {
     "normal": {
+        "copied": "Copied",
         "loading": "Loading"
     },
     "menu": {
@@ -16,6 +17,10 @@
         "settings": "Settings"
     },
     "travel-log": {
+        "copy_dialog": "Copy selected dialogue",
+        "copy_task": "Copy quest dialogues",
+        "copy_empty": "No dialogue to copy",
+        "copy_failed": "Copy failed. Please check clipboard permissions.",
         "chapters": "Chapters",
         "tasks": "Quests",
         "chapter": "Chapter",

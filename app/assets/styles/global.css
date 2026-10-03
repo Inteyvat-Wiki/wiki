@@ -8,6 +8,14 @@
     background-color: #cfcfcf;
 }
 
+.inline_image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .page-with-anchor > .el-main {
     padding-right: 8px;
 }
