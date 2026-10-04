@@ -77,24 +77,26 @@
                                         </div>
                                     </div>
                                 </template>
-                                <div v-if="get_step_talk_state(item).selected_key !== undefined" class="step-talks">
-                                    <div v-if="get_step_talk_state(item).candidate_keys.length > 1"
+                                <div v-for="segment in get_step_talk_state(item).segments" :key="segment.selector_key"
+                                    class="step-talks">
+                                    <div v-if="segment.candidate_keys.length > 1"
                                         class="step-talk-selector">
-                                        <el-radio-group :model-value="get_step_talk_state(item).selected_key"
+                                        <el-radio-group :model-value="segment.talk_key"
                                             class="step-talk-options"
-                                            @update:model-value="select_step_talk(item.key, $event)">
-                                            <el-radio v-for="talk_key in get_step_talk_state(item).candidate_keys"
+                                            @update:model-value="select_flow_option(segment.selector_key, $event)">
+                                            <el-radio v-for="talk_key in segment.candidate_keys"
                                                 :key="talk_key" :value="talk_key" border>
                                                 {{ get_talk_title(task.talks[talk_key]!) }}
                                             </el-radio>
                                         </el-radio-group>
                                     </div>
-                                    <task-talk :key="get_step_talk_state(item).selected_key"
-                                        :ref="instance => set_talk_ref(`step-${item.key}`, instance)"
-                                        :talk="task.talks[get_step_talk_state(item).selected_key!]!"
+                                    <task-talk v-if="segment.talk_key !== undefined" :key="segment.talk_key"
+                                        :ref="instance => set_talk_ref(`step-${item.key}-${segment.talk_key}`, instance)"
+                                        :talk="task.talks[segment.talk_key]!" :segment="segment"
+                                        v-model:input_values="flow_input_values"
                                         :mode="talk_display_mode" :condition_values="condition_values"
                                         :current_step="item.key" :step_keys="step_keys"
-                                        @initial_conditions="set_talk_initial_conditions(`step-${item.key}`, $event)" />
+                                        @select="select_flow_option" />
                                 </div>
                                 <task-item-operations :operations="item.step.operations" />
                             </el-collapse-item>
@@ -130,7 +132,7 @@
                                             <task-talk v-for="item in visible_extra_talks" :key="item.key"
                                                 :ref="instance => set_talk_ref(`extra-${item.key}`, instance)"
                                                 :talk="item.talk" :extra="true"
-                                                :mode="talk_display_mode" :condition_values="condition_values"
+                                                :mode="talk_display_mode" :condition_values="optional_condition_values"
                                                 :current_step="current_step_key" :step_keys="step_keys"
                                                 @initial_conditions="set_talk_initial_conditions(`extra-${item.key}`, $event)" />
                                         </div>
@@ -161,15 +163,11 @@ import type {
     TaskPages,
 } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
-import { evaluate_task_conditions } from '~/utils/task_condition';
+import { build_task_flow, type TaskFlow, type TaskFlowSelections,
+    type TaskFlowState } from '~/utils/task_flow';
 import { Aim, Location, Lock } from '@element-plus/icons-vue';
 import TaskTalkComponent from '~/components/TaskTalk.vue';
 import { copy_dialog_text } from '~/utils/dialog_copy';
-
-type StepTalkState = {
-    candidate_keys: number[],
-    selected_key?: number,
-};
 
 const route = useRoute();
 const localePath = useLocalePath();
@@ -180,7 +178,8 @@ const current_step_fixed = ref(false);
 const expanded_step_keys = ref<string[]>([]);
 const condition_values = ref<TaskConditionValues>({});
 const dialog_initial_conditions = ref<Record<string, TaskCondition[]>>({});
-const selected_step_talk_keys = ref<Record<number, number | undefined>>({});
+const flow_selections = ref<TaskFlowSelections>({});
+const flow_input_values = ref<TaskConditionValues>({});
 const scroll_container = ref<HTMLElement>();
 const talk_display_mode = ref<TalkDisplayMode>('both');
 const conditions_panel_size = ref<string | number>('45%');
@@ -196,7 +195,9 @@ function set_talk_ref(scope: string, instance: unknown) {
 async function copy_task_dialogs() {
     await nextTick();
     const scopes = [
-        ...steps.value.map(item => `step-${item.key}`),
+        ...steps.value.flatMap(item => get_step_talk_state(item).segments
+            .filter(segment => segment.talk_key !== undefined)
+            .map(segment => `step-${item.key}-${segment.talk_key}`)),
         ...visible_extra_talks.value.map(item => `extra-${item.key}`),
     ];
     const text = scopes.map(scope => talk_refs.get(scope)?.get_dialog_text())
@@ -225,15 +226,6 @@ const steps = computed(() => {
         .sort((left, right) => left.key - right.key);
 });
 const step_keys = computed(() => steps.value.map(item => item.key));
-const direct_talk_keys = computed(() => new Set(
-    steps.value.flatMap(item => item.step.talks)));
-
-const extra_talks = computed(() => {
-    if (!task.value) return [];
-    return Object.entries(task.value.talks)
-        .map(([key, talk]) => ({ key: Number(key), talk }))
-        .filter(item => !direct_talk_keys.value.has(item.key));
-});
 
 const selectable_conditions = computed<TaskCondition[]>(() => {
     const result = new Map<string, TaskCondition>();
@@ -244,8 +236,22 @@ const selectable_conditions = computed<TaskCondition[]>(() => {
             result.set(JSON.stringify(token), token);
         }
     }
+    for (const item of steps.value) {
+        for (const token of item.step.finish_conditions) {
+            if (item.key !== current_step_key.value) continue;
+            if (typeof token === 'string' || token.type === 'talk') continue;
+            if (token.type === 'step' && !token.task) continue;
+            if (step_talk_states.value.get(item.key)?.state.assigned.has(token.id)) continue;
+            result.set(JSON.stringify(token), token);
+        }
+        for (const condition of get_step_talk_state(item).initial_conditions) {
+            if (condition.type === 'step' && !condition.task) continue;
+            result.set(JSON.stringify(condition), condition);
+        }
+    }
     for (const scope of active_condition_scopes.value) {
         for (const condition of dialog_initial_conditions.value[scope] || []) {
+            if (step_talk_states.value.get(current_step_key.value)?.state.assigned.has(condition.id)) continue;
             result.set(JSON.stringify(condition), condition);
         }
     }
@@ -253,8 +259,6 @@ const selectable_conditions = computed<TaskCondition[]>(() => {
 });
 
 const active_condition_scopes = computed(() => new Set([
-    ...steps.value.flatMap(item =>
-        get_step_talk_state(item).selected_key === undefined ? [] : [`step-${item.key}`]),
     ...visible_extra_talks.value.map(item => `extra-${item.key}`),
 ]));
 
@@ -265,77 +269,44 @@ function set_talk_initial_conditions(scope: string, conditions: TaskCondition[])
     };
 }
 
-const visible_extra_talks = computed<{ key: number, talk: TaskTalk }[]>(() =>
-    extra_talks.value.filter(({ talk }) =>
-        evaluate_task_conditions(
-            talk.conditions,
-            current_step_key.value,
-            step_keys.value,
-            condition_values.value,
-        ) === true));
+const visible_extra_talks = computed<{ key: number, talk: TaskTalk }[]>(() => {
+    if (!task.value) return [];
+    const keys = step_talk_states.value.get(current_step_key.value)?.optional_talk_keys || [];
+    return keys.map(key => ({ key, talk: task.value!.talks[key]! }));
+});
 
-function is_talk_available(talk: TaskTalk, step_key: number) {
-    if (talk.conditions.length === 0) return true;
-    return evaluate_task_conditions(
-        talk.conditions,
-        step_key,
-        step_keys.value,
-        condition_values.value,
-    ) === true;
-}
+const optional_condition_values = computed(() =>
+    step_talk_states.value.get(current_step_key.value)?.state.values || condition_values.value);
 
 const step_talk_states = computed(() => {
-    const used_talk_keys = new Set<number>();
-    const result = new Map<number, StepTalkState>();
-
+    const result = new Map<number, TaskFlow>();
+    if (!task.value) return result;
+    let state: TaskFlowState = { values: { ...condition_values.value }, assigned: new Set(), completed: new Set() };
     for (const item of steps.value) {
-        const available_keys = item.step.talks.filter(talk_key => {
-            if (used_talk_keys.has(talk_key)) return false;
-            const talk = task.value?.talks[talk_key];
-            return talk !== undefined && is_talk_available(talk, item.key);
+        const flow = build_task_flow({
+            task: task.value,
+            step: item.step,
+            current_step: item.key,
+            step_keys: step_keys.value,
+            state,
+            selections: flow_selections.value,
+            input_values: flow_input_values.value,
+            include_optional: item.key === current_step_key.value,
         });
-        const highest_priority = Math.max(
-            0,
-            ...available_keys.map(talk_key => task.value?.talks[talk_key]?.priority ?? 0),
-        );
-        const candidate_keys = available_keys.filter(talk_key =>
-            (task.value?.talks[talk_key]?.priority ?? 0) === highest_priority);
-        const saved_key = selected_step_talk_keys.value[item.key];
-        const selected_key = saved_key !== undefined && candidate_keys.includes(saved_key)
-            ? saved_key
-            : candidate_keys[0];
-
-        if (selected_key !== undefined) used_talk_keys.add(selected_key);
-        result.set(item.key, { candidate_keys, selected_key });
+        state = flow.state;
+        result.set(item.key, flow);
     }
 
     return result;
 });
 
-watch(step_talk_states, states => {
-    const next: Record<number, number | undefined> = {};
-    for (const [step_key, state] of states) {
-        if (state.selected_key !== undefined) next[step_key] = state.selected_key;
-    }
-
-    const current = selected_step_talk_keys.value;
-    const keys = new Set([...Object.keys(current), ...Object.keys(next)]);
-    if ([...keys].every(key => current[Number(key)] === next[Number(key)])) return;
-    selected_step_talk_keys.value = next;
-}, { immediate: true });
-
 function get_step_talk_state(item: { key: number, step: TaskStep }) {
-    return step_talk_states.value.get(item.key) || { candidate_keys: [] };
+    return step_talk_states.value.get(item.key) || { segments: [], initial_conditions: [] };
 }
 
-function select_step_talk(step_key: number, talk_key: unknown) {
-    if (typeof talk_key !== 'number') return;
-    const state = step_talk_states.value.get(step_key);
-    if (!state || talk_key === undefined || !state.candidate_keys.includes(talk_key)) return;
-    selected_step_talk_keys.value = {
-        ...selected_step_talk_keys.value,
-        [step_key]: talk_key,
-    };
+function select_flow_option(key: string, value: unknown) {
+    if (typeof value !== 'number') return;
+    flow_selections.value = { ...flow_selections.value, [key]: value };
 }
 
 function get_talk_title(talk: TaskTalk) {

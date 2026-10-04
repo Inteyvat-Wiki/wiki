@@ -66,6 +66,7 @@ export type TaskBooleanCondition = TaskConditionBase & {
 export type TaskCondition = TaskStepCondition | TaskNumberCondition | TaskBooleanCondition;
 export type TaskValueCondition = TaskNumberCondition | TaskBooleanCondition;
 export type TaskConditionToken = TaskCondition | 'and' | 'or' | 'not';
+export type TaskFinishConditionToken = TaskConditionToken | { type: 'talk', talk: number };
 
 export type TaskDialogBranch = {
     id: string,
@@ -121,6 +122,9 @@ export type TaskTriggerPoint = {
 export type TaskTalk = {
     operations?: TaskOperation[],
     priority: number,
+    begin_way: 'manual' | 'auto' | null,
+    next_talks: number[],
+    trigger_ids: string[],
     conditions: TaskConditionToken[],
     objects: string[],
     trigger_points: TaskTriggerPoint[],
@@ -133,6 +137,7 @@ export type TaskStep = {
     hidden: boolean,
     description: string,
     talks: number[],
+    finish_conditions: TaskFinishConditionToken[],
 };
 
 export type Task = {

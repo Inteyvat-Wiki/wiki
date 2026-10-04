@@ -12,7 +12,10 @@
                 </template>
                 <talk-dialogs ref="dialogs" :talk="talk" :mode="mode" :condition_values="condition_values"
                     :current_step="current_step" :step_keys="step_keys"
-                    @initial_conditions="$emit('initial_conditions', $event)" />
+                    :segment="segment" :input_values="input_values"
+                    @initial_conditions="$emit('initial_conditions', $event)"
+                    @select="(key, value) => $emit('select', key, value)"
+                    @update:input_values="$emit('update:input_values', $event)" />
             </el-collapse-item>
         </el-collapse>
     </section>
@@ -23,6 +26,7 @@ import type { TalkDisplayMode, TaskTalk } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
 import { copy_dialog_text } from '~/utils/dialog_copy';
 import TalkDialogs from '~/components/TalkDialogs.vue';
+import type { TaskFlowSegment } from '~/utils/task_flow';
 
 const props = defineProps<{
     talk: TaskTalk,
@@ -31,9 +35,13 @@ const props = defineProps<{
     condition_values: TaskConditionValues,
     current_step: number,
     step_keys: number[],
+    segment?: TaskFlowSegment,
+    input_values?: TaskConditionValues,
 }>();
 defineEmits<{
     initial_conditions: [conditions: import('~/types/travel_log').TaskCondition[]],
+    select: [key: string, value: number],
+    'update:input_values': [value: TaskConditionValues],
 }>();
 
 const expanded_keys = ref(props.extra ? [] : ['talk']);
