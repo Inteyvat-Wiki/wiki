@@ -30,7 +30,17 @@
         "map": "地图",
         "travel-log": "旅行日志",
         "readable": "阅读物",
+        "book": "书籍",
         "settings": "设置"
+    },
+    "book": {
+        "search": "搜索书籍",
+        "all_collections": "全部书籍系列",
+        "no_results": "未找到书籍"
+    },
+    "readable": {
+        "search": "搜索阅读物",
+        "no_results": "未找到阅读物"
     },
     "settings": {
         "traveller": "旅行者",

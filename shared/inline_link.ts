@@ -3,6 +3,8 @@ export const INLINE_LINK_CATEGORIES = {
     weapon: { folder: 'weapon', index: 'weapons', path: '/weapon' },
     artifact: { folder: 'artifact', index: 'artifacts', path: '/artifact' },
     material: { folder: 'material', index: 'materials', path: '/material' },
+    book: { folder: 'book', index: 'books', path: '/book' },
+    readable: { folder: 'readable', index: 'readables', path: '/readable' },
     'living-being': { folder: 'living_being', index: 'living_beings', path: '/living-being' },
     geography: { folder: 'geography', index: 'geographies', path: '/geography' },
     'chapter-group': { folder: 'chapter_group', index: 'chapter_groups', path: '/travel-log/chapter' },

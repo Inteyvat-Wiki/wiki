@@ -14,7 +14,17 @@
         "map": "Map",
         "travel-log": "Travel Log",
         "readable": "Readable",
+        "book": "Books",
         "settings": "Settings"
+    },
+    "book": {
+        "search": "Search books",
+        "all_collections": "All collections",
+        "no_results": "No books found"
+    },
+    "readable": {
+        "search": "Search readables",
+        "no_results": "No readables found"
     },
     "travel-log": {
         "copy_dialog": "Copy selected dialogue",

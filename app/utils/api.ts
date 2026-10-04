@@ -2,6 +2,8 @@ import type { Character, Characters } from '~/types/character';
 import type { Weapon, Weapons } from '~/types/weapon';
 import type { Artifact, Artifacts } from '~/types/artifact';
 import type { Material, Materials } from '~/types/material';
+import type { Book, Books } from '~/types/book';
+import type { Readable, Readables } from '~/types/readable';
 import type { LivingBeing, LivingBeings } from '~/types/living_being';
 import type { Geography, Geographies } from '~/types/geography';
 import type { Mapback, Maplayer, MapList, MapConditions } from '~/types/map';
@@ -68,6 +70,22 @@ export async function get_material(name: any): Promise<Material> {
 export async function get_materials(): Promise<Materials> {
     const data = await api(`/api/materials`);
     return data as Materials;
+}
+
+export async function get_book(name: string): Promise<Book> {
+    return await api<Book>(`/api/book/${name}`);
+}
+
+export async function get_books(): Promise<Books> {
+    return await api<Books>('/api/books');
+}
+
+export async function get_readable(name: string): Promise<Readable> {
+    return await api<Readable>(`/api/readable/${name}`);
+}
+
+export async function get_readables(): Promise<Readables> {
+    return await api<Readables>('/api/readables');
 }
 
 export async function get_living_being(name: any): Promise<LivingBeing> {
