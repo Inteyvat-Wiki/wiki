@@ -18,7 +18,7 @@
                     </el-radio-button>
                 </template>
                 <template v-else-if="group.sample.type === 'number'">
-                    <el-radio-button v-for="interval in group.intervals" :key="format_interval(interval)"
+                    <el-radio-button v-for="interval in group.intervals" :key="interval.sample"
                         :value="interval.sample">
                         {{ format_interval(interval) }}
                     </el-radio-button>
@@ -35,15 +35,16 @@
 <script setup lang="ts">
 import type {
     TaskCondition,
-    TaskNumberCondition,
     TaskState,
     TaskStepCondition,
 } from '~/types/travel_log';
 import {
     is_number_condition,
     is_step_condition,
-    matches_number_condition,
+    create_number_intervals,
+    format_number_interval,
     type TaskConditionValues,
+    type TaskNumberInterval,
 } from '~/utils/task_condition';
 
 const props = defineProps<{
@@ -52,14 +53,6 @@ const props = defineProps<{
 const model = defineModel<TaskConditionValues>({ required: true });
 const localePath = useLocalePath();
 const state_options: TaskState[] = ['unstarted', 'ongoing', 'finished', 'failed'];
-
-type NumberInterval = {
-    lower: number | null,
-    lower_closed: boolean,
-    upper: number | null,
-    upper_closed: boolean,
-    sample: number,
-};
 
 function is_external_step_condition(condition: TaskCondition): condition is TaskStepCondition {
     return is_step_condition(condition) && Boolean(condition.task);
@@ -70,7 +63,7 @@ const groups = computed(() => {
         id: string,
         sample: TaskCondition,
         conditions: TaskCondition[],
-        intervals: NumberInterval[],
+        intervals: TaskNumberInterval[],
     }>();
     for (const condition of props.conditions) {
         let group = result.get(condition.id);
@@ -95,7 +88,7 @@ watch(groups, current_groups => {
         if (is_step_condition(group.sample)) {
             values[group.id] = 'finished';
         } else if (is_number_condition(group.sample)) {
-            values[group.id] = group.intervals.find(interval => contains_number(interval, 0))?.sample
+            values[group.id] = group.intervals.find(interval => interval.sample === 0)?.sample
                 ?? group.intervals[0]?.sample;
         } else {
             values[group.id] = false;
@@ -109,76 +102,8 @@ watch(groups, current_groups => {
     model.value = values;
 }, { immediate: true });
 
-function create_number_intervals(conditions: TaskNumberCondition[]): NumberInterval[] {
-    const thresholds = [...new Set(conditions.map(condition => condition.value))]
-        .sort((left, right) => left - right);
-    if (thresholds.length === 0) return [];
-
-    const atoms: NumberInterval[] = [{
-        lower: null,
-        lower_closed: false,
-        upper: thresholds[0]!,
-        upper_closed: false,
-        sample: thresholds[0]! - 1,
-    }];
-    for (let index = 0; index < thresholds.length; index++) {
-        const threshold = thresholds[index]!;
-        atoms.push({
-            lower: threshold,
-            lower_closed: true,
-            upper: threshold,
-            upper_closed: true,
-            sample: threshold,
-        });
-        const next = thresholds[index + 1];
-        if (next !== undefined) {
-            atoms.push({
-                lower: threshold,
-                lower_closed: false,
-                upper: next,
-                upper_closed: false,
-                sample: (threshold + next) / 2,
-            });
-        }
-    }
-    atoms.push({
-        lower: thresholds.at(-1)!,
-        lower_closed: false,
-        upper: null,
-        upper_closed: false,
-        sample: thresholds.at(-1)! + 1,
-    });
-
-    const result: (NumberInterval & { signature: string })[] = [];
-    for (const atom of atoms) {
-        const signature = conditions
-            .map(condition => matches_number_condition(condition, atom.sample) ? '1' : '0')
-            .join('');
-        const previous = result.at(-1);
-        if (previous?.signature === signature) {
-            previous.upper = atom.upper;
-            previous.upper_closed = atom.upper_closed;
-        } else {
-            result.push({ ...atom, signature });
-        }
-    }
-    return result.map(({ signature: _, ...interval }) => interval);
-}
-
-function contains_number(interval: NumberInterval, value: number) {
-    const above_lower = interval.lower === null
-        || value > interval.lower
-        || interval.lower_closed && value === interval.lower;
-    const below_upper = interval.upper === null
-        || value < interval.upper
-        || interval.upper_closed && value === interval.upper;
-    return above_lower && below_upper;
-}
-
-function format_interval(interval: NumberInterval) {
-    const left = interval.lower_closed ? '[' : '(';
-    const right = interval.upper_closed ? ']' : ')';
-    return `${left}${interval.lower ?? '-∞'}, ${interval.upper ?? '+∞'}${right}`;
+function format_interval(interval: TaskNumberInterval) {
+    return format_number_interval(interval, $t('travel-log.other'));
 }
 
 function get_step_path(condition: TaskStepCondition) {

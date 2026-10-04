@@ -166,6 +166,7 @@
         "hidden_step": "隐藏步骤",
         "hidden_task": "隐藏任务",
         "dialog": "对话",
+        "other": "其他",
         "display_mode": {
             "both": "选项 + 气泡",
             "options": "仅选项",

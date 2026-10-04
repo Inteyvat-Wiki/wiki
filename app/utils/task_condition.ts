@@ -27,6 +27,100 @@ export function matches_number_condition(condition: TaskNumberCondition, value: 
     return value <= condition.value;
 }
 
+type NumberRange = {
+    lower: number | null,
+    lower_closed: boolean,
+    upper: number | null,
+    upper_closed: boolean,
+    sample: number,
+};
+
+export type TaskNumberInterval = NumberRange | { other: true, sample: number };
+
+export function create_number_intervals(conditions: TaskNumberCondition[]): TaskNumberInterval[] {
+    const thresholds = [...new Set(conditions.map(condition => condition.value))]
+        .sort((left, right) => left - right);
+    if (thresholds.length === 0) return [];
+
+    const atoms: NumberRange[] = [{
+        lower: null,
+        lower_closed: false,
+        upper: thresholds[0]!,
+        upper_closed: false,
+        sample: thresholds[0]! - 1,
+    }];
+    for (let index = 0; index < thresholds.length; index++) {
+        const threshold = thresholds[index]!;
+        atoms.push({
+            lower: threshold,
+            lower_closed: true,
+            upper: threshold,
+            upper_closed: true,
+            sample: threshold,
+        });
+        const next = thresholds[index + 1];
+        if (next !== undefined) atoms.push({
+            lower: threshold,
+            lower_closed: false,
+            upper: next,
+            upper_closed: false,
+            sample: (threshold + next) / 2,
+        });
+    }
+    atoms.push({
+        lower: thresholds.at(-1)!,
+        lower_closed: false,
+        upper: null,
+        upper_closed: false,
+        sample: thresholds.at(-1)! + 1,
+    });
+
+    const result: (NumberRange & { signature: string })[] = [];
+    let other: Extract<TaskNumberInterval, { other: true }> | undefined;
+    for (const atom of atoms) {
+        const signature = conditions
+            .map(condition => matches_number_condition(condition, atom.sample) ? '1' : '0')
+            .join('');
+        const sample = contains_number(atom, 0) ? 0 : atom.sample;
+        // 所有条件均不成立的范围可以不连续，统一用一个代表值参与条件计算。
+        if (!signature.includes('1')) {
+            other ??= { other: true, sample };
+            if (sample === 0) other.sample = 0;
+            continue;
+        }
+        const previous = result.at(-1);
+        if (previous?.signature === signature && previous.upper === atom.lower
+            && (previous.upper_closed || atom.lower_closed)) {
+            previous.upper = atom.upper;
+            previous.upper_closed = atom.upper_closed;
+            if (sample === 0) previous.sample = 0;
+        } else {
+            result.push({ ...atom, sample, signature });
+        }
+    }
+    return [...result.map(({ signature: _, ...interval }) => interval), ...(other ? [other] : [])];
+}
+
+function contains_number(interval: NumberRange, value: number) {
+    const above_lower = interval.lower === null
+        || value > interval.lower
+        || interval.lower_closed && value === interval.lower;
+    const below_upper = interval.upper === null
+        || value < interval.upper
+        || interval.upper_closed && value === interval.upper;
+    return above_lower && below_upper;
+}
+
+export function format_number_interval(interval: TaskNumberInterval, other_label: string) {
+    if ('other' in interval) return other_label;
+    if (interval.lower === interval.upper && interval.lower_closed && interval.upper_closed) {
+        return String(interval.lower);
+    }
+    const left = interval.lower_closed ? '[' : '(';
+    const right = interval.upper_closed ? ']' : ')';
+    return `${left}${interval.lower ?? '-∞'}, ${interval.upper ?? '+∞'}${right}`;
+}
+
 function evaluate_and(left: ConditionResult, right: ConditionResult): ConditionResult {
     if (left === false || right === false) return false;
     if (left === undefined || right === undefined) return undefined;

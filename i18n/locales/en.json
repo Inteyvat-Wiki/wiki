@@ -47,6 +47,7 @@
         "hidden_step": "Hidden Step",
         "hidden_task": "Hidden Quest",
         "dialog": "Dialogue",
+        "other": "Other",
         "display_mode": {
             "both": "Options + Bubbles",
             "options": "Options only",
