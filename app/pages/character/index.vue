@@ -37,9 +37,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Characters } from '~/types/character';
+import type { CharacterPages } from '~/types/character';
 
-const characters = ref<Characters>();
+const characters = ref<CharacterPages>();
 
 onMounted(async () => {
     characters.value = await getCharacters();
@@ -48,6 +48,7 @@ onMounted(async () => {
 const show_character_list = computed(() => {
     if (!characters.value) return [];
     return characters.value.filter((character) => {
+        if (!character.show) return false;
         if (selected_elements.value.length > 0 && !selected_elements.value.includes(character.element)) {
             return false;
         }

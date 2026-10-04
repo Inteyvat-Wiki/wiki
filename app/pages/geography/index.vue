@@ -15,7 +15,7 @@
                     <el-col :xs="12" :sm="12" :md="8" :lg="8" v-for="geography in show_geography_list"
                         :key="geography.id">
                         <NuxtLink :to="`/geography/${geography.id}`" style="text-decoration: none;">
-                            <avatar-display-card :title="geography.name" :icon="geography.image" font_size="1.0em">
+                            <avatar-display-card :title="geography.name" :icon="geography.icon" font_size="1.0em">
                             </avatar-display-card>
                         </NuxtLink>
                     </el-col>
@@ -39,13 +39,14 @@
 </template>
 
 <script setup lang="ts">
-import type { Geographies } from '~/types/geography';
+import type { GeographyPages } from '~/types/geography';
 
-const geographies = ref<Geographies>();
+const geographies = ref<GeographyPages>();
 
 const show_geography_list = computed(() => {
     if (!geographies.value) return [];
     return geographies.value.filter((geography) => {
+        if (!geography.show) return false;
         if (selected_type.value && selected_type.value !== geography.type) {
             return false;
         }

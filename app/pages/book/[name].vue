@@ -3,15 +3,21 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import type { Book } from '~/types/book';
 
-const book = ref<Book>();
+const book = ref<Book[]>();
+const page_name = ref('');
 
 onMounted(async () => {
-    book.value = await get_book(useRoute().params.name as string);
+    const { page, items } = await get_page_data(
+        useRoute().params.name as string, get_books, get_book,
+    );
+    book.value = items;
+    page_name.value = page.name;
 });
 
 useHead({
-    title: computed(() => book.value?.at(-1)?.name || $t('normal.loading')),
+    title: computed(() => page_name.value || $t('normal.loading')),
 });
 </script>

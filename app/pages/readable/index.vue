@@ -18,12 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Readables } from '~/types/readable';
+import type { ReadablePages } from '~/types/readable';
 
 const localePath = useLocalePath();
-const readables = ref<Readables>();
+const readables = ref<ReadablePages>();
 const search = ref('');
 const show_readable_list = computed(() => (readables.value || []).filter(readable =>
+    readable.show &&
     readable.name.toLowerCase().includes(search.value.trim().toLowerCase())
 ));
 

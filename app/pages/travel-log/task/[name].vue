@@ -150,14 +150,15 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import type {
     Task,
-    TaskSummary,
+    TaskPage,
     TalkDisplayMode,
     TaskStep,
     TaskCondition,
     TaskTalk,
-    Tasks,
+    TaskPages,
 } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
 import { evaluate_task_conditions } from '~/utils/task_condition';
@@ -173,7 +174,7 @@ type StepTalkState = {
 const route = useRoute();
 const localePath = useLocalePath();
 const task = ref<Task>();
-const tasks = ref<Tasks>([]);
+const tasks = ref<TaskPages>([]);
 const current_step_key = ref(0);
 const current_step_fixed = ref(false);
 const expanded_step_keys = ref<string[]>([]);
@@ -208,7 +209,7 @@ const task_names = computed<Record<string, string>>(() =>
         item.id,
         item.name || $t('travel-log.hidden_task'),
     ])));
-const task_list_item = computed<TaskSummary | undefined>(() =>
+const task_list_item = computed<TaskPage | undefined>(() =>
     tasks.value.find(item => item.id === route.params.name));
 
 const display_mode_options = computed(() => [
@@ -415,10 +416,11 @@ onMounted(async () => {
     if (saved_mode === 'both' || saved_mode === 'options_only' || saved_mode === 'bubbles_only') {
         talk_display_mode.value = saved_mode;
     }
-    [task.value, tasks.value] = await Promise.all([
-        get_task(route.params.name as string),
-        get_tasks(),
-    ]);
+    tasks.value = await get_tasks();
+    const { items } = await get_page_data(
+        route.params.name as string, async () => tasks.value || [], get_task,
+    );
+    task.value = items[0];
     const container = document.querySelector<HTMLElement>('.page-scrollbar .el-scrollbar__wrap');
     if (container) {
         scroll_container.value = container;

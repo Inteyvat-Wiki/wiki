@@ -3,17 +3,21 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import type { LivingBeing } from '~/types/living_being';
 
-const living_being = ref<LivingBeing>();
+const living_being = ref<LivingBeing[]>();
+const page_name = ref('');
 
 onMounted(async () => {
-    living_being.value = await get_living_being(useRoute().params.name as string);
+    const { page, items } = await get_page_data(
+        useRoute().params.name as string, get_living_beings, get_living_being,
+    );
+    living_being.value = items;
+    page_name.value = page.name;
 });
 
 useHead({
-    title: computed(() => living_being.value
-        ? ((living_being.value[living_being.value.length - 1] as any).name + (living_being.value.length > 1 ? ` (+${living_being.value.length - 1})` : ''))
-        : $t('normal.loading')),
-})
+    title: computed(() => page_name.value || $t('normal.loading')),
+});
 </script>

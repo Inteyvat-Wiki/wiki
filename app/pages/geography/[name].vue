@@ -64,12 +64,14 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import type { Geography } from '~/types/geography';
 
 const geography = ref<Geography>();
 
 onMounted(async () => {
-    geography.value = await get_geography(useRoute().params.name as string);
+    const { items } = await get_page_data(useRoute().params.name as string, get_geographies, get_geography);
+    geography.value = items[0];
 });
 
 useHead({

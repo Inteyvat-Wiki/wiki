@@ -3,17 +3,21 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import type { Material } from '~/types/material';
 
-const material = ref<Material>();
+const material = ref<Material[]>();
+const page_name = ref('');
 
 onMounted(async () => {
-    material.value = await get_material(useRoute().params.name as string);
+    const { page, items } = await get_page_data(
+        useRoute().params.name as string, get_materials, get_material,
+    );
+    material.value = items;
+    page_name.value = page.name;
 });
 
 useHead({
-    title: computed(() => material.value
-        ? ((material.value[material.value.length - 1] as any).name + (material.value.length > 1 ? ` (+${material.value.length - 1})` : ''))
-        : $t('normal.loading')),
-})
+    title: computed(() => page_name.value || $t('normal.loading')),
+});
 </script>

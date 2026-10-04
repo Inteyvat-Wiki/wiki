@@ -1,3 +1,5 @@
+import type { PageDataTrait } from "~/types/common";
+
 export type TaskType = 'archon_quests' | 'story_quests' | 'hangout_quests'
     | 'event_quests' | 'world_quests' | 'commission_quests';
 
@@ -17,17 +19,22 @@ export type ChapterGroup = {
     chapters: Chapter[],
 };
 
-export type ChapterGroups = ChapterGroup[];
+export interface ChapterGroupPage extends PageDataTrait {
+    type: ChapterGroup['type'];
+    chapter_count: number;
+    task_count: number;
+}
 
-export type TaskSummary = {
-    id: string,
-    name: string | null,
-    description: string | null,
-    chapter: string | null,
-    type: TaskType,
-};
+export type ChapterGroupPages = ChapterGroupPage[];
 
-export type Tasks = TaskSummary[];
+export interface TaskPage extends PageDataTrait {
+    hidden: boolean;
+    description: string | null;
+    chapter: string | null;
+    type: TaskType;
+}
+
+export type TaskPages = TaskPage[];
 
 export type TaskState = 'unstarted' | 'ongoing' | 'finished' | 'failed';
 export type TaskComparison = 'equal' | 'not_equal' | 'greater' | 'greater_equal' | 'less' | 'less_equal';

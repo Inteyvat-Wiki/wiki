@@ -109,6 +109,7 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import type { Character } from '~/types/character';
 
 const character = ref<Character>();
@@ -122,7 +123,8 @@ const popover_content = ref({
 });
 
 onMounted(async () => {
-    character.value = await getCharacter(useRoute().params.name as string);
+    const { items } = await get_page_data(useRoute().params.name as string, getCharacters, getCharacter);
+    character.value = items[0];
 });
 
 watch([show_links_element_container, character], () => {

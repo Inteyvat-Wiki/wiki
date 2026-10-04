@@ -1,15 +1,15 @@
 export const INLINE_LINK_CATEGORIES = {
-    character: { folder: 'character', index: 'characters', path: '/character' },
-    weapon: { folder: 'weapon', index: 'weapons', path: '/weapon' },
-    artifact: { folder: 'artifact', index: 'artifacts', path: '/artifact' },
-    material: { folder: 'material', index: 'materials', path: '/material' },
-    book: { folder: 'book', index: 'books', path: '/book' },
-    readable: { folder: 'readable', index: 'readables', path: '/readable' },
-    'living-being': { folder: 'living_being', index: 'living_beings', path: '/living-being' },
-    geography: { folder: 'geography', index: 'geographies', path: '/geography' },
-    'chapter-group': { folder: 'chapter_group', index: 'chapter_groups', path: '/travel-log/chapter' },
-    task: { folder: 'task', index: 'tasks', path: '/travel-log/task' },
-    'quest-item': { folder: 'quest_item', index: 'quest_items', path: '/travel-log/quest-item' },
+    character: { folder: 'character', path: '/character' },
+    weapon: { folder: 'weapon', path: '/weapon' },
+    artifact: { folder: 'artifact', path: '/artifact' },
+    material: { folder: 'material', path: '/material' },
+    book: { folder: 'book', path: '/book' },
+    readable: { folder: 'readable', path: '/readable' },
+    'living-being': { folder: 'living_being', path: '/living-being' },
+    geography: { folder: 'geography', path: '/geography' },
+    'chapter-group': { folder: 'chapter_group', path: '/travel-log/chapter' },
+    task: { folder: 'task', path: '/travel-log/task' },
+    'quest-item': { folder: 'quest_item', path: '/travel-log/quest-item' },
 } as const;
 
 export type InlineLinkCategory = keyof typeof INLINE_LINK_CATEGORIES;

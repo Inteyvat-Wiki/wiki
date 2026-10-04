@@ -15,7 +15,13 @@
             <el-row :gutter="20" style="width: 100%; row-gap: 20px;">
                 <el-col :xs="12" :sm="8" :md="6" :lg="3" v-for="book in show_book_list" :key="book.id">
                     <NuxtLink :to="localePath(`/book/${book.id}`)" style="text-decoration: none;">
-                        <avatar-display-card :title="book.name" :icon="book.icon" font_size="1.0em" />
+                        <avatar-display-card :title="book.name" :icon="book.icon" font_size="1.0em">
+                            <template #left_top v-if="book.items.length > 1">
+                                <el-tag type="primary" size="small" style="margin-top: -25px; margin-left: -10px;">{{
+                                    `+${book.items.length - 1}`
+                                }}</el-tag>
+                            </template>
+                        </avatar-display-card>
                     </NuxtLink>
                 </el-col>
             </el-row>
@@ -25,14 +31,15 @@
 </template>
 
 <script setup lang="ts">
-import type { Books } from '~/types/book';
+import type { BookPages } from '~/types/book';
 
 const localePath = useLocalePath();
-const books = ref<Books>();
+const books = ref<BookPages>();
 const search = ref('');
 const selected_set = ref('');
-const sets = computed(() => [...new Set(books.value?.map(book => book.set).filter(Boolean) || [])]);
+const sets = computed(() => [...new Set(books.value?.filter(book => book.show).map(book => book.set).filter(Boolean) || [])]);
 const show_book_list = computed(() => (books.value || []).filter(book =>
+    book.show &&
     (!selected_set.value || book.set === selected_set.value)
     && `${book.name} ${book.set}`.toLowerCase().includes(search.value.trim().toLowerCase())
 ));

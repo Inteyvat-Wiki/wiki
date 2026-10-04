@@ -39,7 +39,7 @@
                                     <el-card shadow="hover" class="task-card">
                                         <div class="task-card-content">
                                             <div class="task-card-title"
-                                                :class="{ 'task-card-title-hidden': !task_map[task_name]?.name }">
+                                                :class="{ 'task-card-title-hidden': task_map[task_name]?.hidden }">
                                                 {{ get_task_title(task_map[task_name], task_name) }}
                                             </div>
                                             <el-text v-if="task_map[task_name]?.description" type="info" line-clamp="2">
@@ -58,23 +58,25 @@
 </template>
 
 <script setup lang="ts">
-import type { ChapterGroup, TaskSummary, Tasks } from '~/types/travel_log';
+import { get_page_data } from '~/utils/page';
+import type { ChapterGroup, TaskPage, TaskPages } from '~/types/travel_log';
 
 const localePath = useLocalePath();
 const chapter_group = ref<ChapterGroup>();
-const tasks = ref<Tasks>([]);
-const task_map = computed<Record<string, TaskSummary>>(() =>
+const tasks = ref<TaskPages>([]);
+const task_map = computed<Record<string, TaskPage>>(() =>
     Object.fromEntries(tasks.value.map(task => [task.id, task])));
 
 const group_icon = computed(() => chapter_group.value?.chapters[0]?.icon || null);
 
-function get_task_title(task: TaskSummary | undefined, fallback: string) {
+function get_task_title(task: TaskPage | undefined, fallback: string) {
     return task?.name || (task ? $t('travel-log.hidden_task') : fallback);
 }
 
 onMounted(async () => {
     [chapter_group.value, tasks.value] = await Promise.all([
-        get_chapter_group(useRoute().params.name as string),
+        get_page_data(useRoute().params.name as string, get_chapter_groups, get_chapter_group)
+            .then(({ items }) => items[0]),
         get_tasks(),
     ]);
 });

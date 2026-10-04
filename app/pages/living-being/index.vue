@@ -6,9 +6,9 @@
                     :key="living_being.id">
                     <NuxtLink :to="`/living-being/${living_being.id}`" style="text-decoration: none;">
                         <avatar-display-card :title="living_being.name" :icon="living_being.icon" font_size="1.0em">
-                            <template #left_top v-if="living_being.count > 1">
+                            <template #left_top v-if="living_being.items.length > 1">
                                 <el-tag type="primary" size="small" style="margin-top: -25px; margin-left: -10px;">{{
-                                    `+${living_being.count - 1}`
+                                    `+${living_being.items.length - 1}`
                                 }}</el-tag>
                             </template>
                         </avatar-display-card>
@@ -33,13 +33,14 @@
 </template>
 
 <script setup lang="ts">
-import type { LivingBeings } from '~/types/living_being';
+import type { LivingBeingPages } from '~/types/living_being';
 
-const living_beings = ref<LivingBeings>();
+const living_beings = ref<LivingBeingPages>();
 
 const show_living_being_list = computed(() => {
     if (!living_beings.value) return [];
     return living_beings.value.filter((living_being) => {
+        if (!living_being.show) return false;
         if (selected_type.value && selected_type.value !== living_being.type) {
             return false;
         }

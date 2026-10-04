@@ -83,12 +83,14 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import type { Weapon } from '~/types/weapon';
 
 const weapon = ref<Weapon>();
 
 onMounted(async () => {
-    weapon.value = await getWeapon(useRoute().params.name as string);
+    const { items } = await get_page_data(useRoute().params.name as string, getWeapons, getWeapon);
+    weapon.value = items[0];
 });
 
 useHead({

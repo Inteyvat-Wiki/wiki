@@ -53,13 +53,15 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import ArtifactBasicInfoCard from '~/components/ArtifactBasicInfoCard.vue';
 import type { Artifact, ArtifactItem } from '~/types/artifact';
 
 const artifact = ref<Artifact>();
 
 onMounted(async () => {
-    artifact.value = await getArtifact(useRoute().params.name as string);
+    const { items } = await get_page_data(useRoute().params.name as string, getArtifacts, getArtifact);
+    artifact.value = items[0];
 });
 
 const artifact_item_name = ['flower', 'plume', 'sands', 'goblet', 'circlet'];

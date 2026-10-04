@@ -36,10 +36,10 @@
 </template>
 
 <script setup lang="ts">
-import type { Weapons } from '~/types/weapon';
+import type { WeaponPages } from '~/types/weapon';
 import { StarFilled } from '@element-plus/icons-vue';
 
-const weapons = ref<Weapons>();
+const weapons = ref<WeaponPages>();
 
 onMounted(async () => {
     weapons.value = await getWeapons();
@@ -48,6 +48,7 @@ onMounted(async () => {
 const show_weapon_list = computed(() => {
     if (!weapons.value) return [];
     return weapons.value.filter((weapon) => {
+        if (!weapon.show) return false;
         if (selected_types.value.length > 0 && !selected_types.value.includes(weapon.type)) {
             return false;
         }

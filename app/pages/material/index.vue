@@ -5,9 +5,9 @@
                 <el-col :xs="8" :sm="8" :md="6" :lg="3" v-for="material in show_material_list" :key="material.id">
                     <NuxtLink :to="`/material/${material.id}`" style="text-decoration: none;">
                         <avatar-display-card :title="material.name" :icon="material.icon" font_size="1.0em">
-                            <template #left_top v-if="material.count > 1">
+                            <template #left_top v-if="material.items.length > 1">
                                 <el-tag type="primary" size="small" style="margin-top: -25px; margin-left: -10px;">{{
-                                    `+${material.count - 1}`
+                                    `+${material.items.length - 1}`
                                 }}</el-tag>
                             </template>
                         </avatar-display-card>
@@ -34,13 +34,14 @@
 </template>
 
 <script setup lang="ts">
-import type { Materials } from '~/types/material';
+import type { MaterialPages } from '~/types/material';
 
-const materials = ref<Materials>();
+const materials = ref<MaterialPages>();
 
 const show_material_list = computed(() => {
     if (!materials.value) return [];
     return materials.value.filter((material) => {
+        if (!material.show) return false;
         if (selected_type.value && selected_type.value !== material.type) {
             return false;
         }

@@ -3,12 +3,14 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import type { Readable } from '~/types/readable';
 
 const readable = ref<Readable>();
 
 onMounted(async () => {
-    readable.value = await get_readable(useRoute().params.name as string);
+    const { items } = await get_page_data(useRoute().params.name as string, get_readables, get_readable);
+    readable.value = items[0];
 });
 
 useHead({

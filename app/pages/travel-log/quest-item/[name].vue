@@ -3,17 +3,21 @@
 </template>
 
 <script setup lang="ts">
+import { get_page_data } from '~/utils/page';
 import type { QuestItem } from '~/types/quest_item';
 
-const quest_item = ref<QuestItem>();
+const quest_item = ref<QuestItem[]>();
+const page_name = ref('');
 
 onMounted(async () => {
-    quest_item.value = await get_quest_item(useRoute().params.name as string);
+    const { page, items } = await get_page_data(
+        useRoute().params.name as string, get_quest_items, get_quest_item,
+    );
+    quest_item.value = items;
+    page_name.value = page.name;
 });
 
 useHead({
-    title: computed(() => quest_item.value
-        ? ((quest_item.value[quest_item.value.length - 1] as any).name + (quest_item.value.length > 1 ? ` (+${quest_item.value.length - 1})` : ''))
-        : $t('normal.loading')),
-})
+    title: computed(() => page_name.value || $t('normal.loading')),
+});
 </script>

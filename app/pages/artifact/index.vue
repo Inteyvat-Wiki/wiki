@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Artifacts } from '~/types/artifact';
+import type { ArtifactPages } from '~/types/artifact';
 
-const artifacts = ref<Artifacts>();
+const artifacts = ref<ArtifactPages>();
 
 onMounted(async () => {
     artifacts.value = await getArtifacts();
@@ -28,6 +28,7 @@ onMounted(async () => {
 const show_artifact_list = computed(() => {
     if (!artifacts.value) return [];
     return artifacts.value.filter((artifact) => {
+        if (!artifact.show) return false;
         return true;
     }).reverse();
 });

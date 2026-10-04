@@ -1,14 +1,14 @@
-import type { Character, Characters } from '~/types/character';
-import type { Weapon, Weapons } from '~/types/weapon';
-import type { Artifact, Artifacts } from '~/types/artifact';
-import type { Material, Materials } from '~/types/material';
-import type { Book, Books } from '~/types/book';
-import type { Readable, Readables } from '~/types/readable';
-import type { LivingBeing, LivingBeings } from '~/types/living_being';
-import type { Geography, Geographies } from '~/types/geography';
+import type { Character, CharacterPages } from '~/types/character';
+import type { Weapon, WeaponPages } from '~/types/weapon';
+import type { Artifact, ArtifactPages } from '~/types/artifact';
+import type { Material, MaterialPages } from '~/types/material';
+import type { Book, BookPages } from '~/types/book';
+import type { Readable, ReadablePages } from '~/types/readable';
+import type { LivingBeing, LivingBeingPages } from '~/types/living_being';
+import type { Geography, GeographyPages } from '~/types/geography';
 import type { Mapback, Maplayer, MapList, MapConditions } from '~/types/map';
-import type { ChapterGroup, ChapterGroups, Task, Tasks } from '~/types/travel_log';
-import type { QuestItem, QuestItems } from '~/types/quest_item';
+import type { ChapterGroup, ChapterGroupPages, Task, TaskPages } from '~/types/travel_log';
+import type { QuestItem, QuestItemPages } from '~/types/quest_item';
 import type { Menu } from '~/types/menu';
 import type { LocaleCode } from '~~/shared/i18n';
 import type { InlineLinkCategory, InlineLinkInfo } from '~~/shared/inline_link';
@@ -37,9 +37,9 @@ export async function getCharacter(name: any): Promise<Character> {
     return data as Character;
 }
 
-export async function getCharacters(): Promise<Characters> {
+export async function getCharacters(): Promise<CharacterPages> {
     const data = await api(`/api/characters`);
-    return data as Characters;
+    return data as CharacterPages;
 }
 
 export async function getWeapon(name: any): Promise<Weapon> {
@@ -47,9 +47,9 @@ export async function getWeapon(name: any): Promise<Weapon> {
     return data as Weapon;
 }
 
-export async function getWeapons(): Promise<Weapons> {
+export async function getWeapons(): Promise<WeaponPages> {
     const data = await api(`/api/weapons`);
-    return data as Weapons;
+    return data as WeaponPages;
 }
 
 export async function getArtifact(name: any): Promise<Artifact> {
@@ -57,9 +57,9 @@ export async function getArtifact(name: any): Promise<Artifact> {
     return data as Artifact;
 }
 
-export async function getArtifacts(): Promise<Artifacts> {
+export async function getArtifacts(): Promise<ArtifactPages> {
     const data = await api(`/api/artifacts`);
-    return data as Artifacts;
+    return data as ArtifactPages;
 }
 
 export async function get_material(name: any): Promise<Material> {
@@ -67,25 +67,25 @@ export async function get_material(name: any): Promise<Material> {
     return data as Material;
 }
 
-export async function get_materials(): Promise<Materials> {
+export async function get_materials(): Promise<MaterialPages> {
     const data = await api(`/api/materials`);
-    return data as Materials;
+    return data as MaterialPages;
 }
 
 export async function get_book(name: string): Promise<Book> {
     return await api<Book>(`/api/book/${name}`);
 }
 
-export async function get_books(): Promise<Books> {
-    return await api<Books>('/api/books');
+export async function get_books(): Promise<BookPages> {
+    return await api<BookPages>('/api/books');
 }
 
 export async function get_readable(name: string): Promise<Readable> {
     return await api<Readable>(`/api/readable/${name}`);
 }
 
-export async function get_readables(): Promise<Readables> {
-    return await api<Readables>('/api/readables');
+export async function get_readables(): Promise<ReadablePages> {
+    return await api<ReadablePages>('/api/readables');
 }
 
 export async function get_living_being(name: any): Promise<LivingBeing> {
@@ -93,9 +93,9 @@ export async function get_living_being(name: any): Promise<LivingBeing> {
     return data as LivingBeing;
 }
 
-export async function get_living_beings(): Promise<LivingBeings> {
+export async function get_living_beings(): Promise<LivingBeingPages> {
     const data = await api(`/api/living-beings`);
-    return data as LivingBeings;
+    return data as LivingBeingPages;
 }
 
 export async function get_geography(name: any): Promise<Geography> {
@@ -103,9 +103,9 @@ export async function get_geography(name: any): Promise<Geography> {
     return data as Geography;
 }
 
-export async function get_geographies(): Promise<Geographies> {
+export async function get_geographies(): Promise<GeographyPages> {
     const data = await api(`/api/geographies`);
-    return data as Geographies;
+    return data as GeographyPages;
 }
 
 export async function get_mapback(name: any): Promise<Mapback> {
@@ -133,9 +133,9 @@ export async function get_menu(): Promise<Menu> {
     return data;
 }
 
-export async function get_chapter_groups(): Promise<ChapterGroups> {
+export async function get_chapter_groups(): Promise<ChapterGroupPages> {
     const data = await api('/api/chapter-groups');
-    return data as ChapterGroups;
+    return data as ChapterGroupPages;
 }
 
 export async function get_chapter_group(name: string): Promise<ChapterGroup> {
@@ -143,9 +143,9 @@ export async function get_chapter_group(name: string): Promise<ChapterGroup> {
     return data as ChapterGroup;
 }
 
-export async function get_tasks(): Promise<Tasks> {
+export async function get_tasks(): Promise<TaskPages> {
     const data = await api('/api/tasks');
-    return data as Tasks;
+    return data as TaskPages;
 }
 
 export async function get_task(name: string): Promise<Task> {
@@ -153,9 +153,9 @@ export async function get_task(name: string): Promise<Task> {
     return data as Task;
 }
 
-export async function get_quest_items(): Promise<QuestItems> {
+export async function get_quest_items(): Promise<QuestItemPages> {
     const data = await api('/api/quest-items');
-    return data as QuestItems;
+    return data as QuestItemPages;
 }
 
 export async function get_quest_item(name: string): Promise<QuestItem> {
