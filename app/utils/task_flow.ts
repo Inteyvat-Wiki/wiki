@@ -224,8 +224,7 @@ export function build_task_flow(options: {
         if (talk.initial_dialogs?.length) return talk.initial_dialogs;
         const incoming = new Set(Object.values(talk.dialogs).flatMap(dialog => dialog.next_dialogs.map(next => next.dialog)));
         const keys = Object.keys(talk.dialogs).map(Number);
-        const root = keys.find(key => !incoming.has(key)) ?? keys[0];
-        return root === undefined ? [] : [{ dialog: root }];
+        return keys.filter(key => !incoming.has(key)).map(dialog => ({ dialog }));
     }
 
     // 可选性检查所有可执行分支，不使用已保存的选项，也不延伸到新的独立触发入口。
@@ -291,7 +290,9 @@ export function build_task_flow(options: {
                 const options = get_branch_options(key, initial, operations, branches);
                 if (options) return options.available.every(option => inspect_talk(key,
                     { ...branches, [options.branch.id]: option }));
-                return !has_effect(operations, branches) && inspect_next(key, initial, branches);
+                return !has_effect(operations, branches) && (talk.initial_dialogs?.length
+                    ? inspect_next(key, initial, branches)
+                    : initial.length > 0 && initial.every(next => inspect_dialog(key, next.dialog, branches)));
             });
         }
 
@@ -312,13 +313,13 @@ export function build_task_flow(options: {
     }
 
     function search_next(talk_key: number, location: number | string, next: TaskDialogNext[],
-        state: TaskFlowState, branches: TaskFlowSelections) {
+        state: TaskFlowState, branches: TaskFlowSelections, remaining_roots: number[] = []) {
         const talk = task.talks[talk_key]!;
         const selectable = next.filter(item => talk.dialogs[item.dialog]!.role === 'select');
         const saved = selections[selection_key(talk_key, location)];
         const selected = selectable.find(item => item.dialog === saved);
         const targets = selectable.length ? selected ? [selected] : selectable : next.slice(0, 1);
-        return targets.some(item => search_dialog(talk_key, item.dialog, state, branches));
+        return targets.some(item => search_dialog(talk_key, item.dialog, state, branches, remaining_roots));
     }
 
     function search_after(talk_key: number, state: TaskFlowState) {
@@ -331,18 +332,21 @@ export function build_task_flow(options: {
         return (available.includes(saved as number) ? [saved!] : available).some(key => search_talk(key, result));
     }
 
-    function search_dialog(talk_key: number, dialog_key: number, state: TaskFlowState, branches: TaskFlowSelections): boolean {
-        return search(`dialog:${talk_key}:${dialog_key}`, state, branches, () => {
+    function search_dialog(talk_key: number, dialog_key: number, state: TaskFlowState, branches: TaskFlowSelections,
+        remaining_roots: number[] = []): boolean {
+        return search(`dialog:${talk_key}:${dialog_key}:${remaining_roots.join(',')}`, state, branches, () => {
             const talk = task.talks[talk_key]!;
             const dialog = talk.dialogs[dialog_key]!;
             const options = get_branch_options(talk_key, dialog.next_dialogs, dialog.operations || [], branches);
             if (options) return (options.saved === undefined ? options.available : [options.saved])
-                .some(option => search_dialog(talk_key, dialog_key, state, { ...branches, [options.branch.id]: option }));
+                .some(option => search_dialog(talk_key, dialog_key, state,
+                    { ...branches, [options.branch.id]: option }, remaining_roots));
             const next_state = operate(dialog.operations || [], state, branches, 'search');
-            if (finished(next_state)) return true;
-            if (!dialog.next_dialogs.length) return search_after(talk_key, next_state);
+            if (!dialog.next_dialogs.length) return remaining_roots.length
+                ? search_dialog(talk_key, remaining_roots[0]!, next_state, branches, remaining_roots.slice(1))
+                : search_after(talk_key, next_state);
             return search_next(talk_key, dialog_key, next_dialogs(talk, dialog.next_dialogs, next_state, branches),
-                next_state, branches);
+                next_state, branches, remaining_roots);
         });
     }
 
@@ -354,8 +358,10 @@ export function build_task_flow(options: {
             if (options) return (options.saved === undefined ? options.available : [options.saved])
                 .some(option => search_talk(talk_key, state, { ...branches, [options.branch.id]: option }));
             const next_state = operate(talk.operations || [], state, branches, 'search');
-            if (finished(next_state)) return true;
-            return search_next(talk_key, 'initial', next_dialogs(talk, initial, next_state, branches), next_state, branches);
+            const next = next_dialogs(talk, initial, next_state, branches);
+            if (!talk.initial_dialogs?.length) return next.length > 0
+                && search_dialog(talk_key, next[0]!.dialog, next_state, branches, next.slice(1).map(item => item.dialog));
+            return search_next(talk_key, 'initial', next, next_state, branches);
         });
     }
 
@@ -391,6 +397,8 @@ export function build_task_flow(options: {
             candidate => search_talk(talk_key, state, candidate));
         state = operate(talk.operations || [], state, branches, `${talk_key}:initial`, items);
         let next = next_dialogs(talk, initial, state, branches, true);
+        const remaining_roots = talk.initial_dialogs?.length ? [] : next.slice(1);
+        if (!talk.initial_dialogs?.length) next = next.slice(0, 1);
         const visited = new Set<string>();
         let complete = false;
         let previous_dialog: number | string = 'initial';
@@ -398,7 +406,8 @@ export function build_task_flow(options: {
             const choices = next.filter(item => talk.dialogs[item.dialog]!.role === 'select');
             const key = selection_key(talk_key, previous_dialog);
             const dialog_key = choices.length
-                ? choose(choices.map(item => item.dialog), key, candidate => search_dialog(talk_key, candidate, state, branches))
+                ? choose(choices.map(item => item.dialog), key, candidate => search_dialog(talk_key, candidate, state,
+                    branches, remaining_roots.map(item => item.dialog)))
                 : next[0]!.dialog;
             if (dialog_key === undefined) break;
             const marker = JSON.stringify([dialog_key, Object.entries(state.values).sort(), Object.entries(branches).sort()]);
@@ -409,10 +418,16 @@ export function build_task_flow(options: {
                 options: choices.map(item => ({ key: item.dialog, dialog: talk.dialogs[item.dialog]! })) });
             else items.push({ kind: 'dialog', key: dialog_key, dialog });
             branches = branch_choices(talk_key, dialog.next_dialogs, dialog.operations || [], branches, items,
-                candidate => search_dialog(talk_key, dialog_key, state, candidate));
+                candidate => search_dialog(talk_key, dialog_key, state, candidate,
+                    remaining_roots.map(item => item.dialog)));
             state = operate(dialog.operations || [], state, branches, `${talk_key}:${dialog_key}`, items);
-            if (finished(state)) break;
-            if (!dialog.next_dialogs.length) { complete = true; break; }
+            if (!dialog.next_dialogs.length) {
+                const root = remaining_roots.shift();
+                if (!root) { complete = true; break; }
+                next = [root];
+                previous_dialog = 'initial';
+                continue;
+            }
             next = next_dialogs(talk, dialog.next_dialogs, state, branches, true);
             previous_dialog = dialog_key;
         }
