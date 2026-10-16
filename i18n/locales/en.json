@@ -47,6 +47,13 @@
         "hidden_step": "Hidden Step",
         "hidden_task": "Hidden Quest",
         "dialog": "Dialogue",
+        "narration": "Floating Subtitles",
+        "narration_delay": "After {seconds} seconds",
+        "narration_event": {
+            "start": "On Step Start",
+            "finish": "On Step Completion",
+            "failed": "On Step Failure"
+        },
         "other": "Other",
         "display_mode": {
             "both": "Options + Bubbles",

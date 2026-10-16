@@ -32,6 +32,8 @@ export type TaskFlow = {
     initial_conditions: TaskCondition[],
     optional_talk_keys: number[],
     state: TaskFlowState,
+    initial_state: TaskFlowState,
+    outcome: 'finished' | 'failed',
 };
 
 export function copy_flow_state(state: TaskFlowState): TaskFlowState {
@@ -89,7 +91,7 @@ export function build_task_flow(options: {
     const talk_keys = Object.keys(task.talks).map(Number);
     const target_talks = get_linked_talks(task, step?.talks || []);
     const required_talks = new Set(Object.values(task.steps || (step ? { current: step } : {}))
-        .flatMap(item => [...item.talks, ...item.finish_conditions.flatMap(token =>
+        .flatMap(item => [...item.talks, ...[...item.finish_conditions, ...(item.fail_conditions || [])].flatMap(token =>
             typeof token !== 'string' && token.type === 'talk' ? [token.talk] : [])]));
     const optional_memo = new Map<string, boolean>();
     const optional_searching = new Set<string>();
@@ -111,7 +113,7 @@ export function build_task_flow(options: {
             condition_samples.set(condition.id, samples);
         }
     }
-    for (const condition of step?.finish_conditions || []) {
+    for (const condition of [...(step?.finish_conditions || []), ...(step?.fail_conditions || [])]) {
         if (typeof condition === 'string' || condition.type === 'talk') continue;
         const samples = condition_samples.get(condition.id) || [];
         if (!samples.some(sample => JSON.stringify(sample) === JSON.stringify(condition))) samples.push(condition);
@@ -129,16 +131,23 @@ export function build_task_flow(options: {
         return !tokens?.length || evaluate_task_conditions(tokens, current_step, step_keys, values) === true;
     }
 
-    function finished(state: TaskFlowState) {
-        if (!step) return false;
+    function matches_end_conditions(tokens: TaskStep['finish_conditions'], state: TaskFlowState) {
         const values = { ...state.values };
-        const tokens: TaskConditionToken[] = step.finish_conditions.map(token => {
+        const conditions: TaskConditionToken[] = tokens.map(token => {
             if (typeof token === 'string' || token.type !== 'talk') return token;
             const id = `completed-talk:${token.talk}`;
             values[id] = state.completed.has(token.talk);
             return { type: 'boolean', id, title: '', subtitle: '', value: true };
         });
-        return evaluate_task_conditions(tokens, current_step, step_keys, values) === true;
+        return evaluate_task_conditions(conditions, current_step, step_keys, values) === true;
+    }
+
+    function failed(state: TaskFlowState) {
+        return !!step && matches_end_conditions(step.fail_conditions || [], state);
+    }
+
+    function finished(state: TaskFlowState) {
+        return !!step && !failed(state) && matches_end_conditions(step.finish_conditions, state);
     }
 
     function candidates(previous: number | undefined, state: TaskFlowState) {
@@ -326,6 +335,7 @@ export function build_task_flow(options: {
         const result = copy_flow_state(state);
         result.completed.add(talk_key);
         if (!step) return true;
+        if (failed(result)) return false;
         if (finished(result)) return true;
         const available = candidates(talk_key, result);
         const saved = selections[`${scope}:talk:${talk_key}`];
@@ -373,7 +383,7 @@ export function build_task_flow(options: {
     let state = copy_flow_state(options.state);
     let previous: number | undefined;
     const rendered = new Set<number>();
-    while (!finished(state)) {
+    while (!finished(state) && !failed(state)) {
         const available = options.initial_talk !== undefined
             ? rendered.size ? [] : [options.initial_talk]
             : candidates(previous, state);
@@ -438,5 +448,6 @@ export function build_task_flow(options: {
     const optional_talk_keys = options.include_optional ? get_trigger_candidates(task, talk_keys.filter(key =>
         task.talks[key]!.begin_way === 'manual' && !state.completed.has(key)
         && evaluate(task.talks[key]!.conditions, state))).filter(key => is_optional(key, state)) : [];
-    return { segments, initial_conditions: [...initial_conditions.values()], optional_talk_keys, state };
+    return { segments, initial_conditions: [...initial_conditions.values()], optional_talk_keys, state,
+        initial_state: copy_flow_state(options.state), outcome: failed(state) ? 'failed' : 'finished' };
 }

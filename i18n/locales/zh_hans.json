@@ -166,6 +166,13 @@
         "hidden_step": "隐藏步骤",
         "hidden_task": "隐藏任务",
         "dialog": "对话",
+        "narration": "悬浮字幕",
+        "narration_delay": "延迟 {seconds} 秒",
+        "narration_event": {
+            "start": "步骤开始时",
+            "finish": "步骤完成时",
+            "failed": "步骤失败时"
+        },
         "other": "其他",
         "display_mode": {
             "both": "选项 + 气泡",

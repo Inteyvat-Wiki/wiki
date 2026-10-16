@@ -138,6 +138,7 @@ export type TaskStep = {
     description: string,
     talks: number[],
     finish_conditions: TaskFinishConditionToken[],
+    fail_conditions: TaskFinishConditionToken[],
 };
 
 export type Task = {
@@ -150,4 +151,16 @@ export type Task = {
     suggested_tasks: string[],
     steps: Record<string, TaskStep>,
     talks: Record<string, TaskTalk>,
+    narrations: Record<string, TaskNarration>,
+};
+
+export type TaskNarration = {
+    type: 'narration',
+    step: number,
+    event: 'start' | 'finish' | 'failed',
+    source: string,
+    delay?: number,
+    after?: string,
+    conditions: TaskConditionToken[],
+    dialogs: Record<string, TaskDialog & { duration?: number }>,
 };

@@ -77,6 +77,10 @@
                                         </div>
                                     </div>
                                 </template>
+                                <task-talk v-for="entry in get_narrations(item.key, 'start')" :key="entry.key"
+                                    class="step-talks" :talk="entry.narration"
+                                    :ref="instance => set_talk_ref(`narration-${entry.key}`, instance)"
+                                    :condition_values="condition_values" :current_step="item.key" :step_keys="step_keys" />
                                 <div v-for="segment in get_step_talk_state(item).segments" :key="segment.selector_key"
                                     class="step-talks">
                                     <div v-if="segment.candidate_keys.length > 1"
@@ -99,6 +103,10 @@
                                         @select="select_flow_option" />
                                 </div>
                                 <task-item-operations :operations="item.step.operations" />
+                                <task-talk v-for="entry in get_narrations(item.key, 'finish', 'failed')" :key="entry.key"
+                                    class="step-talks" :talk="entry.narration"
+                                    :ref="instance => set_talk_ref(`narration-${entry.key}`, instance)"
+                                    :condition_values="condition_values" :current_step="item.key" :step_keys="step_keys" />
                             </el-collapse-item>
                         </el-collapse>
                     </el-card>
@@ -160,9 +168,11 @@ import type {
     TaskStep,
     TaskCondition,
     TaskTalk,
+    TaskNarration,
     TaskPages,
 } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
+import { get_step_narrations } from '~/utils/task_narration';
 import { build_task_flow, type TaskFlow, type TaskFlowSelections,
     type TaskFlowState } from '~/utils/task_flow';
 import { Aim, Location, Lock } from '@element-plus/icons-vue';
@@ -195,9 +205,12 @@ function set_talk_ref(scope: string, instance: unknown) {
 async function copy_task_dialogs() {
     await nextTick();
     const scopes = [
-        ...steps.value.flatMap(item => get_step_talk_state(item).segments
-            .filter(segment => segment.talk_key !== undefined)
-            .map(segment => `step-${item.key}-${segment.talk_key}`)),
+        ...steps.value.flatMap(item => [
+            ...get_narrations(item.key, 'start').map(entry => `narration-${entry.key}`),
+            ...get_step_talk_state(item).segments.filter(segment => segment.talk_key !== undefined)
+                .map(segment => `step-${item.key}-${segment.talk_key}`),
+            ...get_narrations(item.key, 'finish', 'failed').map(entry => `narration-${entry.key}`),
+        ]),
         ...visible_extra_talks.value.map(item => `extra-${item.key}`),
     ];
     const text = scopes.map(scope => talk_refs.get(scope)?.get_dialog_text())
@@ -229,6 +242,11 @@ const step_keys = computed(() => steps.value.map(item => item.key));
 
 const selectable_conditions = computed<TaskCondition[]>(() => {
     const result = new Map<string, TaskCondition>();
+    for (const narration of Object.values(task.value?.narrations || {})) {
+        for (const token of narration.conditions) {
+            if (typeof token !== 'string') result.set(JSON.stringify(token), token);
+        }
+    }
     for (const talk of Object.values(task.value?.talks || {})) {
         for (const token of talk.conditions) {
             if (typeof token === 'string') continue;
@@ -237,7 +255,7 @@ const selectable_conditions = computed<TaskCondition[]>(() => {
         }
     }
     for (const item of steps.value) {
-        for (const token of item.step.finish_conditions) {
+        for (const token of [...item.step.finish_conditions, ...(item.step.fail_conditions || [])]) {
             if (item.key !== current_step_key.value) continue;
             if (typeof token === 'string' || token.type === 'talk') continue;
             if (token.type === 'step' && !token.task) continue;
@@ -257,6 +275,11 @@ const selectable_conditions = computed<TaskCondition[]>(() => {
     }
     return [...result.values()];
 });
+
+function get_narrations(step: number, ...events: TaskNarration['event'][]) {
+    return get_step_narrations(task.value?.narrations || {}, step_talk_states.value,
+        step_keys.value, condition_values.value, step, events);
+}
 
 const active_condition_scopes = computed(() => new Set([
     ...visible_extra_talks.value.map(item => `extra-${item.key}`),
