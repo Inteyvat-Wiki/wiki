@@ -133,6 +133,15 @@ export async function get_menu(): Promise<Menu> {
     return data;
 }
 
+export async function get_npcs(): Promise<import('~/types/npc').NpcPages> {
+    return await api<import('~/types/npc').NpcPages>('/api/npcs');
+}
+
+export async function get_npc(name: string): Promise<import('~/types/npc').Npc> {
+    const path: string = `/api/npc/${name}`;
+    return await api<import('~/types/npc').Npc>(path);
+}
+
 export async function get_chapter_groups(): Promise<ChapterGroupPages> {
     const data = await api('/api/chapter-groups');
     return data as ChapterGroupPages;

@@ -34,6 +34,7 @@ import type { TaskFlowSegment } from '~/utils/task_flow';
 
 const props = defineProps<{
     talk: TaskTalk | TaskNarration,
+    title?: string,
     extra?: boolean,
     mode?: TalkDisplayMode,
     condition_values: TaskConditionValues,
@@ -52,7 +53,7 @@ const expanded_keys = ref(props.extra ? [] : ['talk']);
 const dialogs = ref<InstanceType<typeof TalkDialogs>>();
 const is_narration = computed(() => 'type' in props.talk && props.talk.type === 'narration');
 const talk_title = computed(() =>
-    'objects' in props.talk ? props.talk.objects.join(' / ') || $t('travel-log.dialog') : '');
+    props.title || ('objects' in props.talk ? props.talk.objects.join(' / ') || $t('travel-log.dialog') : ''));
 const narration_context = computed(() => {
     if (!('event' in props.talk)) return '';
     const event = $t(`travel-log.narration_event.${props.talk.event}`);
@@ -63,7 +64,7 @@ const dialog_talk = computed<TaskTalk>(() => 'objects' in props.talk ? props.tal
     objects: [], trigger_points: [], dialogs: props.talk.dialogs,
 });
 const dialog_segment = computed<TaskFlowSegment | undefined>(() => {
-    if (!('source' in props.talk)) return props.segment;
+    if (!is_narration.value || !('source' in props.talk)) return props.segment;
     return {
         selector_key: props.talk.source, candidate_keys: [],
         items: Object.entries(props.talk.dialogs).map(([key, dialog]) => ({ kind: 'dialog', key: Number(key), dialog })),

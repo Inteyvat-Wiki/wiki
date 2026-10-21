@@ -105,6 +105,7 @@ export type TaskItemOperation = {
 export type TaskOperation = TaskVariableOperation | TaskItemOperation;
 
 export type TaskDialog = {
+    actions?: { type: string, timing: 'before' | 'while' | 'after', source: string }[],
     content: string,
     role: 'npc' | 'select' | 'black_screen' | 'text',
     speaker?: string,

@@ -1,5 +1,5 @@
 <template>
-    <el-container v-if="chapter_groups && tasks && quest_items">
+    <el-container v-if="chapter_groups && tasks && quest_items && npcs">
         <el-main>
             <el-row justify="space-between" align="middle" :gutter="20" style="row-gap: 16px; margin-bottom: 10px;">
                 <el-col :span="24" :md="12">
@@ -10,7 +10,7 @@
                 </el-col>
             </el-row>
 
-            <el-tabs v-model="selected_type">
+            <el-tabs v-if="view_mode !== 'npcs'" v-model="selected_type">
                 <el-tab-pane v-for="type in type_list" :key="type" :name="type"
                     :label="$t(`travel-log.type.${type}`)" />
             </el-tabs>
@@ -62,6 +62,25 @@
                 </el-row>
             </template>
 
+            <template v-if="view_mode === 'npcs'">
+                <el-input v-model="search_text" :placeholder="$t('travel-log.search_npcs')" :prefix-icon="Search"
+                    clearable style="max-width: 420px; margin-bottom: 20px;" />
+                <el-row :gutter="20" style="width: 100%; row-gap: 20px;">
+                    <el-col v-for="npc in paged_npcs" :key="npc.id" :span="24" :sm="12" :lg="8">
+                        <NuxtLink :to="localePath(`/travel-log/npc/${npc.id}`)" class="card-link">
+                            <el-card shadow="hover" class="task-card">
+                                <div class="task-card-content">
+                                    <span class="task-card-title">{{ npc.name }}</span>
+                                    <el-text type="info">{{ $t('travel-log.npc_talk_count', { count: npc.talk_count }) }}</el-text>
+                                </div>
+                            </el-card>
+                        </NuxtLink>
+                    </el-col>
+                </el-row>
+                <el-pagination v-model:current-page="npc_page" :page-size="60" :total="shown_npcs.length"
+                    layout="prev, pager, next" hide-on-single-page style="margin-top: 20px;" />
+            </template>
+
             <template v-if="view_mode === 'quest_item'">
                 <el-row :gutter="20" style="width: 100%; row-gap: 20px;">
                     <el-col :xs="8" :sm="6" :md="4" :lg="2" v-for="quest_item in shown_quest_items" :key="quest_item.id">
@@ -84,14 +103,18 @@
 import { Search } from '@element-plus/icons-vue';
 import type { ChapterGroupPages, TaskPage, TaskPages, TaskType } from '~/types/travel_log';
 import type { QuestItemPages } from '~/types/quest_item';
+import type { NpcPages } from '~/types/npc';
 
 const localePath = useLocalePath();
 const chapter_groups = ref<ChapterGroupPages>();
 const tasks = ref<TaskPages>();
 const quest_items = ref<QuestItemPages>();
-const view_mode = ref<'chapters' | 'tasks' | 'quest_item'>('chapters');
+const npcs = ref<NpcPages>();
+type ViewMode = 'chapters' | 'tasks' | 'quest_item' | 'npcs';
+const view_mode = ref<ViewMode>('chapters');
 const selected_type = ref<TaskType>('archon_quests');
 const search_text = ref('');
+const npc_page = ref(1);
 
 const type_list: TaskType[] = [
     'archon_quests',
@@ -106,9 +129,14 @@ const view_options = computed(() => [
     { label: $t('travel-log.chapters'), value: 'chapters' },
     { label: $t('travel-log.tasks'), value: 'tasks' },
     { label: $t('travel-log.quest_item'), value: 'quest_item' },
+    { label: $t('travel-log.npcs'), value: 'npcs' },
 ]);
 
 const shown_quest_items = computed(() => (quest_items.value || []).filter(page => page.show));
+const shown_npcs = computed(() => (npcs.value || []).filter(page => page.show
+    && page.name.toLocaleLowerCase().includes(search_text.value.trim().toLocaleLowerCase())));
+const paged_npcs = computed(() => shown_npcs.value.slice((npc_page.value - 1) * 60, npc_page.value * 60));
+watch(search_text, () => { npc_page.value = 1; });
 
 const shown_chapter_groups = computed(() =>
     (chapter_groups.value || []).filter(group => group.show && group.type === selected_type.value));
@@ -129,16 +157,17 @@ function get_task_title(task: TaskPage) {
 }
 
 onMounted(async () => {
-    [chapter_groups.value, tasks.value, quest_items.value] = await Promise.all([
+    [chapter_groups.value, tasks.value, quest_items.value, npcs.value] = await Promise.all([
         get_chapter_groups(),
         get_tasks(),
         get_quest_items(),
+        get_npcs(),
     ]);
 
     const saved_type = localStorage.getItem('travel_log_selected_type') as TaskType | null;
-    const saved_view = localStorage.getItem('travel_log_view_mode') as 'chapters' | 'tasks' | 'quest_item' | null;
+    const saved_view = localStorage.getItem('travel_log_view_mode') as ViewMode | null;
     if (saved_type && type_list.includes(saved_type)) selected_type.value = saved_type;
-    if (saved_view === 'chapters' || saved_view === 'tasks' || saved_view === 'quest_item') view_mode.value = saved_view;
+    if (saved_view && ['chapters', 'tasks', 'quest_item', 'npcs'].includes(saved_view)) view_mode.value = saved_view;
 });
 
 watch(selected_type, value => localStorage.setItem('travel_log_selected_type', value));

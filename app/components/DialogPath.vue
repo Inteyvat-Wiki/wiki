@@ -33,8 +33,12 @@
                     <talk-bubble v-else-if="get_choice_bubble(item)"
                         :item="get_choice_bubble(item)!" hide_title />
                 </template>
+                <dialog-actions :actions="get_choice_bubble(item)?.dialog.actions" />
             </template>
-            <talk-bubble v-else :item="item" />
+            <template v-else>
+                <talk-bubble :item="item" />
+                <dialog-actions :actions="item.dialog.actions" />
+            </template>
         </template>
     </div>
 </template>

@@ -145,6 +145,22 @@
         "dungeon": "秘境"
     },
     "travel-log": {
+        "npcs": "常驻 NPC 对话",
+        "search_npcs": "搜索 NPC",
+        "npc_version": "对话版本",
+        "npc_restart": "重新开始",
+        "npc_description": "查看日常对话及不同状态下的话题。可在条件中调整任务进度和其他状态。",
+        "npc_conditions": "对话条件",
+        "npc_topics": "选择话题",
+        "npc_unavailable": "当前条件下没有可用对话，请调整对话条件。",
+        "npc_related_task": "查看关联任务",
+        "npc_talk_count": "{count} 段对话",
+        "npc_actions": {
+            "shop": "打开商店",
+            "script": "触发脚本事件",
+            "interaction": "触发交互",
+            "unknown": "未解析的附加行为"
+        },
         "copy_dialog": "复制当前选择的对话",
         "copy_task": "复制任务对话",
         "copy_empty": "暂无可复制的对话",

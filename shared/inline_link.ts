@@ -9,6 +9,7 @@ export const INLINE_LINK_CATEGORIES = {
     geography: { folder: 'geography', path: '/geography' },
     'chapter-group': { folder: 'chapter_group', path: '/travel-log/chapter' },
     task: { folder: 'task', path: '/travel-log/task' },
+    npc: { folder: 'npc', path: '/travel-log/npc' },
     'quest-item': { folder: 'quest_item', path: '/travel-log/quest-item' },
 } as const;
 

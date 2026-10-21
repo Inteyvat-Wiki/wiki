@@ -83,6 +83,7 @@ export function build_task_flow(options: {
     input_values: TaskConditionValues,
     initial_talk?: number,
     include_optional?: boolean,
+    scope?: string,
 }): TaskFlow {
     const { task, step, current_step, step_keys, selections, input_values } = options;
     const segments: TaskFlowSegment[] = [];
@@ -95,7 +96,7 @@ export function build_task_flow(options: {
             typeof token !== 'string' && token.type === 'talk' ? [token.talk] : [])]));
     const optional_memo = new Map<string, boolean>();
     const optional_searching = new Set<string>();
-    const scope = `${current_step}`;
+    const scope = options.scope ?? `${current_step}`;
     const memo = new Map<string, boolean>();
     const searching = new Set<string>();
     let search_count = 0;
