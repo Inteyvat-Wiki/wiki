@@ -1,6 +1,6 @@
 <template>
     <dialog-path ref="path" :items="segment?.items || local_flow.segments[0]?.items || []"
-        :mode="mode" :input_values="active_input_values" @select="select"
+        :mode="mode" :input_values="active_input_values" :hide_initial_choice="hide_initial_choice" @select="select"
         @update:input_values="update_input_values" />
 </template>
 
@@ -18,6 +18,7 @@ const props = defineProps<{
     step_keys: number[],
     segment?: TaskFlowSegment,
     input_values?: TaskConditionValues,
+    hide_initial_choice?: boolean,
 }>();
 const emit = defineEmits<{
     initial_conditions: [conditions: TaskCondition[]],

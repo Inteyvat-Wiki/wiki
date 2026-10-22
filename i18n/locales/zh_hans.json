@@ -148,6 +148,8 @@
         "npcs": "常驻 NPC 对话",
         "search_npcs": "搜索 NPC",
         "npc_version": "对话版本",
+        "npc_name": "名称",
+        "npc_title": "称号",
         "npc_restart": "重新开始",
         "npc_description": "查看日常对话及不同状态下的话题。可在条件中调整任务进度和其他状态。",
         "npc_conditions": "对话条件",

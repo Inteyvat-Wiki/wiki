@@ -83,17 +83,8 @@
                                     :condition_values="condition_values" :current_step="item.key" :step_keys="step_keys" />
                                 <div v-for="segment in get_step_talk_state(item).segments" :key="segment.selector_key"
                                     class="step-talks">
-                                    <div v-if="segment.candidate_keys.length > 1"
-                                        class="step-talk-selector">
-                                        <el-radio-group :model-value="segment.talk_key"
-                                            class="step-talk-options"
-                                            @update:model-value="select_flow_option(segment.selector_key, $event)">
-                                            <el-radio v-for="talk_key in segment.candidate_keys"
-                                                :key="talk_key" :value="talk_key" border>
-                                                {{ get_talk_title(task.talks[talk_key]!) }}
-                                            </el-radio>
-                                        </el-radio-group>
-                                    </div>
+                                    <talk-flow-selector :talks="task.talks" :segment="segment" class="step-talk-selector"
+                                        @select="select_flow_option" />
                                     <task-talk v-if="segment.talk_key !== undefined" :key="segment.talk_key"
                                         :ref="instance => set_talk_ref(`step-${item.key}-${segment.talk_key}`, instance)"
                                         :talk="task.talks[segment.talk_key]!" :segment="segment"
@@ -332,10 +323,6 @@ function select_flow_option(key: string, value: unknown) {
     flow_selections.value = { ...flow_selections.value, [key]: value };
 }
 
-function get_talk_title(talk: TaskTalk) {
-    return talk.objects.join(' / ') || $t('travel-log.dialog');
-}
-
 function select_current_step(step_key: number) {
     if (step_key !== current_step_key.value) {
         current_step_key.value = step_key;
@@ -516,19 +503,6 @@ useHead({
 
 .step-talk-selector {
     margin-bottom: 12px;
-}
-
-.step-talk-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.step-talk-options :deep(.el-radio) {
-    height: auto;
-    min-height: 30px;
-    margin-right: 0;
-    white-space: normal;
 }
 
 .extra-header {

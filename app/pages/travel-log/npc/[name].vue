@@ -7,40 +7,49 @@
                     <el-button @click="selections = {}">{{ $t('travel-log.npc_restart') }}</el-button>
                 </template>
             </el-page-header>
+            <el-card class="npc-info">
+                <el-descriptions :column="1" border>
+                    <el-descriptions-item :label="$t('travel-log.npc_name')">{{ npc.name }}</el-descriptions-item>
+                    <el-descriptions-item v-if="npc.title" :label="$t('travel-log.npc_title')">
+                        <span v-html="npc.title"></span>
+                    </el-descriptions-item>
+                </el-descriptions>
+            </el-card>
             <el-text class="npc-description" type="info">{{ $t('travel-log.npc_description') }}</el-text>
-            <el-collapse v-if="conditions.length" class="npc-conditions">
-                <el-collapse-item :title="$t('travel-log.npc_conditions')" name="conditions">
-                    <task-conditions :model-value="input_values" :conditions="conditions"
-                        @update:model-value="set_conditions" />
-                </el-collapse-item>
-            </el-collapse>
-            <div class="npc-controls">
-                <el-select v-if="flow.entry_keys.length" :model-value="flow.entry_key"
-                    :aria-label="$t('travel-log.npc_version')" @update:model-value="select_entry">
-                    <el-option v-for="key in flow.entry_keys" :key="key" :value="key" :label="npc.talks[key]!.title" />
-                </el-select>
-                <el-segmented v-model="mode" :options="display_options" />
-            </div>
-            <el-empty v-if="!flow.segments.length" :description="$t('travel-log.npc_unavailable')" />
-            <section v-for="part in flow.segments" :key="part.segment.selector_key" class="npc-talk">
-                <NuxtLink v-if="npc.talks[part.talk_key]!.task"
-                    :to="localePath(`/travel-log/task/${npc.talks[part.talk_key]!.task}`)">
-                    {{ $t('travel-log.npc_related_task') }}
-                </NuxtLink>
-                <task-talk :talk="npc.talks[part.talk_key]!" :title="npc.talks[part.talk_key]!.title"
-                    :mode="mode" :condition_values="flow.state.values" :input_values="input_values"
-                    :current_step="0" :step_keys="[]" :segment="part.segment"
-                    @select="select_dialog" @update:input_values="input_values = $event" />
-                <div v-if="part.menu_keys.length" class="npc-topics">
-                    <el-text type="info">{{ $t('travel-log.npc_topics') }}</el-text>
-                    <el-radio-group :model-value="selections[part.menu_selector_key]"
-                        @update:model-value="value => select_dialog(part.menu_selector_key, Number(value))">
-                        <el-radio v-for="key in part.menu_keys" :key="key" :value="key" border>
-                            {{ npc.talks[key]!.title }}
-                        </el-radio>
-                    </el-radio-group>
-                </div>
-            </section>
+            <el-row :gutter="20" class="npc-workspace">
+                <el-col :span="24" :lg="conditions.length ? 16 : 24">
+                    <el-card>
+                        <template #header>
+                            <div class="npc-dialog-header">
+                                <span class="npc-panel-title">{{ $t('travel-log.dialog') }}</span>
+                                <el-segmented v-model="mode" :options="display_options" />
+                            </div>
+                        </template>
+                        <el-empty v-if="!flow.segments.length" :description="$t('travel-log.npc_unavailable')" />
+                        <section v-for="segment in flow.segments" :key="segment.selector_key" class="npc-talk">
+                            <talk-flow-selector :talks="npc.talks" :segment="segment" @select="select_dialog" />
+                            <NuxtLink v-if="segment.talk_key !== undefined && npc.talks[segment.talk_key]!.task"
+                                :to="localePath(`/travel-log/task/${npc.talks[segment.talk_key]!.task}`)">
+                                {{ $t('travel-log.npc_related_task') }}
+                            </NuxtLink>
+                            <task-talk v-if="segment.talk_key !== undefined" :key="segment.talk_key"
+                                :talk="npc.talks[segment.talk_key]!"
+                                :mode="mode" :condition_values="flow.state.values" :input_values="input_values"
+                                :current_step="0" :step_keys="[]" :segment="segment"
+                                @select="select_dialog" @update:input_values="input_values = $event" />
+                        </section>
+                    </el-card>
+                </el-col>
+                <el-col v-if="conditions.length" :span="24" :lg="8" class="npc-conditions-column">
+                    <el-card class="npc-conditions-card">
+                        <template #header>
+                            <span class="npc-panel-title">{{ $t('travel-log.npc_conditions') }}</span>
+                        </template>
+                        <task-conditions :model-value="input_values" :conditions="conditions"
+                            @update:model-value="set_conditions" />
+                    </el-card>
+                </el-col>
+            </el-row>
         </el-main>
     </el-container>
 </template>
@@ -67,21 +76,13 @@ const display_options = computed(() => [
     { label: $t('travel-log.display_mode.bubbles'), value: 'bubbles_only' },
 ]);
 
-function select_entry(value: number) {
-    selections.value = { entry: value };
-}
-
 function set_conditions(value: TaskConditionValues) {
     input_values.value = value;
     selections.value = { entry: selections.value.entry };
 }
 
 function select_dialog(key: string, value: number) {
-    // 修改先前选择时丢弃后续路径，避免旧分支的选择污染新路径。
-    const keys = Object.keys(selections.value);
-    const index = keys.indexOf(key);
-    selections.value = { ...Object.fromEntries(keys.slice(0, index < 0 ? keys.length : index)
-        .map(key => [key, selections.value[key]])), [key]: value };
+    selections.value = key === 'entry' ? { entry: value } : { ...selections.value, [key]: value };
 }
 
 onMounted(async () => { npc.value = await get_npc(String(route.params.name)); });
@@ -89,37 +90,67 @@ useHead({ title: computed(() => npc.value?.name || $t('travel-log.npcs')) });
 </script>
 
 <style scoped>
+.npc-info {
+    margin-top: 20px;
+}
+
 .npc-description {
     display: block;
     margin: 20px 0;
 }
-.npc-controls,
-.npc-topics,
+.npc-workspace {
+    width: 100%;
+    row-gap: 20px;
+    margin-top: 20px;
+}
+
 .npc-talk {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-bottom: 20px;
 }
-.npc-controls {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
+.npc-talk:last-child {
+    margin-bottom: 0;
 }
-.npc-controls .el-select {
-    width: 320px;
-    max-width: 100%;
-}
-.npc-topics :deep(.el-radio-group) {
+
+.npc-dialog-header {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
-.npc-topics :deep(.el-radio) {
-    margin-right: 0;
-    height: auto;
-    min-height: 36px;
-    padding: 8px 12px;
-    white-space: normal;
+
+.npc-panel-title {
+    font-weight: bold;
+}
+
+.npc-conditions-column {
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+.npc-conditions-card {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 40px);
+}
+
+.npc-conditions-card :deep(.el-card__body) {
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+@media (max-width: 1199px) {
+    .npc-conditions-column {
+        position: static;
+    }
+
+    .npc-conditions-card {
+        max-height: none;
+    }
 }
 </style>

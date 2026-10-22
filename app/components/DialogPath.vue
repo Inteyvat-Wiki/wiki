@@ -16,11 +16,11 @@
                 </el-radio-group>
             </div>
             <template v-else-if="item.kind === 'choice'">
-                <talk-choice-options v-if="show_options" :options="item.options"
+                <talk-choice-options v-if="show_options && !is_initial_choice(item)" :options="item.options"
                     :model-value="get_selected_choice(item)"
                     @update:model-value="set_selected_choice(item.dialog_key, $event)" />
                 <template v-if="show_bubbles">
-                    <el-popover v-if="!show_options && get_choice_bubble(item)"
+                    <el-popover v-if="!show_options && !is_initial_choice(item) && get_choice_bubble(item)"
                         placement="top" width="320" trigger="click"
                         v-model:visible="popover_visible_map[item.dialog_key]">
                         <template #reference>
@@ -53,6 +53,7 @@ const props = defineProps<{
     items: TaskFlowItem[],
     mode?: TalkDisplayMode,
     input_values: TaskConditionValues,
+    hide_initial_choice?: boolean,
 }>();
 const emit = defineEmits<{
     select: [key: string, value: number],
@@ -66,6 +67,11 @@ const inline_condition_values = computed({
 const show_bubbles = computed(() => props.mode !== 'options_only');
 const show_options = computed(() => props.mode !== 'bubbles_only');
 const popover_visible_map = reactive<Record<string, boolean>>({});
+const first_line = computed(() => props.items.find(item => item.kind === 'dialog' || item.kind === 'choice'));
+
+function is_initial_choice(item: Extract<TaskFlowItem, { kind: 'choice' }>) {
+    return props.hide_initial_choice && item === first_line.value && item.options.length === 1;
+}
 
 function get_selected_choice(item: Extract<TaskFlowItem, { kind: 'choice' }>) {
     return item.selected_key;

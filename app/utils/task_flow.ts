@@ -18,6 +18,7 @@ export type TaskFlowSegment = {
     talk_key?: number,
     selector_key: string,
     candidate_keys: number[],
+    selector_type: 'entrance' | 'successor',
     items: TaskFlowItem[],
 };
 
@@ -45,16 +46,18 @@ function get_operands(tokens: TaskConditionToken[] = []): TaskCondition[] {
 }
 
 export function get_trigger_candidates(task: Pick<Task, 'talks'>, keys: number[]): number[] {
-    const winners = new Map<string, number>();
+    const winners = new Map<string, { priority: number, keys: number[] }>();
     for (const key of keys) {
         const talk = task.talks[key]!;
         const entrances = talk.trigger_ids.length ? talk.trigger_ids : [`talk:${key}`];
         for (const entrance of entrances) {
             const previous = winners.get(entrance);
-            if (previous === undefined || talk.priority > task.talks[previous]!.priority) winners.set(entrance, key);
+            if (previous === undefined || talk.priority > previous.priority) {
+                winners.set(entrance, { priority: talk.priority, keys: [key] });
+            } else if (talk.priority === previous.priority) previous.keys.push(key);
         }
     }
-    const selected = new Set(winners.values());
+    const selected = new Set([...winners.values()].flatMap(winner => winner.keys));
     return keys.filter(key => selected.has(key));
 }
 
@@ -82,6 +85,10 @@ export function build_task_flow(options: {
     selections: TaskFlowSelections,
     input_values: TaskConditionValues,
     initial_talk?: number,
+    // 固定入口默认仅展示一段；开启后继续沿显式后继，不重新查找独立入口。
+    follow_successors?: boolean,
+    // NPC 对未设置的条件保留未知状态；任务沿用现有默认值。
+    condition_defaults?: boolean,
     include_optional?: boolean,
     scope?: string,
 }): TaskFlow {
@@ -126,7 +133,8 @@ export function build_task_flow(options: {
             if (!state.assigned.has(condition.id)) initial_conditions.set(JSON.stringify(condition), condition);
         }
         const values = { ...state.values };
-        for (const condition of get_operands(tokens)) if (values[condition.id] === undefined) {
+        for (const condition of get_operands(tokens)) if (values[condition.id] === undefined
+            && options.condition_defaults !== false) {
             values[condition.id] = condition.type === 'step' ? 'finished' : condition.type === 'number' ? 0 : false;
         }
         return !tokens?.length || evaluate_task_conditions(tokens, current_step, step_keys, values) === true;
@@ -156,7 +164,8 @@ export function build_task_flow(options: {
             && !state.completed.has(key) && evaluate(task.talks[key]!.conditions, state));
         if (previous !== undefined) {
             const next = available(task.talks[previous]!.next_talks);
-            if (next.length) return get_trigger_candidates(task, next);
+            // Explicit successors are continuations/menu choices, not competing entrances.
+            if (next.length || options.initial_talk !== undefined) return next;
         }
         const automatic = available(talk_keys.filter(key => task.talks[key]!.begin_way === 'auto'));
         if (automatic.length) return get_trigger_candidates(task, automatic);
@@ -276,7 +285,7 @@ export function build_task_flow(options: {
             if (next.some(target => !task.talks[target])) return false;
             const available = next.filter(target => !state.completed.has(target)
                 && evaluate(task.talks[target]!.conditions, state));
-            return get_trigger_candidates(task, available).every(target => inspect_talk(target, {}));
+            return available.every(target => inspect_talk(target, {}));
         }
 
         function inspect_dialog(key: number, dialog_key: number, branches: TaskFlowSelections): boolean {
@@ -385,23 +394,25 @@ export function build_task_flow(options: {
     let previous: number | undefined;
     const rendered = new Set<number>();
     while (!finished(state) && !failed(state)) {
-        const available = options.initial_talk !== undefined
-            ? rendered.size ? [] : [options.initial_talk]
-            : candidates(previous, state);
+        const available = options.initial_talk !== undefined && previous === undefined
+            ? [options.initial_talk]
+            : options.initial_talk !== undefined && !options.follow_successors ? [] : candidates(previous, state);
         const selector_key = `${scope}:talk:${previous ?? 'start'}`;
+        const selector_type = available.some(key => previous !== undefined && task.talks[previous]!.next_talks.includes(key))
+            ? 'successor' : 'entrance';
         const ordered = [...available].sort((left, right) => Number(target_talks.has(right)) - Number(target_talks.has(left)));
         const automatic = options.initial_talk !== undefined || available.some(key =>
             task.talks[key]!.begin_way === 'auto' || previous !== undefined && task.talks[previous]!.next_talks.includes(key));
         const talk_key = choose(ordered, selector_key, key => search_talk(key, state), automatic || available.length === 1);
         if (talk_key === undefined) {
-            if (available.length) segments.push({ selector_key, candidate_keys: available, items: [] });
+            if (available.length) segments.push({ selector_key, selector_type, candidate_keys: available, items: [] });
             break;
         }
         if (rendered.has(talk_key)) break;
         rendered.add(talk_key);
         const talk = task.talks[talk_key]!;
         const items: TaskFlowItem[] = [];
-        segments.push({ talk_key, selector_key, candidate_keys: available, items });
+        segments.push({ talk_key, selector_key, selector_type, candidate_keys: available, items });
         evaluate(talk.conditions, state, true);
         const initial = initial_dialogs(talk);
         let branches = branch_choices(talk_key, initial, talk.operations || [], {}, items,

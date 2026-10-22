@@ -17,6 +17,7 @@
                 <talk-dialogs ref="dialogs" :talk="dialog_talk" :mode="mode" :condition_values="condition_values"
                     :current_step="current_step" :step_keys="step_keys"
                     :segment="dialog_segment" :input_values="input_values"
+                    :hide_initial_choice="segment?.selector_type === 'successor' && segment.candidate_keys.length > 1"
                     @initial_conditions="$emit('initial_conditions', $event)"
                     @select="(key, value) => $emit('select', key, value)"
                     @update:input_values="$emit('update:input_values', $event)" />
@@ -66,7 +67,7 @@ const dialog_talk = computed<TaskTalk>(() => 'objects' in props.talk ? props.tal
 const dialog_segment = computed<TaskFlowSegment | undefined>(() => {
     if (!is_narration.value || !('source' in props.talk)) return props.segment;
     return {
-        selector_key: props.talk.source, candidate_keys: [],
+        selector_key: props.talk.source, selector_type: 'successor', candidate_keys: [],
         items: Object.entries(props.talk.dialogs).map(([key, dialog]) => ({ kind: 'dialog', key: Number(key), dialog })),
     };
 });
