@@ -153,6 +153,7 @@ export type Task = {
     steps: Record<string, TaskStep>,
     talks: Record<string, TaskTalk>,
     narrations: Record<string, TaskNarration>,
+    bubbles?: Record<string, TaskBubble>,
 };
 
 export type TaskNarration = {
@@ -165,3 +166,21 @@ export type TaskNarration = {
     conditions: TaskConditionToken[],
     dialogs: Record<string, TaskDialog & { duration?: number }>,
 };
+
+export type TaskBubbleBase = {
+    type: 'speech_bubble', step: number, event: TaskNarration['event'], source: string, api: string,
+    scope: 'quest' | 'npc', conditions: TaskConditionToken[], delay?: number, delay_unknown?: true,
+    after?: string, after_source?: string,
+    callbacks?: { source: string, method: string, argument: number, kind?: 'delay' | 'safe_call' | 'narration_finish' }[],
+};
+export type TaskBubble = TaskBubbleBase & ({
+    action: 'create' | 'trigger', npc_id: number, dialog_id: number, dialog: TaskDialog,
+    text_sources: string[], dialog_speaker?: { type: string, id?: string },
+    parameters?: (number | boolean | string | null | { reference: string } | { unknown: true })[],
+} | {
+    action: 'clear_task', scope: 'quest', npc_id?: never, dialog_id?: never, dialog?: never,
+} | {
+    action: 'clear_npc', npc_id: number, dialog_id?: never, dialog?: never,
+});
+// Display adapter only; the exported lifecycle records keep their original fields.
+export type TaskBubbleSubtitle = Omit<TaskNarration, 'type'> & { type: 'speech_bubble', delay_unknown?: true };

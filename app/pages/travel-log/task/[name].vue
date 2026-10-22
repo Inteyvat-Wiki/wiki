@@ -81,6 +81,10 @@
                                     class="step-talks" :talk="entry.narration"
                                     :ref="instance => set_talk_ref(`narration-${entry.key}`, instance)"
                                     :condition_values="condition_values" :current_step="item.key" :step_keys="step_keys" />
+                                <task-talk v-for="entry in get_bubbles(item.key, 'start')" :key="`bubble-${entry.key}`"
+                                    class="step-talks" :talk="entry.bubble"
+                                    :ref="instance => set_talk_ref(`bubble-${entry.key}`, instance)"
+                                    :condition_values="condition_values" :current_step="item.key" :step_keys="step_keys" />
                                 <div v-for="segment in get_step_talk_state(item).segments" :key="segment.selector_key"
                                     class="step-talks">
                                     <talk-flow-selector :talks="task.talks" :segment="segment" class="step-talk-selector"
@@ -97,6 +101,10 @@
                                 <task-talk v-for="entry in get_narrations(item.key, 'finish', 'failed')" :key="entry.key"
                                     class="step-talks" :talk="entry.narration"
                                     :ref="instance => set_talk_ref(`narration-${entry.key}`, instance)"
+                                    :condition_values="condition_values" :current_step="item.key" :step_keys="step_keys" />
+                                <task-talk v-for="entry in get_bubbles(item.key, 'finish', 'failed')" :key="`bubble-${entry.key}`"
+                                    class="step-talks" :talk="entry.bubble"
+                                    :ref="instance => set_talk_ref(`bubble-${entry.key}`, instance)"
                                     :condition_values="condition_values" :current_step="item.key" :step_keys="step_keys" />
                             </el-collapse-item>
                         </el-collapse>
@@ -163,7 +171,7 @@ import type {
     TaskPages,
 } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
-import { get_step_narrations } from '~/utils/task_narration';
+import { get_step_narrations, get_step_bubbles } from '~/utils/task_narration';
 import { build_task_flow, type TaskFlow, type TaskFlowSelections,
     type TaskFlowState } from '~/utils/task_flow';
 import { Aim, Location, Lock } from '@element-plus/icons-vue';
@@ -198,15 +206,17 @@ async function copy_task_dialogs() {
     const scopes = [
         ...steps.value.flatMap(item => [
             ...get_narrations(item.key, 'start').map(entry => `narration-${entry.key}`),
+            ...get_bubbles(item.key, 'start').map(entry => `bubble-${entry.key}`),
             ...get_step_talk_state(item).segments.filter(segment => segment.talk_key !== undefined)
                 .map(segment => `step-${item.key}-${segment.talk_key}`),
             ...get_narrations(item.key, 'finish', 'failed').map(entry => `narration-${entry.key}`),
+            ...get_bubbles(item.key, 'finish', 'failed').map(entry => `bubble-${entry.key}`),
         ]),
         ...visible_extra_talks.value.map(item => `extra-${item.key}`),
     ];
     const text = scopes.map(scope => talk_refs.get(scope)?.get_dialog_text())
         .filter(Boolean).join('\n\n');
-    await copy_dialog_text(text);
+    await copy_dialog_text(text, key => $t(key));
 }
 
 const task_names = computed<Record<string, string>>(() =>
@@ -235,6 +245,12 @@ const selectable_conditions = computed<TaskCondition[]>(() => {
     const result = new Map<string, TaskCondition>();
     for (const narration of Object.values(task.value?.narrations || {})) {
         for (const token of narration.conditions) {
+            if (typeof token !== 'string') result.set(JSON.stringify(token), token);
+        }
+    }
+    for (const bubble of Object.values(task.value?.bubbles || {})) {
+        if (bubble.action !== 'create' && bubble.action !== 'trigger') continue;
+        for (const token of bubble.conditions) {
             if (typeof token !== 'string') result.set(JSON.stringify(token), token);
         }
     }
@@ -269,6 +285,11 @@ const selectable_conditions = computed<TaskCondition[]>(() => {
 
 function get_narrations(step: number, ...events: TaskNarration['event'][]) {
     return get_step_narrations(task.value?.narrations || {}, step_talk_states.value,
+        step_keys.value, condition_values.value, step, events);
+}
+
+function get_bubbles(step: number, ...events: TaskNarration['event'][]) {
+    return get_step_bubbles(task.value?.bubbles || {}, task.value?.narrations || {}, step_talk_states.value,
         step_keys.value, condition_values.value, step, events);
 }
 

@@ -15,15 +15,15 @@ export function format_dialog(dialog: TaskDialog) {
     return `${speaker}：${content}`;
 }
 
-export async function copy_dialog_text(text: string) {
+export async function copy_dialog_text(text: string, t: (key: string) => string) {
     if (!text) {
-        ElMessage({ message: $t('travel-log.copy_empty'), type: 'info', plain: true });
+        ElMessage({ message: t('travel-log.copy_empty'), type: 'info', plain: true });
         return;
     }
     try {
         await navigator.clipboard.writeText(text);
-        ElMessage({ message: $t('normal.copied'), type: 'success', plain: true });
+        ElMessage({ message: t('normal.copied'), type: 'success', plain: true });
     } catch {
-        ElMessage({ message: $t('travel-log.copy_failed'), type: 'error', plain: true });
+        ElMessage({ message: t('travel-log.copy_failed'), type: 'error', plain: true });
     }
 }

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { build_task_flow } from '../app/utils/task_flow';
-import { get_step_narrations } from '../app/utils/task_narration';
-import type { TaskStep, TaskTalk, TaskNarration, TaskNumberCondition } from '../app/types/travel_log';
+import { get_step_narrations, get_step_bubbles } from '../app/utils/task_narration';
+import type { TaskStep, TaskTalk, TaskNarration, TaskBubble, TaskNumberCondition } from '../app/types/travel_log';
 
 const condition: TaskNumberCondition = {
     type: 'number', id: 'variable', title: '', subtitle: '', comparison: 'equal', value: 1,
@@ -50,4 +50,27 @@ assert.deepEqual(shown(success), ['start', 'finish']);
 assert.deepEqual(shown(failure), ['start', 'failed']);
 assert.deepEqual(shown(unresolved), ['start', 'finish']);
 assert.deepEqual(shown(flow({}, { ...step, fail_conditions: [{ ...condition, value: 1 }] })), ['start']);
+
+const display: TaskBubble = { type: 'speech_bubble', api: 'CreateSpeechBubbleTask', action: 'create',
+    scope: 'quest', step: 1, event: 'start', source: 'bubble-source', conditions: [], npc_id: 10, dialog_id: 20,
+    dialog: { role: 'npc', speaker: 'NPC', content: 'bubble text', next_dialogs: [] }, text_sources: ['source'] };
+const bubbles: Record<string, TaskBubble> = {
+    start: { ...display, conditions: [{ ...condition, value: 0 }] },
+    finish: { ...display, event: 'finish', conditions: [condition] },
+    failed: { ...display, event: 'failed', conditions: [{ ...condition, value: -1 }] },
+    gated: { ...display, event: 'finish', after: 'failed' },
+    orphan: { ...display, after: 'missing' },
+    cleanup: { type: 'speech_bubble', api: 'ClearSpeechBubbleTask', action: 'clear_task', scope: 'quest',
+        step: 1, event: 'start', source: 'clear-source', conditions: [] },
+};
+const shown_bubbles = (result: ReturnType<typeof flow>) => get_step_bubbles(bubbles, narrations,
+    new Map([[1, result]]), [1], {}, 1, ['start', 'finish', 'failed']);
+assert.deepEqual(shown_bubbles(success).map(item => item.key), ['start', 'finish']);
+assert.deepEqual(shown_bubbles(failure).map(item => item.key), ['start', 'failed']);
+assert.equal(shown_bubbles(success)[0]!.bubble.type, 'speech_bubble');
+assert.equal(shown_bubbles(success)[0]!.bubble.dialogs[1]!.content, 'bubble text');
+assert.deepEqual(shown_bubbles(success)[0]!.bubble.dialogs[1]!.next_dialogs, []);
+const after_success = get_step_bubbles({ dependent: { ...display, after: 'start' } }, narrations,
+    new Map([[1, success]]), [1], {}, 1, ['start']);
+assert.deepEqual(after_success.map(item => item.key), ['dependent']);
 console.log('Task outcome and narration checks passed');

@@ -185,6 +185,8 @@
         "hidden_task": "隐藏任务",
         "dialog": "对话",
         "narration": "悬浮字幕",
+        "speech_bubble": "气泡字幕",
+        "narration_delay_unknown": "延迟时间未确定",
         "narration_delay": "延迟 {seconds} 秒",
         "narration_event": {
             "start": "步骤开始时",

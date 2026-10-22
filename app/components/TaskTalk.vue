@@ -4,8 +4,8 @@
             <el-collapse-item name="talk">
                 <template #title>
                     <div class="talk-title">
-                        <span v-if="is_narration" class="narration-title">
-                            <el-tag type="success" effect="plain">{{ $t('travel-log.narration') }}</el-tag>
+                        <span v-if="is_subtitle" class="narration-title">
+                            <el-tag type="success" effect="plain">{{ $t(is_bubble ? 'travel-log.speech_bubble' : 'travel-log.narration') }}</el-tag>
                             <el-text type="info" size="small">{{ narration_context }}</el-text>
                         </span>
                         <span v-else class="talk-title-text">{{ talk_title }}</span>
@@ -27,14 +27,14 @@
 </template>
 
 <script setup lang="ts">
-import type { TalkDisplayMode, TaskTalk, TaskNarration } from '~/types/travel_log';
+import type { TalkDisplayMode, TaskTalk, TaskNarration, TaskBubbleSubtitle } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
 import { copy_dialog_text } from '~/utils/dialog_copy';
 import TalkDialogs from '~/components/TalkDialogs.vue';
 import type { TaskFlowSegment } from '~/utils/task_flow';
 
 const props = defineProps<{
-    talk: TaskTalk | TaskNarration,
+    talk: TaskTalk | TaskNarration | TaskBubbleSubtitle,
     title?: string,
     extra?: boolean,
     mode?: TalkDisplayMode,
@@ -52,12 +52,14 @@ defineEmits<{
 
 const expanded_keys = ref(props.extra ? [] : ['talk']);
 const dialogs = ref<InstanceType<typeof TalkDialogs>>();
-const is_narration = computed(() => 'type' in props.talk && props.talk.type === 'narration');
+const is_bubble = computed(() => 'type' in props.talk && props.talk.type === 'speech_bubble');
+const is_subtitle = computed(() => 'type' in props.talk);
 const talk_title = computed(() =>
     props.title || ('objects' in props.talk ? props.talk.objects.join(' / ') || $t('travel-log.dialog') : ''));
 const narration_context = computed(() => {
     if (!('event' in props.talk)) return '';
     const event = $t(`travel-log.narration_event.${props.talk.event}`);
+    if ('delay_unknown' in props.talk && props.talk.delay_unknown) return `${event} · ${$t('travel-log.narration_delay_unknown')}`;
     return props.talk.delay ? `${event} · ${$t('travel-log.narration_delay', { seconds: props.talk.delay })}` : event;
 });
 const dialog_talk = computed<TaskTalk>(() => 'objects' in props.talk ? props.talk : {
@@ -65,7 +67,7 @@ const dialog_talk = computed<TaskTalk>(() => 'objects' in props.talk ? props.tal
     objects: [], trigger_points: [], dialogs: props.talk.dialogs,
 });
 const dialog_segment = computed<TaskFlowSegment | undefined>(() => {
-    if (!is_narration.value || !('source' in props.talk)) return props.segment;
+    if (!is_subtitle.value || !('source' in props.talk)) return props.segment;
     return {
         selector_key: props.talk.source, selector_type: 'successor', candidate_keys: [],
         items: Object.entries(props.talk.dialogs).map(([key, dialog]) => ({ kind: 'dialog', key: Number(key), dialog })),
@@ -77,7 +79,7 @@ function get_dialog_text() {
 }
 
 async function copy_dialog() {
-    await copy_dialog_text(get_dialog_text());
+    await copy_dialog_text(get_dialog_text(), key => $t(key));
 }
 
 defineExpose({ get_dialog_text });

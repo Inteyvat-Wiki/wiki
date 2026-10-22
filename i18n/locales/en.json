@@ -66,6 +66,8 @@
         "hidden_task": "Hidden Quest",
         "dialog": "Dialogue",
         "narration": "Floating Subtitles",
+        "speech_bubble": "Speech Bubble",
+        "narration_delay_unknown": "Delay unspecified",
         "narration_delay": "After {seconds} seconds",
         "narration_event": {
             "start": "On Step Start",

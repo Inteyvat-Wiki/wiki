@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import type { TaskDialog } from '~/types/travel_log';
-defineProps<{ actions: TaskDialog['actions'] }>();
+defineProps<{ actions?: TaskDialog['actions'] }>();
 </script>
 
 <style scoped>
