@@ -3,12 +3,12 @@
         <div v-for="group in groups" :key="group.id" class="task-condition">
             <NuxtLink v-if="is_external_step_condition(group.sample)"
                 :to="localePath(get_step_path(group.sample))" class="condition-title step-link">
-                <span>{{ group.sample.title }}</span>
-                <el-text type="info">{{ group.sample.subtitle }}</el-text>
+                <inline-text :text="group.sample.title" />
+                <el-text type="info"><inline-text :text="group.sample.subtitle" /></el-text>
             </NuxtLink>
             <div v-else class="condition-title">
-                <span>{{ group.sample.title }}</span>
-                <el-text type="info">{{ group.sample.subtitle }}</el-text>
+                <inline-text :text="group.sample.title" />
+                <el-text type="info"><inline-text :text="group.sample.subtitle" /></el-text>
             </div>
 
             <el-radio-group v-model="model[group.id]" size="small">

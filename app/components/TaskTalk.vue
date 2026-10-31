@@ -8,7 +8,7 @@
                             <el-tag type="success" effect="plain">{{ $t(is_bubble ? 'travel-log.speech_bubble' : 'travel-log.narration') }}</el-tag>
                             <el-text type="info" size="small">{{ narration_context }}</el-text>
                         </span>
-                        <span v-else class="talk-title-text">{{ talk_title }}</span>
+                        <span v-else class="talk-title-text"><inline-text :text="talk_title" /></span>
                         <el-button :icon="ElIconDocumentCopy" size="small" circle class="copy-button"
                             :title="$t('travel-log.copy_dialog')" :aria-label="$t('travel-log.copy_dialog')"
                             @mousedown.stop @keydown.stop @click.stop="copy_dialog" />
@@ -35,7 +35,6 @@ import type { TaskFlowSegment } from '~/utils/task_flow';
 
 const props = defineProps<{
     talk: TaskTalk | TaskNarration | TaskBubbleSubtitle,
-    title?: string,
     extra?: boolean,
     mode?: TalkDisplayMode,
     condition_values: TaskConditionValues,
@@ -55,7 +54,7 @@ const dialogs = ref<InstanceType<typeof TalkDialogs>>();
 const is_bubble = computed(() => 'type' in props.talk && props.talk.type === 'speech_bubble');
 const is_subtitle = computed(() => 'type' in props.talk);
 const talk_title = computed(() =>
-    props.title || ('objects' in props.talk ? props.talk.objects.join(' / ') || $t('travel-log.dialog') : ''));
+    'objects' in props.talk ? props.talk.objects.join(' / ') || $t('travel-log.dialog') : '');
 const narration_context = computed(() => {
     if (!('event' in props.talk)) return '';
     const event = $t(`travel-log.narration_event.${props.talk.event}`);

@@ -2,11 +2,11 @@
     <el-radio-group v-if="segment.candidate_keys.length > 1" :model-value="segment.talk_key"
         class="talk-flow-options" @update:model-value="select">
         <el-radio v-for="key in segment.candidate_keys" :key="key" :value="key" border>
-            <span v-if="segment.selector_type === 'successor'" v-html="get_first_line(talks[key]!)"></span>
+            <inline-text v-if="segment.selector_type === 'successor'" :text="get_first_line(talks[key]!)" />
             <template v-else>
-                <span>{{ get_title(talks[key]!) }}</span>
+                <inline-text :text="get_title(talks[key]!)" />
                 <el-text v-if="get_description(key)" type="info" size="small">
-                    <span v-html="get_description(key)"></span>
+                    <inline-text :text="get_description(key)" />
                 </el-text>
             </template>
         </el-radio>
@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import type { TaskTalk } from '~/types/travel_log';
 import type { TaskFlowSegment } from '~/utils/task_flow';
+import { get_talk_first_line } from '~/utils/talk_title';
 
 const props = defineProps<{ talks: Record<string, TaskTalk>, segment: TaskFlowSegment }>();
 const emit = defineEmits<{ select: [key: string, value: number] }>();
@@ -25,9 +26,7 @@ function get_title(talk: TaskTalk) {
 }
 
 function get_first_line(talk: TaskTalk) {
-    const initial = talk.initial_dialogs?.[0]?.dialog;
-    const dialog = initial === undefined ? Object.values(talk.dialogs)[0] : talk.dialogs[initial];
-    return dialog?.content || get_title(talk);
+    return get_talk_first_line(talk) || get_title(talk);
 }
 
 function get_description(key: number) {
