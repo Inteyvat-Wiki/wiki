@@ -2,6 +2,16 @@
   "name": "inteyvat-wiki",
   "type": "module",
   "private": true,
+  "license": "MIT",
+  "author": "Inteyvat-Wiki",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Inteyvat-Wiki/wiki.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Inteyvat-Wiki/wiki/issues"
+  },
+  "homepage": "https://github.com/Inteyvat-Wiki/wiki#readme",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev --port 4000",

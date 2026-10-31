@@ -1,4 +1,12 @@
-# Nuxt Minimal Starter
+# Inteyvat-Wiki
+
+原神文本与资料研究站点，由 Inteyvat-Wiki 组织维护。项目代码采用 [MIT 许可](LICENSE)，原始作者与贡献记录保留在 Git 历史中。游戏文本、图片及其他第三方内容不因代码许可而获得再授权，来源与许可边界见 [NOTICES.md](NOTICES.md)。本项目为非官方社区项目，不代表游戏权利人。
+
+服务端为独立的 [wiki-server](https://github.com/Inteyvat-Wiki/wiki-server) 子模块，应保留其许可证与署名说明。
+
+随附图标及 favicon 的来源记录见 [ASSETS.md](ASSETS.md)。
+
+## 开发说明（Nuxt starter）
 
 Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
