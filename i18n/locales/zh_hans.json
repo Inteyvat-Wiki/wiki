@@ -1,4 +1,67 @@
 {
+    "misc": {
+        "tutorial_category": "教程分类",
+        "tutorial_categories": { "element": "元素", "enemy": "敌人", "system": "系统", "adventure": "冒险", "activity": "活动", "other": "其他" },
+        "loading": {
+            "conditions": "适用条件",
+            "title": "触发情境", "count": "{count} 类情境", "action": "行为", "areas": "地区", "terrain": "地形", "unspecified": "未指定", "unnamed_area": "地区名称缺失",
+            "dungeon_type": "秘境类型", "dungeons": "秘境", "scenes": "场景编号", "dungeon_id": "秘境 {id}（名称缺失）",
+            "dungeon_types": { "character_master": "角色专精挑战", "ley_line_challenge": "幽境危战", "tps_mercenaries": "TPS 佣兵模式", "tps_shooting_range": "TPS 打靶模式" },
+            "terrains": { "city": "城镇", "outdoor": "野外" },
+            "actions": {
+                "transport": "普通传送", "quest_dungeon": "进入任务秘境", "daily_dungeon": "进入日常秘境", "tower": "进入深境螺旋",
+                "room": "进入房间", "login": "登录", "logout": "退出游戏", "revive": "复苏", "homeworld": "进入尘歌壶", "island": "进入海岛",
+                "gcg_normal": "进入七圣召唤对局", "gcg_catpub": "进入猫尾酒馆牌局", "gcg_pve": "进入七圣召唤（PVE）",
+                "gcg_ai": "进入七圣召唤（AI）", "gcg_pvp": "进入七圣召唤（PVP）", "gcg_festival": "进入七圣召唤（Festival）",
+                "certain_dungeon": "进入指定秘境", "gcg_abc": "进入七圣召唤（ABC）", "miliastra_hall": "进入千星奇域大厅", "specified_room": "进入指定房间"
+            }
+        },
+        "members": "下属成就", "members_failed": "成就描述加载失败，仍可通过名称打开成就。", "retry": "重试",
+        "sections": {
+            "pc": "PC 端", "mobile": "移动端", "ps": "PlayStation 端", "ps5_title": "PS5 标题",
+            "acquisition": "获取方式", "sender": "发件人", "alternate_title": "其他标题", "subtitle": "副标题"
+        },
+        "search": "搜索名称、正文或源 ID", "missing_name": "源名称缺失 · 此为占位标识",
+        "roles": {
+            "previous_stage": "前一阶段", "next_stage": "后一阶段", "monster": "相关魔物", "stage": "相关阶段", "lore": "相关设定",
+            "unlock_avatar": "角色解锁关联", "unlock_costume": "装扮解锁关联", "unlock_material": "材料解锁关联", "unlock_quest": "任务解锁关联",
+            "group": "所属分组", "region": "所属地区", "outfit": "相关装扮", "unlock": "解锁关联",
+            "achievement": "相关成就", "tutorial": "相关教程", "namecard": "相关名片",
+            "profile_picture": "相关头像", "profile_frame": "相关头像框", "expedition": "相关探索派遣", "gallant_path": "相关豪斗旅纪"
+        },
+        "images": {
+            "loading_background": "加载背景图",
+            "namecard_icon": "名片图标", "namecard_banner": "名片横幅", "namecard_background": "名片背景",
+            "profile_picture": "头像", "profile_frame": "头像框", "monster_icon": "魔物图标（非专用插画）"
+        },
+        "types": {
+            "graeae_message": "「灰眸」讯息",
+            "achievement": "成就", "achievement_group": "成就集合", "namecard": "名片", "profile_picture": "头像",
+            "profile_frame": "头像框", "expedition": "探索派遣", "gallant_path": "豪斗旅纪",
+            "loading_tip": "加载提示", "tutorial": "教程"
+        }
+    },
+    "archive": {
+        "classification_group": "摆设大类", "classification_child": "摆设小类", "unclassified": "未分类",
+        "costume_classification_group": "装扮分类", "costume_classification_child": "部件类型",
+        "card_type": "卡牌类型", "card_tags": "卡牌标签", "card_tags_hint": "同时满足所有已选标签",
+        "tag_groups": { "element": "元素", "weapon": "武器类型", "affiliation": "所属", "attribute": "卡牌属性", "other": "其他特性" },
+        "search": "搜索名称与正文", "all": "全部", "count": "共 {count} 项", "no_results": "未找到资料",
+        "load_failed": "资料加载失败，请稍后重试", "unnamed": "未命名资料", "copy_all": "复制全部文本",
+        "type": "类型", "description": "描述", "related": "关联资料",
+
+
+        "images": "图片", "image_zoom": "点击查看原图", "image_failed": "图片加载失败",
+         "image_alt": "资料图片 {index}", "select_image": "选择第 {index} 张图片",
+        "opponent": "对手", "quest": "相关任务", "player_card": "我方关联卡牌", "opponent_card": "对手关联卡牌", "dialogue_participant": "对白参与者",
+        "types": {
+            "realm": "洞天", "furniture": "摆设", "suite": "摆设套装", "companion": "壶内角色",
+            "card": "卡牌", "card_back": "牌背", "card_table": "牌桌", "player": "牌手", "stage": "关卡",
+            "costume": "装扮", "suit": "装扮套装", "catalog": "形录",  "hall": "大厅主题"
+        },
+        "sections": { "description": "描述", "story": "故事", "type": "分类", "source": "来源", "dialogue": "对白", "variants": "变体", "notes": "说明" },
+        "roles": { "component": "组成", "suite": "所属套装", "suit": "所属套装", "character": "相关角色", "favorite_character": "偏好角色", "dialogue": "相关对白", "furniture": "相关摆设", "catalog": "形录", "costume": "装扮部件", "player": "牌手", "stage": "关卡", "card": "相关卡牌", "npc": "相关 NPC", "task": "相关任务", "quest_item": "相关任务道具", "book": "相关书籍", "related": "相关资料", "variant": "变体", "gift": "赠礼与评价" }
+    },
     "common": {
         "pyro": "火",
         "hydro": "水",
@@ -7,7 +70,6 @@
         "dendro": "草",
         "cryo": "冰",
         "geo": "岩",
-
         "sword": "单手剑",
         "claymore": "双手剑",
         "polearm": "长柄武器",
@@ -31,7 +93,11 @@
         "travel-log": "旅行日志",
         "readable": "阅读物",
         "book": "书籍",
-        "settings": "设置"
+        "settings": "设置",
+        "serenitea": "尘歌壶",
+        "tcg": "七圣召唤",
+        "miliastra": "千星奇域",
+        "misc": "杂项"
     },
     "book": {
         "search": "搜索书籍",
@@ -134,11 +200,9 @@
         "natlan": "纳塔",
         "nod-krai": "挪德卡莱",
         "others": "其他",
-
         "type": "类型",
         "area": "地区",
         "description": "描述",
-
         "basic-info": "基本信息",
         "tabs": "标签",
         "viewpoint": "观景点",
@@ -240,7 +304,6 @@
     "map": {
         "settings": "地图设置",
         "map_condition": "地图状态",
-        
         "teyvat": "提瓦特",
         "enkanomiya": "渊下宫",
         "the_chasm_underground_mines": "层岩巨渊·地下矿区",
@@ -248,10 +311,8 @@
         "ancient_sacred_mountain": "远古圣山",
         "temple_of_space": "空之神殿",
         "simulanka": "希穆兰卡",
-
         "warn": "地图数据由人工标注得到，存在误差，仅供参考"
     },
-
     "text": {
         "mate_pronoun_boyd": "公主",
         "mate_pronoun_girld": "王子",

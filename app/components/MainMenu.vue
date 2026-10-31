@@ -21,6 +21,10 @@ const menu = [
     { name: 'travel-log', path: '/travel-log' },
     { name: 'book', path: '/book' },
     { name: 'readable', path: '/readable' },
+    { name: 'serenitea', path: '/serenitea' },
+    { name: 'tcg', path: '/tcg' },
+    { name: 'miliastra', path: '/miliastra' },
+    { name: 'misc', path: '/misc' },
     { name: 'settings', path: '/settings' },
 ]
 </script>

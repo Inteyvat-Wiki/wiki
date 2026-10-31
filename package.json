@@ -7,6 +7,8 @@
     "dev": "nuxt dev --port 4000",
     "generate": "nuxt generate",
     "typecheck": "nuxt prepare && vue-tsc --noEmit -p .nuxt/tsconfig.app.json",
+    "test:misc": "node scripts/run_misc_checks.mjs",
+    "typecheck:misc": "tsc --noEmit -p scripts/tsconfig.misc.json",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },

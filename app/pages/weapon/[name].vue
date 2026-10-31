@@ -34,8 +34,7 @@
                 </el-row>
             </div>
             <div v-if="weapon.refine_material" id="refine_material" style="margin-top: 20px;">
-                <el-row :gutter="20" style="row-gap: 20px; width: 100%;">
-                    <el-col :span="24" :lg="16">
+                <entry-media-layout :images="weapon.refine_material.icon ? [{ name: weapon.refine_material.name, url: weapon.refine_material.icon }] : []" :size="gallery_size('common', 'icon')">
                         <el-card>
                             <el-descriptions border :column="1">
                                 <template #title>
@@ -48,17 +47,7 @@
                                 </el-descriptions-item>
                             </el-descriptions>
                         </el-card>
-                    </el-col>
-                    <el-col :span="24" :lg="8">
-                        <el-card>
-                            <div style="display: flex; justify-content: center; align-items: center;">
-                                <el-image :src="weapon.refine_material.icon"
-                                    :preview-src-list="[weapon.refine_material.icon]" hide-on-click-modal
-                                    style="width: 100%; height: auto; display: block; object-fit: contain; max-width: 150px; " />
-                            </div>
-                        </el-card>
-                    </el-col>
-                </el-row>
+                </entry-media-layout>
             </div>
         </el-main>
         <el-aside width="100px">
@@ -85,6 +74,7 @@
 <script setup lang="ts">
 import { get_page_data } from '~/utils/page';
 import type { Weapon } from '~/types/weapon';
+import { gallery_size } from '~~/shared/gallery_layout';
 
 const weapon = ref<Weapon>();
 

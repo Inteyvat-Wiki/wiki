@@ -1,4 +1,5 @@
 import type { PageDataTrait } from '~/types/common';
+import { createError } from 'h3';
 
 export async function get_page_data<P extends PageDataTrait, T>(
     id: string,

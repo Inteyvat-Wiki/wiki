@@ -1,4 +1,69 @@
 {
+    "misc": {
+        "tutorial_category": "Tutorial category",
+        "tutorial_categories": { "element": "Elements", "enemy": "Enemies", "system": "System", "adventure": "Adventure", "activity": "Events", "other": "Other" },
+        "loading": {
+            "conditions": "Conditions",
+            "title": "Trigger situations", "count": "{count} situation types", "action": "Action", "areas": "Areas", "terrain": "Terrain", "unspecified": "Not specified", "unnamed_area": "Missing area name",
+            "dungeon_type": "Domain type", "dungeons": "Domains", "scenes": "Scene IDs", "dungeon_id": "Domain {id} (name missing)",
+            "dungeon_types": { "character_master": "Character mastery challenge", "ley_line_challenge": "Stygian Onslaught", "tps_mercenaries": "TPS mercenaries", "tps_shooting_range": "TPS shooting range" },
+            "terrains": { "city": "City", "outdoor": "Outdoors" },
+            "actions": {
+                "transport": "Normal teleport", "quest_dungeon": "Enter a quest domain", "daily_dungeon": "Enter a daily domain", "tower": "Enter the Spiral Abyss",
+                "room": "Enter a room", "login": "Log in", "logout": "Log out", "revive": "Revive", "homeworld": "Enter the Serenitea Pot", "island": "Enter an island",
+                "gcg_normal": "Enter a Genius Invokation TCG match", "gcg_catpub": "Enter a Cat's Tail match", "gcg_pve": "Enter Genius Invokation TCG (PVE)",
+                "gcg_ai": "Enter Genius Invokation TCG (AI)", "gcg_pvp": "Enter Genius Invokation TCG (PVP)", "gcg_festival": "Enter Genius Invokation TCG (Festival)",
+                "certain_dungeon": "Enter a specified domain", "gcg_abc": "Enter Genius Invokation TCG (ABC)", "miliastra_hall": "Enter a Miliastra Wonderland lobby", "specified_room": "Enter a specified room"
+            }
+        },
+        "members": "Achievements in this collection", "members_failed": "Achievement descriptions could not be loaded. You can still open achievements by name.", "retry": "Retry",
+        "sections": {
+            "pc": "PC", "mobile": "Mobile", "ps": "PlayStation", "ps5_title": "PS5 title",
+            "acquisition": "How to obtain", "sender": "Sender", "alternate_title": "Alternate title", "subtitle": "Subtitle"
+        },
+        "search": "Search names, text, or source IDs", "missing_name": "Source name missing — placeholder label",
+        "roles": {
+            "previous_stage": "Previous stage", "next_stage": "Next stage", "monster": "Related monsters", "stage": "Related stages", "lore": "Related lore",
+            "unlock_avatar": "Character unlock reference", "unlock_costume": "Outfit unlock reference",
+            "unlock_material": "Material unlock reference", "unlock_quest": "Quest unlock reference",
+            "group": "Group", "region": "Region", "outfit": "Outfit", "unlock": "Unlock requirements",
+            "achievement": "Related achievements", "tutorial": "Related tutorials", "namecard": "Related namecards",
+            "profile_picture": "Related profile pictures", "profile_frame": "Related profile frames",
+            "expedition": "Related expeditions", "gallant_path": "Related Gallant Path entries"
+        },
+        "images": {
+            "loading_background": "Loading background",
+            "namecard_icon": "Namecard icon", "namecard_banner": "Namecard banner", "namecard_background": "Namecard background",
+            "profile_picture": "Profile picture", "profile_frame": "Profile frame", "monster_icon": "Monster icon (not a dedicated illustration)"
+        },
+        "types": {
+            "graeae_message": "Eye of Graeae Messages",
+            "achievement": "Achievement", "achievement_group": "Achievement Collection", "namecard": "Namecard", "profile_picture": "Profile Picture",
+            "profile_frame": "Profile Frame", "expedition": "Expedition", "gallant_path": "Gallant Path",
+            "loading_tip": "Loading Tip", "tutorial": "Tutorial"
+        }
+    },
+    "archive": {
+        "classification_group": "Furnishing category", "classification_child": "Furnishing subcategory", "unclassified": "Unclassified",
+        "costume_classification_group": "Costume category", "costume_classification_child": "Costume slot",
+        "card_type": "Card type", "card_tags": "Card tags", "card_tags_hint": "Matches all selected tags",
+        "tag_groups": { "element": "Element", "weapon": "Weapon type", "affiliation": "Affiliation", "attribute": "Card attributes", "other": "Other traits" },
+        "search": "Search names and text", "all": "All", "count": "{count} entries", "no_results": "No entries found",
+        "load_failed": "Unable to load this archive. Please try again later.", "unnamed": "Unnamed entry", "copy_all": "Copy all text",
+        "type": "Type", "description": "Description", "related": "Related entries",
+
+
+        "images": "Images", "image_zoom": "Click to view full image", "image_failed": "Image failed to load",
+         "image_alt": "Archive image {index}", "select_image": "Select image {index}",
+        "opponent": "Opponent", "quest": "Related Quest", "player_card": "Player Cards", "opponent_card": "Opponent Cards", "dialogue_participant": "Dialogue Participants",
+        "types": {
+            "realm": "Realm", "furniture": "Furnishing", "suite": "Furnishing Set", "companion": "Companion",
+            "card": "Card", "card_back": "Card Back", "card_table": "Card Table", "player": "Player", "stage": "Stage",
+            "costume": "Outfit", "suit": "Outfit Set", "catalog": "Catalog",  "hall": "Hall Theme"
+        },
+        "sections": { "description": "Description", "story": "Story", "type": "Category", "source": "Source", "dialogue": "Dialogue", "variants": "Variants", "notes": "Notes" },
+        "roles": { "component": "Components", "suite": "Furnishing Set", "suit": "Outfit Set", "character": "Characters", "favorite_character": "Favored by", "dialogue": "Dialogue", "furniture": "Furnishings", "catalog": "Catalog", "costume": "Outfit Components", "player": "Players", "stage": "Stages", "card": "Cards", "npc": "NPCs", "task": "Quests", "quest_item": "Quest Items", "book": "Books", "related": "Related Entries", "variant": "Variants", "gift": "Gifts and Comments" }
+    },
     "normal": {
         "copied": "Copied",
         "loading": "Loading"
@@ -15,7 +80,11 @@
         "travel-log": "Travel Log",
         "readable": "Readable",
         "book": "Books",
-        "settings": "Settings"
+        "settings": "Settings",
+        "serenitea": "Serenitea Pot",
+        "tcg": "Genius Invokation TCG",
+        "miliastra": "Miliastra Wonderland",
+        "misc": "Miscellaneous"
     },
     "book": {
         "search": "Search books",

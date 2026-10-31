@@ -10,6 +10,7 @@ import type { Mapback, Maplayer, MapList, MapConditions } from '~/types/map';
 import type { ChapterGroup, ChapterGroupPages, Task, TaskPages } from '~/types/travel_log';
 import type { QuestItem, QuestItemPages } from '~/types/quest_item';
 import type { Menu } from '~/types/menu';
+import type { MiscItem, MiscPageData } from '~/types/misc';
 import type { LocaleCode } from '~~/shared/i18n';
 import type { InlineLinkCategory, InlineLinkInfo } from '~~/shared/inline_link';
 
@@ -26,6 +27,22 @@ const api = $fetch.create({
         }
     }
 })
+
+export async function get_misc_pages(): Promise<MiscPageData[]> {
+    return await api<MiscPageData[]>('/api/misc');
+}
+
+export async function get_misc_item(id: string): Promise<MiscItem> {
+    return await api<MiscItem>(`/api/misc/${encodeURIComponent(id)}`);
+}
+
+export async function get_archive_pages(category: import('~/types/archive').ArchiveCategory) {
+    return await api<import('~/types/archive').ArchivePage[]>(`/api/archive/${category}`);
+}
+
+export async function get_archive_item(category: import('~/types/archive').ArchiveCategory, id: string) {
+    return await api<import('~/types/archive').ArchiveItem>(`/api/archive/${category}/${id}`);
+}
 
 export async function get_inline_link(category: InlineLinkCategory, id: string): Promise<InlineLinkInfo> {
     const path: string = `/api/inline-link/${category}/${id}`;

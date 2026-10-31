@@ -1,0 +1,1 @@
+<template><misc-detail /></template>

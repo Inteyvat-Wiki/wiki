@@ -4,8 +4,7 @@
             <template v-for="{ item, anchorId } in anchorItems" :key="anchorId">
                 <div style="margin-top: 20px; margin-bottom: 20px;">
                     <div :id="anchorId">
-                        <el-row :gutter="20" style="row-gap: 20px; width: 100%;">
-                            <el-col :span="24" :lg="16">
+                        <entry-media-layout :images="item.icon ? [{ name: item.name, url: item.icon }] : []" :size="gallery_size('common', 'icon')">
                                 <el-card>
                                     <el-descriptions border :column="1">
                                         <template #title>
@@ -25,16 +24,7 @@
                                         </template>
                                     </el-descriptions>
                                 </el-card>
-                            </el-col>
-                            <el-col :span="24" :lg="8">
-                                <el-card>
-                                    <div style="display: flex; justify-content: center; align-items: center;">
-                                        <el-image :src="item.icon" :preview-src-list="[item.icon]" hide-on-click-modal
-                                            style="width: 100%; height: auto; display: block; object-fit: contain; max-width: 150px; " />
-                                    </div>
-                                </el-card>
-                            </el-col>
-                        </el-row>
+                        </entry-media-layout>
                     </div>
                     <template v-for="info in item.info">
                         <div v-if="info.type == 'normal'" style="margin-top: 20px;">
@@ -95,6 +85,7 @@
 <script setup lang="ts" generic="ItemTypes extends string | null">
 import type { ItemCommon } from '~/types/common';
 import { StarFilled } from '@element-plus/icons-vue';
+import { gallery_size } from '~~/shared/gallery_layout';
 
 const props = defineProps<{
     item: ItemCommon<ItemTypes> | ItemCommon<ItemTypes>[] | undefined;

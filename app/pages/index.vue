@@ -5,7 +5,7 @@
     </div>
     <el-row :gutter="50" style="width: 100%; row-gap: 50px; margin-top: 50px;">
         <el-col v-for="item in menu" :key="item.name" :xs="24" :sm="24" :md="12" :lg="8">
-            <NuxtLink :to="item.path" style="text-decoration: none;">
+            <NuxtLink :to="localePath(item.path)" style="text-decoration: none;">
                 <el-card>
                     <title-with-icon :icon="menu_icon?.[item.name as any]?.icon" :title="$t(`menu.${item.name}`)" />
                 </el-card>
@@ -18,6 +18,8 @@
 import type { Menu } from '~/types/menu';
 import { get_menu } from '~/utils/api';
 
+const localePath = useLocalePath();
+
 const menu = [
     { name: 'character', path: '/character' },
     { name: 'weapon', path: '/weapon' },
@@ -28,6 +30,10 @@ const menu = [
     { name: 'travel-log', path: '/travel-log' },
     { name: 'book', path: '/book' },
     { name: 'readable', path: '/readable' },
+    { name: 'serenitea', path: '/serenitea' },
+    { name: 'tcg', path: '/tcg' },
+    { name: 'miliastra', path: '/miliastra' },
+    { name: 'misc', path: '/misc' },
 ]
 
 const menu_icon = ref<Menu>();
