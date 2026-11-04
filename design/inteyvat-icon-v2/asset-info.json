@@ -1,0 +1,40 @@
+{
+  "name": "Inteyvat illustrated icon v2",
+  "date": "2026-11-01",
+  "generator": "Built-in image_gen tool; refinement of user-approved concept",
+  "source_dimensions": [
+    1280,
+    1280
+  ],
+  "alpha_bounds": [
+    118,
+    55,
+    1096,
+    1160
+  ],
+  "exports": [
+    1024,
+    512,
+    256,
+    180,
+    128,
+    96,
+    64,
+    48,
+    32,
+    24,
+    16
+  ],
+  "ico_sizes": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256
+  ],
+  "postprocessing": "Alpha-bound framing, proportional resampling, transparent padding, format export only; smaller icons occupy 94% rather than 88% of canvas.",
+  "prompt": "generation-prompt.txt",
+  "source_sha256": "7CB328D953553D64347FDD4B552E71BB909AE146463AFA2C1EC6D41919A82F3D"
+}

@@ -1,0 +1,14 @@
+因提瓦特图标 v2
+
+inteyvat-1024.png：推荐主图，透明背景。网站标志、项目头像使用 inteyvat 系列。
+favicon.ico：浏览器图标，内含 16、24、32、48、64、128、256 像素版本。
+favicon-*.png：为小尺寸单独简化的同款花形；建议用于 16–64 像素显示。
+size-preview.png：浅色与深色背景的实际尺寸预览；256、128 像素展示主图，其余展示小尺寸版。
+
+source.png、favicon-source.png：内置 image_gen 工具生成的透明原图。
+concept-v1.png：用户选择的第一版概念图。
+generation-prompt.txt、favicon-generation-prompt.txt：对应的完整生成提示词。
+asset-info.json、favicon-asset-info.json：文件来源、导出尺寸及原图校验值。
+
+导出仅进行透明边界取景、等比例缩放、居中留白和格式转换。
+PNG 保留真实透明通道。源文件是位图，没有将其宣称为矢量图。
