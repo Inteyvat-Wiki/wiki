@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { get_page_data } from '~/utils/page';
-import type { Book } from '~/types/book';
+import type { Book } from '@inteyvat-wiki/wiki-contracts/book';
 
 const book = ref<Book[]>();
 const page_name = ref('');

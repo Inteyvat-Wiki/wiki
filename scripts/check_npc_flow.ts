@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { build_npc_flow, get_npc_conditions } from '../app/utils/npc_flow';
 import { build_task_flow } from '../app/utils/task_flow';
-import type { Npc } from '../app/types/npc';
+import type { Npc } from '@inteyvat-wiki/wiki-contracts/npc';
 import type { TaskConditionValues } from '../app/utils/task_condition';
 
 const timmie: Npc = JSON.parse(fs.readFileSync('data/zh_hans/npc/items/timmie.json', 'utf8'));

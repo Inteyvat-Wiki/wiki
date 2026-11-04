@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import type { MaterialPages } from '~/types/material';
+import type { MaterialPages } from '@inteyvat-wiki/wiki-contracts/material';
 
 const materials = ref<MaterialPages>();
 

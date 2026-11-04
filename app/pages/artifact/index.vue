@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ArtifactPages } from '~/types/artifact';
+import type { ArtifactPages } from '@inteyvat-wiki/wiki-contracts/artifact';
 
 const artifacts = ref<ArtifactPages>();
 

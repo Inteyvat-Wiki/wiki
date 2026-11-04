@@ -1,4 +1,6 @@
 /data
+/tmp
+/.tmp
 
 # Nuxt dev/build outputs
 .output

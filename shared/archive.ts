@@ -1,12 +1,7 @@
 import { entry_relation_path } from './archive_display';
 
-export const ARCHIVE_CATEGORIES = ['serenitea', 'tcg', 'miliastra'] as const;
-export type ArchiveCategory = typeof ARCHIVE_CATEGORIES[number];
-export type ArchiveClassification = { id: string; group_id: string; group_name: string; name: string };
-
-export function is_archive_category(value: unknown): value is ArchiveCategory {
-    return ARCHIVE_CATEGORIES.some(category => category === value);
-}
+export { ARCHIVE_CATEGORIES, is_archive_category } from '@inteyvat-wiki/wiki-contracts/archive';
+export type { ArchiveCategory, ArchiveClassification } from '@inteyvat-wiki/wiki-contracts/archive';
 
 export function is_serenitea_companion(category: string, type: string): boolean {
     return category === 'serenitea' && type === 'companion';

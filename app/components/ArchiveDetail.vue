@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import type { ArchiveCategory, ArchiveItem, ArchiveRelation } from '~/types/archive';
 import { archive_detail_images, archive_title_image } from '~~/shared/archive';
-import { inline_link_text } from '~~/shared/inline_link';
+import { inline_link_text } from '@inteyvat-wiki/wiki-contracts/inline_link';
 import { entry_plain_text, entry_detail_content } from '~~/shared/archive_display';
 import { entry_copy_text } from '~~/shared/entry_copy';
 import { archive_sorted_tags } from '~~/shared/archive_tags';

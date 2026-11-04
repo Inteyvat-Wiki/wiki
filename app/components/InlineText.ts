@@ -1,7 +1,7 @@
 import { defineComponent, h, onMounted, ref } from 'vue';
 import type { VNodeChild } from 'vue';
 import InlineLink from './InlineLink.vue';
-import { parse_inline_links } from '~~/shared/inline_link';
+import { parse_inline_links } from '@inteyvat-wiki/wiki-contracts/inline_link';
 
 export default defineComponent({
     props: { text: { type: String, required: true } },

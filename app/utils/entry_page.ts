@@ -1,4 +1,4 @@
-import type { PageDataTrait } from '~/types/common';
+import type { PageDataTrait } from '@inteyvat-wiki/wiki-contracts/common';
 import { get_page_data } from '~/utils/page';
 import { merge_entry_page, resolve_page_relations } from '~~/shared/entry_page';
 import { createError } from 'h3';

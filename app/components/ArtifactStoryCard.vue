@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ArtifactItem } from '~/types/artifact';
+import type { ArtifactItem } from '@inteyvat-wiki/wiki-contracts/artifact';
 
 const props = defineProps<{
     artifact_item: ArtifactItem,

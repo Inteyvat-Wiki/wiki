@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import type { ArchiveItem } from '~/types/archive';
-import type { Npc } from '~/types/npc';
+import type { Npc } from '@inteyvat-wiki/wiki-contracts/npc';
 
 const props = defineProps<{ item: ArchiveItem }>();
 const npc = computed<Npc>(() => ({ name: props.item.name, npc_id: 0, birth_points: [], diagnostics: [],

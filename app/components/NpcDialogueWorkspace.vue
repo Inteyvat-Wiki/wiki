@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Npc } from '~/types/npc';
+import type { Npc } from '@inteyvat-wiki/wiki-contracts/npc';
 import type { TalkDisplayMode } from '~/types/travel_log';
 import type { TaskConditionValues } from '~/utils/task_condition';
 import type { TaskFlowSelections } from '~/utils/task_flow';

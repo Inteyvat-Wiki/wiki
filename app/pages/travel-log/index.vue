@@ -102,8 +102,8 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
 import type { ChapterGroupPages, TaskPage, TaskPages, TaskType } from '~/types/travel_log';
-import type { QuestItemPages } from '~/types/quest_item';
-import type { NpcPages } from '~/types/npc';
+import type { QuestItemPages } from '@inteyvat-wiki/wiki-contracts/quest_item';
+import type { NpcPages } from '@inteyvat-wiki/wiki-contracts/npc';
 
 const localePath = useLocalePath();
 const chapter_groups = ref<ChapterGroupPages>();

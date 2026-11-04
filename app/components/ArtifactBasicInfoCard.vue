@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Artifact } from '~/types/artifact';
+import type { Artifact } from '@inteyvat-wiki/wiki-contracts/artifact';
 import { StarFilled } from '@element-plus/icons-vue';
 
 const props = defineProps<{

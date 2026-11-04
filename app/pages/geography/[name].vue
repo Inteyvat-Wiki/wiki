@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { get_page_data } from '~/utils/page';
-import type { Geography } from '~/types/geography';
+import type { Geography } from '@inteyvat-wiki/wiki-contracts/geography';
 
 const geography = ref<Geography>();
 

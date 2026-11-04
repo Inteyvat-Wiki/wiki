@@ -1,4 +1,4 @@
-import type { PageDataTrait } from '../app/types/common';
+import type { PageDataTrait } from '@inteyvat-wiki/wiki-contracts/common';
 import type { EntrySection } from './archive_display';
 
 type PageItem = { name: string; description: string; sections: EntrySection[];

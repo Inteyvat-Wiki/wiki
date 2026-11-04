@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Npc } from '~/types/npc';
+import type { Npc } from '@inteyvat-wiki/wiki-contracts/npc';
 
 const route = useRoute();
 const localePath = useLocalePath();

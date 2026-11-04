@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts" generic="ItemTypes extends string | null">
-import type { ItemCommon } from '~/types/common';
+import type { ItemCommon } from '@inteyvat-wiki/wiki-contracts/common';
 import { StarFilled } from '@element-plus/icons-vue';
 import { gallery_size } from '~~/shared/gallery_layout';
 

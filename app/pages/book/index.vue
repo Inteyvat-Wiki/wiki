@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import type { BookPages } from '~/types/book';
+import type { BookPages } from '@inteyvat-wiki/wiki-contracts/book';
 
 const localePath = useLocalePath();
 const books = ref<BookPages>();

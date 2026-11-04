@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { INLINE_LINK_CATEGORIES, inline_link_text, parse_inline_links, is_inline_link_id } from '../shared/inline_link';
+import { INLINE_LINK_CATEGORIES, inline_link_text, inline_map_link_text, map_location_path, parse_inline_links, is_inline_link_id } from '@inteyvat-wiki/wiki-contracts/inline_link';
 import { entry_relation_path } from '../shared/archive_display';
 import { archive_relation_path } from '../shared/archive';
 
@@ -28,6 +28,11 @@ for (const text of ['[[iw:misc/../entry]]', '[[iw:source/entry]]', '[[iw:tcg/car
     assert.deepEqual(parse_inline_links(text), [text]);
 }
 assert.deepEqual(parse_inline_links('\\[[iw:tcg/card]]'), ['[[iw:tcg/card]]']);
+const mapText = inline_map_link_text('teyvat', -100.5, 200)!;
+const mapToken = parse_inline_links(mapText)[0];
+assert(mapToken && typeof mapToken === 'object' && mapToken.category === 'map');
+assert.equal(map_location_path(mapToken), '/map?scene=teyvat&x=-100.5&z=200');
+assert.equal(inline_link_text('map', 'teyvat'), null, 'Map locations cannot go through the content lookup API');
 for (const component of ['ArchiveDetail', 'MiscDetail']) {
     const template = fs.readFileSync(`app/components/${component}.vue`, 'utf8');
     const relations = template.match(/<el-space wrap class="relation-links">[\s\S]*?<\/el-space>/)?.[0];

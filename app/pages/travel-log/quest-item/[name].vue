@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { get_page_data } from '~/utils/page';
-import type { QuestItem } from '~/types/quest_item';
+import type { QuestItem } from '@inteyvat-wiki/wiki-contracts/quest_item';
 
 const quest_item = ref<QuestItem[]>();
 const page_name = ref('');

@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Readable } from '~/types/readable';
+import type { Readable } from '@inteyvat-wiki/wiki-contracts/readable';
 
 defineProps<{ readable: Readable | undefined }>();
 </script>

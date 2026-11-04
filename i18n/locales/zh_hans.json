@@ -1,4 +1,9 @@
 {
+    "outfit": {
+        "types": { "character": "角色衣装", "weapon": "武器幻化", "glider": "风之翼" },
+        "character": "角色", "weapon_type": "武器类型", "appearance": "外观", "default": "默认装扮",
+        "sources": "获取途径", "story": "故事"
+    },
     "misc": {
         "tutorial_category": "教程分类",
         "tutorial_categories": { "element": "元素", "enemy": "敌人", "system": "系统", "adventure": "冒险", "activity": "活动", "other": "其他" },
@@ -81,6 +86,7 @@
         "loading": "加载中"
     },
     "menu": {
+        "outfit": "装扮",
         "title": "因提瓦特 Wiki",
         "home": "主页",
         "character": "角色",
@@ -302,8 +308,21 @@
         }
     },
     "map": {
+        "height": {
+            "title": "区域高度",
+            "close": "关闭",
+            "pick": "点击地图查看区域高度",
+            "explanation": "区域高度范围，不代表地面海拔",
+            "radius": "半径（坐标单位）",
+            "position": "地图坐标",
+            "matches": "{count} 段相交范围",
+            "empty": "范围内暂无区域",
+            "axis": "高度",
+            "incomplete": "高度不完整",
+            "unknown": "未知",
+            "unnamed": "未命名区域"
+        },
         "settings": "地图设置",
-        "map_condition": "地图状态",
         "teyvat": "提瓦特",
         "enkanomiya": "渊下宫",
         "the_chasm_underground_mines": "层岩巨渊·地下矿区",
@@ -311,7 +330,47 @@
         "ancient_sacred_mountain": "远古圣山",
         "temple_of_space": "空之神殿",
         "simulanka": "希穆兰卡",
-        "warn": "地图数据由人工标注得到，存在误差，仅供参考"
+        "location": "地图位置",
+        "location_invalid": "地图位置无效",
+        "record_detail": "详情",
+        "record_failed": "详情加载失败",
+        "loading": "加载中…",
+        "select_scene": "选择地图或场景",
+        "surface": "地表 / 选择楼层",
+        "scene_failed": "地图加载失败",
+        "retry": "重试",
+        "place_search": "搜索地点、地名或人物",
+        "no_results": "没有找到匹配地点",
+        "markers": "地图标记",
+        "region_ranges": "地区范围",
+        "primary_areas": "一级区域",
+        "secondary_areas": "二级区域",
+        "layer_ranges": "楼层生效范围",
+        "boundary_ranges": "边界与遮罩",
+        "include_unknown": "显示条件未确定的内容",
+        "all_levels": "显示各楼层标记",
+        "mask_groups": {
+            "title": "查看地图条件",
+            "unavailable": "尚未关联图像",
+            "order_only": "仅影响任务顺序",
+            "inferred": "由后续步骤推定",
+            "task_conflict": "任务顺序冲突，请调整状态",
+            "conflict": "图像条件冲突，请调整状态"
+        },
+        "unspecified": "未指定",
+        "open_record": "查看相关资料",
+        "marker_kinds": {
+            "label": "地图文字",
+            "place": "地点图标",
+            "teleport": "传送锚点",
+            "statue": "七天神像",
+            "domain": "秘境",
+            "viewpoint": "观景点",
+            "point": "其他地点",
+            "npc": "人物"
+        },
+        "excluded_extent": "排除范围",
+        "record_missing": "暂无详情"
     },
     "text": {
         "mate_pronoun_boyd": "公主",

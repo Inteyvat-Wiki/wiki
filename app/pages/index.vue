@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Menu } from '~/types/menu';
+import type { Menu } from '@inteyvat-wiki/wiki-contracts/menu';
 import { get_menu } from '~/utils/api';
 
 const localePath = useLocalePath();
@@ -23,6 +23,7 @@ const localePath = useLocalePath();
 const menu = [
     { name: 'character', path: '/character' },
     { name: 'weapon', path: '/weapon' },
+    { name: 'outfit', path: '/outfit' },
     { name: 'artifact', path: '/artifact' },
     { name: 'material', path: '/material' },
     { name: 'living-being', path: '/living-being' },

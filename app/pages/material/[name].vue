@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { get_page_data } from '~/utils/page';
-import type { Material } from '~/types/material';
+import type { Material } from '@inteyvat-wiki/wiki-contracts/material';
 
 const material = ref<Material[]>();
 const page_name = ref('');

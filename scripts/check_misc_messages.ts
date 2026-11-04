@@ -48,7 +48,7 @@ assert.throws(() => message_thread_path({ initial: ['missing'], nodes: [] }, {})
 assert.throws(() => message_thread_path({ initial: ['x'], nodes: [{ id: 'x', kind: 'control', text: '', next: ['x'] }] }, {}), /Message cycle/);
 
 const hostile = '<img src=x onerror=alert(1)><script>alert(2)</script>';
-const source = { ...misc_fixture, message_thread: { initial: ['x'], nodes: [{ id: 'x', kind: 'text',
+const source: MiscItem = { ...misc_fixture, message_thread: { initial: ['x'], nodes: [{ id: 'x', kind: 'text',
     text: hostile, speaker: hostile, preview: hostile, location: hostile, next: [] }] } };
 const snapshot = JSON.stringify(source);
 const safe = create_misc_processor(parse_settings(undefined), (key: string) => key).item(source);

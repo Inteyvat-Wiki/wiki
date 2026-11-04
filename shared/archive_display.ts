@@ -1,4 +1,4 @@
-import { INLINE_LINK_CATEGORIES, inline_link_category, is_inline_link_id } from './inline_link';
+import { INLINE_LINK_CATEGORIES, inline_link_category, is_inline_link_id } from '@inteyvat-wiki/wiki-contracts/inline_link';
 
 // Only resolved raster/vector URLs are display assets; source hashes/prefabs remain metadata.
 export function is_image_url(value: unknown): value is string {

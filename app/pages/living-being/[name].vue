@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { get_page_data } from '~/utils/page';
-import type { LivingBeing } from '~/types/living_being';
+import type { LivingBeing } from '@inteyvat-wiki/wiki-contracts/living_being';
 
 const living_being = ref<LivingBeing[]>();
 const page_name = ref('');

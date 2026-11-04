@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { build_task_flow, get_trigger_candidates } from '../app/utils/task_flow';
 import { build_npc_flow } from '../app/utils/npc_flow';
 import type { TaskConditionToken, TaskStep, TaskTalk } from '../app/types/travel_log';
-import type { Npc } from '../app/types/npc';
+import type { Npc } from '@inteyvat-wiki/wiki-contracts/npc';
 
 function boolean(id: string, value = true): TaskConditionToken {
     return { type: 'boolean', id, value, title: '', subtitle: '' };

@@ -1,4 +1,9 @@
 {
+    "outfit": {
+        "types": { "character": "Character Outfits", "weapon": "Weapon Appearances", "glider": "Wind Gliders" },
+        "character": "Character", "weapon_type": "Weapon type", "appearance": "Appearance", "default": "Default outfit",
+        "sources": "How to obtain", "story": "Story"
+    },
     "misc": {
         "tutorial_category": "Tutorial category",
         "tutorial_categories": { "element": "Elements", "enemy": "Enemies", "system": "System", "adventure": "Adventure", "activity": "Events", "other": "Other" },
@@ -69,6 +74,7 @@
         "loading": "Loading"
     },
     "menu": {
+        "outfit": "Outfits",
         "home": "Home",
         "character": "Characters",
         "weapon": "Weapons",
@@ -186,5 +192,63 @@
             "finished": "complete",
             "failed": "failed"
         }
+    },
+    "map": {
+        "settings": "Map settings",
+        "height": {
+            "title": "Area heights",
+            "close": "Close",
+            "pick": "Click the map to view area heights",
+            "explanation": "Area height ranges, not ground elevations",
+            "radius": "Radius (coordinate units)",
+            "position": "Map coordinates",
+            "matches": "{count} intersecting parts",
+            "empty": "No areas in range",
+            "axis": "Height",
+            "incomplete": "Incomplete height range",
+            "unknown": "Unknown",
+            "unnamed": "Unnamed area"
+        },
+        "location": "Map location",
+        "location_invalid": "Invalid map location",
+        "record_detail": "Details",
+        "record_failed": "Could not load details",
+        "loading": "Loading…",
+        "select_scene": "Choose a map or scene",
+        "surface": "Surface / select floor",
+        "scene_failed": "Could not load map",
+        "retry": "Retry",
+        "place_search": "Search places or people",
+        "no_results": "No matching places",
+        "markers": "Map markers",
+        "region_ranges": "Region extents",
+        "primary_areas": "Primary areas",
+        "secondary_areas": "Secondary areas",
+        "layer_ranges": "Layer activation extents",
+        "boundary_ranges": "Boundaries and masks",
+        "include_unknown": "Show content with unknown conditions",
+        "all_levels": "Show markers on all floors",
+        "mask_groups": {
+            "title": "View map conditions",
+            "unavailable": "No linked image",
+            "order_only": "Affects task order only",
+            "inferred": "Inferred from later steps",
+            "task_conflict": "Task order conflict; adjust states",
+            "conflict": "Image condition conflict; adjust states"
+        },
+        "unspecified": "Unspecified",
+        "open_record": "View related record",
+        "marker_kinds": {
+            "label": "Map labels",
+            "place": "Place icons",
+            "teleport": "Waypoints",
+            "statue": "Statues of The Seven",
+            "domain": "Domains",
+            "viewpoint": "Viewpoints",
+            "point": "Other points",
+            "npc": "People"
+        },
+        "excluded_extent": "Excluded extent",
+        "record_missing": "No details available"
     }
 }

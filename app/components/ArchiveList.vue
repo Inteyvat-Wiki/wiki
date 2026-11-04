@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ArchiveCategory, ArchivePage } from '~/types/archive';
+import type { ArchiveCategory, DirectoryPage } from '~/types/archive';
 import { filter_archive_pages, archive_classification_groups, archive_classification_children,
     filter_archive_classifications, archive_card_options, archive_card_tag_groups, archive_tag_cascader_props,
     filter_archive_cards, archive_selected_type, type ArchiveClassificationOption } from '~/utils/archive_list';
@@ -73,7 +73,7 @@ const props = defineProps<{ category: ArchiveCategory | 'misc'; typeOrder?: read
 const namespace = computed(() => props.category === 'misc' ? 'misc' : 'archive');
 const route = useRoute();
 const router = useRouter();
-const items = ref<ArchivePage[]>([]);
+const items = ref<DirectoryPage[]>([]);
 const page_size = ref(48);
 const grid = ref<HTMLElement>();
 const loading = ref(true), failed = ref(false);

@@ -2,6 +2,7 @@ import { entry_plain_text } from '~~/shared/archive_display';
 import type { ArchiveClassification } from '~~/shared/archive';
 import { ARCHIVE_TAG_GROUPS, archive_tag_group, archive_sorted_tags, type ArchiveCardTag } from '~~/shared/archive_tags';
 import type { CascaderProps } from 'element-plus';
+import type { ArchiveItem } from '@inteyvat-wiki/wiki-contracts/archive';
 
 export function archive_selected_type(types: readonly string[], value: unknown): string {
     return typeof value === 'string' && types.includes(value) ? value : types[0] || '';
@@ -9,7 +10,7 @@ export function archive_selected_type(types: readonly string[], value: unknown):
 
 type ClassifiedPage = { type: string; show: boolean; classifications?: ArchiveClassification[] };
 const classified_types = new Set(['furniture', 'costume']);
-type CardPage = { type: string; show: boolean; card_type?: { id: string; name: string }; tags?: ArchiveCardTag[] };
+type CardPage = { type: string; show: boolean; card_type?: ArchiveItem['card_type']; tags?: ArchiveCardTag[] };
 
 export const archive_tag_cascader_props: CascaderProps = {
     multiple: true, emitPath: false, checkStrictly: true,

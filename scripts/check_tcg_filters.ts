@@ -4,20 +4,20 @@ import { archive_card_options, archive_card_tag_groups, archive_tag_cascader_pro
 import { archive_sorted_tags, archive_tag_group } from '../shared/archive_tags';
 import type { ArchiveItem, ArchivePage } from '../app/types/archive';
 
-const fixture = [
+const fixture: Pick<ArchivePage<'tcg'>, 'id' | 'name' | 'description' | 'type' | 'show' | 'card_type' | 'tags'>[] = [
     { id: 'a', name: 'Apple', description: '', type: 'card', show: true, card_type: { id: 'event', name: 'Event' }, tags: [{ id: 'food', name: 'Food' }, { id: 'talent', name: 'Talent' }] },
-    { id: 'b', name: 'Bow', description: '', type: 'card', show: true, card_type: { id: 'equip', name: 'Equipment' }, tags: [{ id: 'talent', name: 'Talent' }, { id: 'hidden', name: 'Hidden', hidden: true }] },
-    { id: 'c', name: 'Hidden', description: '', type: 'card', show: false, card_type: { id: 'hidden', name: 'Hidden' }, tags: [] },
+    { id: 'b', name: 'Bow', description: '', type: 'card', show: true, card_type: { id: 'equipment', name: 'Equipment' }, tags: [{ id: 'talent', name: 'Talent' }, { id: 'hidden', name: 'Hidden', hidden: true }] },
+    { id: 'c', name: 'Hidden', description: '', type: 'card', show: false, card_type: { id: 'support', name: 'Support' }, tags: [] },
 ];
 const snapshot = JSON.stringify(fixture);
 const pages = filter_archive_pages(fixture, '', 'card');
-assert.deepEqual(archive_card_options(fixture, 'card_type').map(option => option.id), ['event', 'equip']);
+assert.deepEqual(archive_card_options(fixture, 'card_type').map(option => option.id), ['event', 'equipment']);
 assert.deepEqual(archive_card_options(fixture, 'tags').map(option => option.id), ['food', 'talent']);
 assert.deepEqual(filter_archive_cards(pages, 'all', ['talent']).map(page => page.id), ['a', 'b']);
 assert.deepEqual(filter_archive_cards(pages, 'event', ['food', 'talent']).map(page => page.id), ['a']);
-assert.equal(filter_archive_cards(pages, 'equip', ['food', 'talent']).length, 0);
+assert.equal(filter_archive_cards(pages, 'equipment', ['food', 'talent']).length, 0);
 assert.equal(filter_archive_cards(pages, 'all', ['hidden']).length, 0);
-assert.equal(filter_archive_cards(filter_archive_pages(fixture, 'bow', 'card'), 'equip', ['talent']).length, 1);
+assert.equal(filter_archive_cards(filter_archive_pages(fixture, 'bow', 'card'), 'equipment', ['talent']).length, 1);
 assert.equal(JSON.stringify(fixture), snapshot);
 assert.equal(archive_tag_cascader_props.multiple, true);
 assert.equal(archive_tag_cascader_props.checkStrictly, true);

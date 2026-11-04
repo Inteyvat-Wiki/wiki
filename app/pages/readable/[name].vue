@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { get_page_data } from '~/utils/page';
-import type { Readable } from '~/types/readable';
+import type { Readable } from '@inteyvat-wiki/wiki-contracts/readable';
 
 const readable = ref<Readable>();
 

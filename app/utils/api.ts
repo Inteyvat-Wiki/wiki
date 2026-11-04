@@ -1,23 +1,17 @@
-import type { Character, CharacterPages } from '~/types/character';
-import type { Weapon, WeaponPages } from '~/types/weapon';
-import type { Artifact, ArtifactPages } from '~/types/artifact';
-import type { Material, MaterialPages } from '~/types/material';
-import type { Book, BookPages } from '~/types/book';
-import type { Readable, ReadablePages } from '~/types/readable';
-import type { LivingBeing, LivingBeingPages } from '~/types/living_being';
-import type { Geography, GeographyPages } from '~/types/geography';
-import type { Mapback, Maplayer, MapList, MapConditions } from '~/types/map';
-import type { ChapterGroup, ChapterGroupPages, Task, TaskPages } from '~/types/travel_log';
-import type { QuestItem, QuestItemPages } from '~/types/quest_item';
-import type { Menu } from '~/types/menu';
-import type { MiscItem, MiscPageData } from '~/types/misc';
-import type { LocaleCode } from '~~/shared/i18n';
-import type { InlineLinkCategory, InlineLinkInfo } from '~~/shared/inline_link';
+import type { ContentCategory, ContentPages, DisplayResponse } from '@inteyvat-wiki/wiki-contracts/registry';
+import type { ArchiveCategory } from '@inteyvat-wiki/wiki-contracts/archive';
+import { DEFAULT_LOCALE, isLocaleCode } from '~~/shared/i18n';
+import { CONTENT_ROUTES, content_item_path } from '~~/shared/content_routes';
+import type { Mapback, Maplayer, MapList, MapConditions } from '@inteyvat-wiki/wiki-contracts/map';
+import type { MapCataloguePage } from '@inteyvat-wiki/wiki-contracts/map';
+import type { MapScene, MapSceneIndex, MapTaskDependencies } from '@inteyvat-wiki/wiki-contracts/map';
+import type { Menu } from '@inteyvat-wiki/wiki-contracts/menu';
+import type { InlineLinkCategory, InlineLinkInfo } from '@inteyvat-wiki/wiki-contracts/inline_link';
 
 const api = $fetch.create({
     async onRequest({ options }) {
         const locale = useNuxtApp().$i18n.locale;
-        const lang: LocaleCode = locale.value as LocaleCode;
+        const lang = isLocaleCode(locale.value) ? locale.value : DEFAULT_LOCALE;
         const settings = await get_settings_value();
 
         options.query = {
@@ -28,163 +22,175 @@ const api = $fetch.create({
     }
 })
 
-export async function get_misc_pages(): Promise<MiscPageData[]> {
-    return await api<MiscPageData[]>('/api/misc');
+
+// Transport annotations describe the same-origin server contract, NOT JSON validation.
+// Export trust checks live on the server; nested response validation is not provided here.
+export async function get_content_item<C extends ContentCategory>(category: C, id: string): Promise<DisplayResponse<C>> {
+    return api<DisplayResponse<C>>(content_item_path(category, id));
 }
 
-export async function get_misc_item(id: string): Promise<MiscItem> {
-    return await api<MiscItem>(`/api/misc/${encodeURIComponent(id)}`);
+export async function get_content_pages<C extends ContentCategory>(category: C): Promise<ContentPages<C>> {
+    return api<ContentPages<C>>(CONTENT_ROUTES[category].pages);
 }
 
-export async function get_archive_pages(category: import('~/types/archive').ArchiveCategory) {
-    return await api<import('~/types/archive').ArchivePage[]>(`/api/archive/${category}`);
+export async function get_map_record(id: string) {
+    if (!id) return undefined;
+    const page = await api<MapCataloguePage>('/api/map/catalogue', { query: { id } });
+    return page.items[0];
 }
 
-export async function get_archive_item(category: import('~/types/archive').ArchiveCategory, id: string) {
-    return await api<import('~/types/archive').ArchiveItem>(`/api/archive/${category}/${id}`);
+export async function get_map_scene_index(): Promise<MapSceneIndex> {
+    return api<MapSceneIndex>('/api/map/scenes');
+}
+export async function get_map_task_dependencies(): Promise<MapTaskDependencies> {
+    return api<MapTaskDependencies>('/api/map/task_dependencies');
+}
+export async function get_map_scene(id: string): Promise<MapScene> {
+    return api<MapScene>(`/api/map/scenes/${encodeURIComponent(id)}`);
+}
+
+export async function get_misc_pages(): Promise<ContentPages<'misc'>> {
+    return get_content_pages('misc');
+}
+
+export async function get_outfit_pages(): Promise<ContentPages<'outfit'>> {
+    return get_content_pages('outfit');
+}
+
+export async function get_outfit_item(id: string): Promise<DisplayResponse<'outfit'>> {
+    return get_content_item('outfit', id);
+}
+
+export async function get_misc_item(name: string): Promise<DisplayResponse<'misc'>> {
+    return get_content_item('misc', name);
+}
+
+export async function get_archive_pages<C extends ArchiveCategory>(category: C): Promise<ContentPages<C>> {
+    return get_content_pages(category);
+}
+
+export async function get_archive_item<C extends ArchiveCategory>(category: C, id: string): Promise<DisplayResponse<C>> {
+    return get_content_item(category, id);
 }
 
 export async function get_inline_link(category: InlineLinkCategory, id: string): Promise<InlineLinkInfo> {
-    const path: string = `/api/inline-link/${category}/${id}`;
+    const path: string = `/api/inline-link/${category}/${encodeURIComponent(id)}`;
     return await api<InlineLinkInfo>(path);
 }
 
-export async function getCharacter(name: any): Promise<Character> {
-    const data = await api(`/api/character/${name}`);
-    return data as Character;
+export async function getCharacter(name: string): Promise<DisplayResponse<'character'>> {
+    return get_content_item('character', name);
 }
 
-export async function getCharacters(): Promise<CharacterPages> {
-    const data = await api(`/api/characters`);
-    return data as CharacterPages;
+export async function getCharacters(): Promise<ContentPages<'character'>> {
+    return get_content_pages('character');
 }
 
-export async function getWeapon(name: any): Promise<Weapon> {
-    const data = await api(`/api/weapon/${name}`);
-    return data as Weapon;
+export async function getWeapon(name: string): Promise<DisplayResponse<'weapon'>> {
+    return get_content_item('weapon', name);
 }
 
-export async function getWeapons(): Promise<WeaponPages> {
-    const data = await api(`/api/weapons`);
-    return data as WeaponPages;
+export async function getWeapons(): Promise<ContentPages<'weapon'>> {
+    return get_content_pages('weapon');
 }
 
-export async function getArtifact(name: any): Promise<Artifact> {
-    const data = await api(`/api/artifact/${name}`);
-    return data as Artifact;
+export async function getArtifact(name: string): Promise<DisplayResponse<'artifact'>> {
+    return get_content_item('artifact', name);
 }
 
-export async function getArtifacts(): Promise<ArtifactPages> {
-    const data = await api(`/api/artifacts`);
-    return data as ArtifactPages;
+export async function getArtifacts(): Promise<ContentPages<'artifact'>> {
+    return get_content_pages('artifact');
 }
 
-export async function get_material(name: any): Promise<Material> {
-    const data = await api(`/api/material/${name}`);
-    return data as Material;
+export async function get_material(name: string): Promise<DisplayResponse<'material'>> {
+    return get_content_item('material', name);
 }
 
-export async function get_materials(): Promise<MaterialPages> {
-    const data = await api(`/api/materials`);
-    return data as MaterialPages;
+export async function get_materials(): Promise<ContentPages<'material'>> {
+    return get_content_pages('material');
 }
 
-export async function get_book(name: string): Promise<Book> {
-    return await api<Book>(`/api/book/${name}`);
+export async function get_book(name: string): Promise<DisplayResponse<'book'>> {
+    return get_content_item('book', name);
 }
 
-export async function get_books(): Promise<BookPages> {
-    return await api<BookPages>('/api/books');
+export async function get_books(): Promise<ContentPages<'book'>> {
+    return get_content_pages('book');
 }
 
-export async function get_readable(name: string): Promise<Readable> {
-    return await api<Readable>(`/api/readable/${name}`);
+export async function get_readable(name: string): Promise<DisplayResponse<'readable'>> {
+    return get_content_item('readable', name);
 }
 
-export async function get_readables(): Promise<ReadablePages> {
-    return await api<ReadablePages>('/api/readables');
+export async function get_readables(): Promise<ContentPages<'readable'>> {
+    return get_content_pages('readable');
 }
 
-export async function get_living_being(name: any): Promise<LivingBeing> {
-    const data = await api(`/api/living-being/${name}`);
-    return data as LivingBeing;
+export async function get_living_being(name: string): Promise<DisplayResponse<'living_being'>> {
+    return get_content_item('living_being', name);
 }
 
-export async function get_living_beings(): Promise<LivingBeingPages> {
-    const data = await api(`/api/living-beings`);
-    return data as LivingBeingPages;
+export async function get_living_beings(): Promise<ContentPages<'living_being'>> {
+    return get_content_pages('living_being');
 }
 
-export async function get_geography(name: any): Promise<Geography> {
-    const data = await api(`/api/geography/${name}`);
-    return data as Geography;
+export async function get_geography(name: string): Promise<DisplayResponse<'geography'>> {
+    return get_content_item('geography', name);
 }
 
-export async function get_geographies(): Promise<GeographyPages> {
-    const data = await api(`/api/geographies`);
-    return data as GeographyPages;
+export async function get_geographies(): Promise<ContentPages<'geography'>> {
+    return get_content_pages('geography');
 }
 
-export async function get_mapback(name: any): Promise<Mapback> {
-    const data = await api(`/api/map/mapback/${name}`);
-    return data as Mapback;
+export async function get_mapback(name: string): Promise<Mapback> {
+    return api<Mapback>(`/api/map/mapback/${encodeURIComponent(name)}`);
 }
 
-export async function get_maplayer(name: any): Promise<Maplayer> {
-    const data = await api(`/api/map/maplayer/${name}`);
-    return data as Maplayer;
+export async function get_maplayer(name: string | null): Promise<Maplayer> {
+    if (name === null) throw new Error('Missing maplayer name');
+    return api<Maplayer>(`/api/map/maplayer/${encodeURIComponent(name)}`);
 }
 
 export async function get_map_list(): Promise<MapList> {
-    const data = await api(`/api/maps`);
-    return data as MapList;
+    return api<MapList>('/api/maps');
 }
 
 export async function get_map_conditions(): Promise<MapConditions> {
-    const data = await api(`/api/map/map_conditions`);
-    return data as MapConditions;
+    return api<MapConditions>('/api/map/map_conditions');
 }
 
 export async function get_menu(): Promise<Menu> {
-    const data = await api(`/api/menu`);
-    return data;
+    return api<Menu>('/api/menu');
 }
 
-export async function get_npcs(): Promise<import('~/types/npc').NpcPages> {
-    return await api<import('~/types/npc').NpcPages>('/api/npcs');
+export async function get_npcs(): Promise<ContentPages<'npc'>> {
+    return get_content_pages('npc');
 }
 
-export async function get_npc(name: string): Promise<import('~/types/npc').Npc> {
-    const path: string = `/api/npc/${name}`;
-    return await api<import('~/types/npc').Npc>(path);
+export async function get_npc(name: string): Promise<DisplayResponse<'npc'>> {
+    return get_content_item('npc', name);
 }
 
-export async function get_chapter_groups(): Promise<ChapterGroupPages> {
-    const data = await api('/api/chapter-groups');
-    return data as ChapterGroupPages;
+export async function get_chapter_groups(): Promise<ContentPages<'chapter_group'>> {
+    return get_content_pages('chapter_group');
 }
 
-export async function get_chapter_group(name: string): Promise<ChapterGroup> {
-    const data = await api(`/api/chapter-group/${name}`);
-    return data as ChapterGroup;
+export async function get_chapter_group(name: string): Promise<DisplayResponse<'chapter_group'>> {
+    return get_content_item('chapter_group', name);
 }
 
-export async function get_tasks(): Promise<TaskPages> {
-    const data = await api('/api/tasks');
-    return data as TaskPages;
+export async function get_tasks(): Promise<ContentPages<'task'>> {
+    return get_content_pages('task');
 }
 
-export async function get_task(name: string): Promise<Task> {
-    const data = await api(`/api/task/${name}`);
-    return data as Task;
+export async function get_task(name: string): Promise<DisplayResponse<'task'>> {
+    return get_content_item('task', name);
 }
 
-export async function get_quest_items(): Promise<QuestItemPages> {
-    const data = await api('/api/quest-items');
-    return data as QuestItemPages;
+export async function get_quest_items(): Promise<ContentPages<'quest_item'>> {
+    return get_content_pages('quest_item');
 }
 
-export async function get_quest_item(name: string): Promise<QuestItem> {
-    const data = await api(`/api/quest-item/${name}`);
-    return data as QuestItem;
+export async function get_quest_item(name: string): Promise<DisplayResponse<'quest_item'>> {
+    return get_content_item('quest_item', name);
 }

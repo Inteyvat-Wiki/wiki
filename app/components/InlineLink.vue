@@ -1,28 +1,36 @@
 <template>
-    <NuxtLink v-if="info" :to="localePath(`${config.path}/${props.id}`)" custom v-slot="{ href, navigate }">
+    <NuxtLink v-if="map_target" :to="localePath(map_target)" custom v-slot="{ href, navigate }">
         <el-link :href="href ?? undefined" :underline="false" class="inline-link" @click="navigate">
-            <img v-if="props.style === 'icon' && info.icon" :src="info.icon" alt="" />
-            <span v-html="info.name"></span>
+            <slot>{{ $t('map.location') }}</slot>
         </el-link>
     </NuxtLink>
-    <span v-else>{{ props.id }}</span>
+    <NuxtLink v-else-if="entry && info" :to="localePath(`${INLINE_LINK_CATEGORIES[entry.category].path}/${entry.id}`)" custom v-slot="{ href, navigate }">
+        <el-link :href="href ?? undefined" :underline="false" class="inline-link" @click="navigate">
+            <img v-if="entry.style === 'icon' && info.icon" :src="info.icon" alt="" />
+            <slot><span v-html="info.name"></span></slot>
+        </el-link>
+    </NuxtLink>
+    <span v-else><slot>{{ entry?.id }}</slot></span>
 </template>
 
 <script setup lang="ts">
-import { INLINE_LINK_CATEGORIES } from '~~/shared/inline_link';
-import type { InlineLinkToken, InlineLinkInfo } from '~~/shared/inline_link';
+import { INLINE_LINK_CATEGORIES, map_location_path } from '@inteyvat-wiki/wiki-contracts/inline_link';
+import type { InlineLinkToken, InlineLinkInfo } from '@inteyvat-wiki/wiki-contracts/inline_link';
 
 const props = defineProps<InlineLinkToken>();
 const localePath = useLocalePath();
-const config = computed(() => INLINE_LINK_CATEGORIES[props.category]);
+const entry = computed(() => props.category === 'map' ? null : props);
+const map_target = computed(() => props.category === 'map' ? map_location_path(props) : null);
 const info = ref<InlineLinkInfo>();
 const { locale } = useI18n();
 let request = 0;
-watch(() => [props.category, props.id, locale.value], async () => {
+watch(() => [entry.value?.category, entry.value?.id, locale.value], async () => {
     const current = ++request;
     info.value = undefined;
+    const token = entry.value;
+    if (!token) return;
     try {
-        const data = await get_inline_link(props.category, props.id);
+        const data = await get_inline_link(token.category, token.id);
         if (current === request) info.value = data;
     } catch {
         // Unavailable targets remain plain text rather than broken links.

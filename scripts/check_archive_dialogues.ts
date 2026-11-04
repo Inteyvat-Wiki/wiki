@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { build_npc_flow, get_npc_conditions } from '../app/utils/npc_flow';
 import type { TaskConditionValues } from '../app/utils/task_condition';
 import type { ArchiveItem } from '../app/types/archive';
-import type { Npc } from '../app/types/npc';
+import type { Npc } from '@inteyvat-wiki/wiki-contracts/npc';
 
 function npc(item: ArchiveItem): Npc {
     return { name: item.name, npc_id: 0, birth_points: [], diagnostics: [], entry_talks: item.entry_talks,

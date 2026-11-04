@@ -13,6 +13,7 @@ const menu = [
     { name: 'home', path: '/' },
     { name: 'character', path: '/character' },
     { name: 'weapon', path: '/weapon' },
+    { name: 'outfit', path: '/outfit' },
     { name: 'artifact', path: '/artifact' },
     { name: 'material', path: '/material' },
     { name: 'living-being', path: '/living-being' },

@@ -41,10 +41,11 @@ const process = create_archive_text_processor(hostile_settings, () => hostile);
 for (const marker of ['{NICKNAME}', '{REALNAME[ID(1)]}', '{REALNAME[ID(2)]}']) assert(!process(marker).includes('<img'));
 assert(!create_archive_text_processor(parse_settings(undefined), () => hostile)('{NICKNAME}').includes('<img'));
 const situation = processor.item({ ...misc_fixture, loading_situations: [{ id: '1', action: 'transport',
-    areas: [{ id: '1100', name: hostile }], terrain: 'city', dungeons: [{ id: '149', name: hostile }] }] });
+    areas: [{ id: '1100', name: hostile }], terrain: 'city' },
+    { id: '2', action: 'certain_dungeon', dungeons: [{ id: '149', name: hostile }] }] });
 assert(!situation.loading_situations![0]!.areas![0]!.name.includes('<img'));
 assert(situation.loading_situations![0]!.areas![0]!.name.includes('&lt;img'));
-assert(!situation.loading_situations![0]!.dungeons![0]!.name.includes('<img'));
+assert(!situation.loading_situations![1]!.dungeons![0]!.name.includes('<img'));
 const color = process('<color=x" onmouseover="alert(1)>Text</color>');
 assert(!color.includes(' onmouseover="'), 'unresolved colors cannot add HTML attributes');
 assert(color.includes('&quot;'));

@@ -172,6 +172,7 @@ export function evaluate_task_conditions(
     current_step: number,
     steps: number[],
     values: TaskConditionValues,
+    external_steps = false,
 ): ConditionResult {
     if (tokens.length === 0) return false;
 
@@ -179,7 +180,8 @@ export function evaluate_task_conditions(
     for (const token of tokens) {
         if (typeof token !== 'string') {
             stack.push(is_step_condition(token)
-                ? evaluate_step_condition(token, current_step, steps, values)
+                ? external_steps ? values[token.id] === undefined ? undefined : values[token.id] === (token.state || 'ongoing')
+                    : evaluate_step_condition(token, current_step, steps, values)
                 : evaluate_value_condition(token, values));
             continue;
         }
@@ -195,4 +197,9 @@ export function evaluate_task_conditions(
         stack.push(token === 'and' ? evaluate_and(left, right) : evaluate_or(left, right));
     }
     return stack.length === 1 ? stack[0] : false;
+}
+
+/** Map evidence has no current quest timeline; every step is supplied explicitly. */
+export function evaluate_external_task_conditions(tokens: TaskConditionToken[], values: TaskConditionValues): ConditionResult {
+    return tokens.length ? evaluate_task_conditions(tokens, 0, [], values, true) : undefined;
 }

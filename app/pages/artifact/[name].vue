@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { get_page_data } from '~/utils/page';
 import ArtifactBasicInfoCard from '~/components/ArtifactBasicInfoCard.vue';
-import type { Artifact, ArtifactItem } from '~/types/artifact';
+import type { Artifact, ArtifactItem } from '@inteyvat-wiki/wiki-contracts/artifact';
 
 const artifact = ref<Artifact>();
 

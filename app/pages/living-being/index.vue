@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LivingBeingPages } from '~/types/living_being';
+import type { LivingBeingPages } from '@inteyvat-wiki/wiki-contracts/living_being';
 
 const living_beings = ref<LivingBeingPages>();
 

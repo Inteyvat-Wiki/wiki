@@ -1,6 +1,6 @@
 <template>
     <div class="task-conditions">
-        <div v-for="group in groups" :key="group.id" class="task-condition">
+        <div v-for="group in groups" :key="group.id" class="task-condition" :title="availability?.[group.id]?.title">
             <NuxtLink v-if="is_external_step_condition(group.sample)"
                 :to="localePath(get_step_path(group.sample))" class="condition-title step-link">
                 <inline-text :text="group.sample.title" />
@@ -11,7 +11,8 @@
                 <el-text type="info"><inline-text :text="group.sample.subtitle" /></el-text>
             </div>
 
-            <el-radio-group v-model="model[group.id]" size="small">
+            <el-radio-group :model-value="displayValues?.[group.id] ?? model[group.id] ?? ''" :disabled="availability?.[group.id]?.disabled" @update:model-value="set_condition(group.id, $event)" size="small">
+                <el-radio-button v-if="allowUnknown" value="">{{ $t('map.unspecified') }}</el-radio-button>
                 <template v-if="is_step_condition(group.sample)">
                     <el-radio-button v-for="state in state_options" :key="state" :value="state">
                         {{ $t(`travel-log.state.${state}`) }}
@@ -49,6 +50,10 @@ import {
 
 const props = defineProps<{
     conditions: TaskCondition[],
+    initialize?: boolean,
+    allowUnknown?: boolean,
+    availability?: Record<string, { disabled?: boolean; title: string }>,
+    displayValues?: TaskConditionValues,
 }>();
 const model = defineModel<TaskConditionValues>({ required: true });
 const localePath = useLocalePath();
@@ -82,6 +87,7 @@ const groups = computed(() => {
 });
 
 watch(groups, current_groups => {
+    if (props.initialize === false) return;
     const values = { ...model.value };
     for (const group of current_groups) {
         if (values[group.id] !== undefined) continue;
@@ -101,6 +107,13 @@ watch(groups, current_groups => {
         && current_keys.every(key => model.value[key] === values[key])) return;
     model.value = values;
 }, { immediate: true });
+
+function set_condition(id: string, value: string | number | boolean | undefined) {
+    const next = { ...model.value };
+    if (value === '' || value === undefined) delete next[id];
+    else if (typeof value !== 'string' || state_options.includes(value as TaskState)) next[id] = value as TaskState | number | boolean;
+    model.value = next;
+}
 
 function format_interval(interval: TaskNumberInterval) {
     return format_number_interval(interval, $t('travel-log.other'));

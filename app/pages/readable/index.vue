@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ReadablePages } from '~/types/readable';
+import type { ReadablePages } from '@inteyvat-wiki/wiki-contracts/readable';
 
 const localePath = useLocalePath();
 const readables = ref<ReadablePages>();

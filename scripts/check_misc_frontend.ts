@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { display_images, entry_plain_text, is_image_url } from '../shared/archive_display';
 import { misc_copy_text, misc_detail_description, misc_image_label_key, misc_relation_path, misc_relation_label_key, misc_section_label_key, misc_visible_sections, misc_placeholder_name, misc_collection_members, is_misc_collection_member } from '../app/utils/misc';
-import type { MiscItem, MiscPageData } from '../app/types/misc';
+import type { MiscItem, MiscPageData, LoadingSituation } from '../app/types/misc';
 import { filter_archive_pages, archive_page_number } from '../app/utils/archive_list';
 import { misc_fixture } from './check_misc_contract';
 import { loading_situation_fields, loading_situation_groups, loading_situation_table_rows } from '../shared/loading_situations';
@@ -162,13 +162,13 @@ assert(!unnamedSituationCopy.includes('unspecified'));
 assert(!unnamedSituationCopy.includes('terrain：'));
 assert.deepEqual(loading_situation_fields({ id: '1', action: 'transport', areas: [] }, key => key), []);
 const label = (key: string, values?: Record<string, string | number>) => values?.id ? `${key}:${values.id}` : key;
-const situationFixture = [
+const situationFixture: LoadingSituation[] = [
     { id: '1', action: 'transport', areas: [{ id: '1', name: 'Area' }], terrain: 'city' },
-    { id: '9', action: 'login', areas: [] },
+    { id: '9', action: 'login' },
     { id: '2', action: 'transport', areas: [], terrain: 'outdoor' },
-    { id: '65', action: 'certain_dungeon', areas: [], dungeons: [{ id: '156', name: '' }] },
-    { id: '68', action: 'certain_dungeon', areas: [], dungeon_type: 'character_master' },
-    { id: '101', action: 'specified_room', areas: [], scene_ids: ['1161'] },
+    { id: '65', action: 'certain_dungeon', dungeons: [{ id: '156', name: '' }] },
+    { id: '68', action: 'certain_dungeon', dungeon_type: 'character_master' },
+    { id: '101', action: 'specified_room', scene_ids: ['1161'] },
 ];
 const situationSnapshot = JSON.stringify(situationFixture);
 const situationGroups = loading_situation_groups(situationFixture, label);
@@ -201,7 +201,7 @@ for (const lang of ['zh_hans', 'en']) {
 }
 const sharedImage = { name: 'Shared', url: '/images/shared.png' };
 const otherImage = { name: 'Other', url: '/images/other.png' };
-const tableFixture = [
+const tableFixture: LoadingSituation[] = [
     { id: '1', action: 'transport', areas: [], image: sharedImage },
     { id: '2', action: 'transport', areas: [], image: sharedImage },
     { id: '3', action: 'transport', areas: [], image: otherImage },

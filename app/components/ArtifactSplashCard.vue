@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Artifact, ArtifactItem } from '~/types/artifact';
+import type { Artifact, ArtifactItem } from '@inteyvat-wiki/wiki-contracts/artifact';
 
 const props = defineProps<{
     artifact: Artifact;

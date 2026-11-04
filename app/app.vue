@@ -13,7 +13,7 @@
                 </el-footer>
             </el-container>
         </el-aside>
-        <el-scrollbar class="page-scrollbar" v-if="$route.path != '/map'">
+        <el-scrollbar class="page-scrollbar" v-if="routeBaseName($route) !== 'map'">
             <div class="page-content">
                 <NuxtPage :key="$route.path" />
             </div>
@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
 import { init_settings } from '~/utils/settings';
+const routeBaseName = useRouteBaseName();
 
 onMounted(() => {
     init_settings();

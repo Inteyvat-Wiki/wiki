@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import type { GeographyPages } from '~/types/geography';
+import type { GeographyPages } from '@inteyvat-wiki/wiki-contracts/geography';
 
 const geographies = ref<GeographyPages>();
 

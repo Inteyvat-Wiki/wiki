@@ -1,4 +1,4 @@
-import type { Npc } from '../types/npc';
+import type { Npc } from '@inteyvat-wiki/wiki-contracts/npc';
 import type { TaskCondition } from '../types/travel_log';
 import { evaluate_task_conditions, type TaskConditionValues } from './task_condition';
 import { build_task_flow, get_trigger_candidates, type TaskFlowSelections, type TaskFlowState } from './task_flow';

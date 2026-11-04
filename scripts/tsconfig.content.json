@@ -1,0 +1,6 @@
+{
+    "extends": "../.nuxt/tsconfig.app.json",
+    "include": ["../.nuxt/nuxt.d.ts", "../app/app.vue", "../app/types/leaflet-esm.d.ts", "../app/components/MapMaskConditions.vue", "../app/components/MapMaskGroups.vue", "../app/components/MapAreaHeights.vue", "../app/components/MapHeightProbe.vue", "../app/components/MapSceneCanvas.vue", "../app/components/MapVectors.vue", "../app/pages/map/index.vue", "check_content_types.ts"],
+    "exclude": [],
+    "compilerOptions": { "types": ["node"] }
+}

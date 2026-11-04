@@ -49,7 +49,7 @@ import type { MiscItem, MiscRelation, MiscImage } from '~/types/misc';
 import { display_images, entry_plain_text, entry_detail_content } from '~~/shared/archive_display';
 import { misc_copy_text, misc_relation_path, misc_image_label_key, misc_relation_label_key, misc_section_label_key, misc_placeholder_name, is_misc_collection_member } from '~/utils/misc';
 import { copy_dialog_text } from '~/utils/dialog_copy';
-import { inline_link_text } from '~~/shared/inline_link';
+import { inline_link_text } from '@inteyvat-wiki/wiki-contracts/inline_link';
 import { get_entry_page } from '~/utils/entry_page';
 import { gallery_size } from '~~/shared/gallery_layout';
 

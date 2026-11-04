@@ -17,13 +17,13 @@
 </template>
 
 <script setup lang="ts">
-import type { ArchivePage } from '~/types/archive';
+import type { DirectoryPage } from '~/types/archive';
 import { archive_list_icon, archive_list_layout } from '~/utils/archive_list_layout';
 import { archive_has_title_avatar } from '~~/shared/archive';
 import { entry_plain_text } from '~~/shared/archive_display';
 import { misc_placeholder_name } from '~/utils/misc';
 
-const props = defineProps<{ category: string; item: ArchivePage; showType: boolean }>();
+const props = defineProps<{ category: string; item: DirectoryPage; showType: boolean }>();
 const localePath = useLocalePath();
 const namespace = computed(() => props.category === 'misc' ? 'misc' : 'archive');
 const has_name = computed(() => !!entry_plain_text(props.item.name));
