@@ -1,0 +1,1 @@
+<template><outfit-list /></template>

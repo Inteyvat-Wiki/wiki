@@ -7,6 +7,8 @@ const standard = { width: 320, imageWidth: 276, imageHeight: 380 };
 const wide = { width: 640, imageWidth: 596, imageHeight: 420 };
 const sizes: Record<string, Record<string, GallerySize>> = {
     common: { icon: { width: 194, imageWidth: 150, imageHeight: 220 } },
+    outfit: { character: { width: 384, imageWidth: 340, imageHeight: 560 }, weapon: standard,
+        glider: { width: 640, imageWidth: 596, imageHeight: 340 } },
     serenitea: { furniture: standard, realm: wide, suite: { width: 560, imageWidth: 516, imageHeight: 360 } },
     tcg: { card: { width: 284, imageWidth: 240, imageHeight: 440 },
         card_back: { width: 324, imageWidth: 280, imageHeight: 480 }, card_table: standard },
