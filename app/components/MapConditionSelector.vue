@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import type { MapConditions } from '~/types/map';
+import type { MapConditions } from '@inteyvat-wiki/wiki-contracts/map';
 
 const props = defineProps<{
     modelValue: Record<string, string> | null,

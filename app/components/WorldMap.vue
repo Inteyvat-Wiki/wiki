@@ -13,7 +13,7 @@
             </template>
             <template v-for="image in mapback?.images">
                 <LImageOverlay v-if="check_condition(image.shown_condition)" :key="image.image" :url="image.image"
-                    :bounds="process_coordinates(image.coordinate)" :z-index="image.z_index" />
+                    :bounds="process_coordinates(image.coordinate)" :z-index="image.z_index" :opacity="image.opacity ?? 1" />
             </template>
             <template v-if="focused_layer_name">
                 <LPolygon :lat-lngs="process_coordinates([
@@ -30,7 +30,7 @@
                             :key="image.image + (layer.name == focused_layer_name ? '_focus' : '')" :url="image.image"
                             :bounds="process_coordinates(image.coordinate)"
                             :pane="layer.name == focused_layer_name ? 'focus-pane' : undefined"
-                            :z-index="image.z_index" />
+                            :z-index="image.z_index" :opacity="image.opacity ?? 1" />
                     </template>
                 </template>
             </template>
@@ -40,7 +40,7 @@
 
 
 <script setup lang="ts">
-import type { MapList, Mapback, Maplayer } from '~/types/map';
+import type { MapList, Mapback, Maplayer } from '@inteyvat-wiki/wiki-contracts/map';
 
 
 const props = defineProps<{
