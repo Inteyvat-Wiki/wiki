@@ -156,3 +156,4 @@ assert.equal(weapon.effect.description, 'Bonus 10-20');
 assert.equal(Object.hasOwn(weapon.effect, 'values'), false);
 assert.deepEqual([JSON.stringify(rawCharacter), JSON.stringify(rawWeapon)], snapshots);
 console.log(`Content I/O: readers, aliases, live index replacements, single-read snapshots, failure retry, ${Object.keys(routes.CONTENT_ROUTES).length} route pairs and character/weapon display transforms passed (in-memory fixtures).`);
+await import('./check_data_root.mjs');

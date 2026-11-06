@@ -8,6 +8,10 @@ const fileOperationOptions = process.platform === 'win32' ? { maxParallelFileOps
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  // Private, stable base for WIKI_DATA_ROOT (also when the compiled server's cwd changes).
+  runtimeConfig: {
+    wikiDataProjectRoot: resolve(__dirname),
+  },
   modules: [
     '@nuxtjs/i18n',
     '@element-plus/nuxt',
@@ -32,10 +36,6 @@ export default defineNuxtConfig({
     rollupConfig: fileOperationOptions,
     publicAssets: [
       { dir: 'public' },
-      {
-        baseURL: '/images',
-        dir: resolve(__dirname, 'data/images')
-      },
     ]
   },
   css: [
