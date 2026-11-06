@@ -113,7 +113,7 @@ async function fixtureServer(options) {
     let pinStarted, pinContinue;
     const pinReady = new Promise(resolve => { pinStarted = resolve; });
     const pinGate = new Promise(resolve => { pinContinue = resolve; });
-    const app = h3.createApp().use(h3.defineEventHandler(async event => {
+    const app = h3.createApp({ onError: options?.onError }).use(h3.defineEventHandler(async event => {
         if (event.path.split('?')[0] === '/api/admin/data') return (event.method === 'GET' ? get : post)(event);
         if (event.path === '/api/menu') return menu(event);
         if (event.path.startsWith('/api/map/scenes')) return scenes(event);
@@ -313,6 +313,132 @@ async function batchDurabilityChecks(temp, auth) {
     console.log('Upload batches: file sync/close failure, bounded 32 handles, complete-file/directory persistence barriers, depth ordering and pending-I/O abort cleanup passed.');
 }
 
+async function missingImageChecks(temp, auth) {
+    const base = path.join(temp, 'missing-images'), storage = `${base}.publish`;
+    const names = ['WIKI_DATA_ROOT', 'WIKI_UPLOAD_ALLOW_MISSING_IMAGES', 'WIKI_UPLOAD_MAX_BYTES'];
+    const previous = new Map(names.map(name => [name, process.env[name]]));
+    process.env.WIKI_DATA_ROOT = base;
+    delete process.env.WIKI_UPLOAD_ALLOW_MISSING_IMAGES;
+    let observedError;
+    const instance = await fixtureServer({ onError: error => { observedError = error; } });
+    const allow = { 'x-wiki-allow-missing-images': '1' };
+    let checkedRequests = 0;
+    const checkedRequest = (url, options) => {
+        checkedRequests++;
+        return request(instance.port, url, options);
+    };
+    let published = 'none';
+    const valid = snapshot('present');
+    const missing = snapshot('present', files => {
+        files.set('common/menu.json', json({ fixture: { icon: '/images/missing-one.png' } }));
+        // Repeated references, including inline HTML and different JSON files,
+        // count only once per missing image; existing images are not counted.
+        files.set('common/image-references.json', json({ inline: '<img src="/images/missing-two.png">',
+            repeated: ['/images/missing-one.png', { image: '/images/missing-two.png' }], existing: '/images/present.png' }));
+    });
+    const post = (value, headers = {}, options = {}) => checkedRequest('/api/admin/data', {
+        method: 'POST', body: value.bytes, headers: { ...auth, 'content-type': DATA_UPLOAD_CONTENT_TYPE,
+            'x-wiki-base-release': published, ...headers }, ...options,
+    });
+    const unchanged = () => {
+        const pointer = path.join(storage, 'current.json');
+        assert.equal(fs.existsSync(pointer) ? JSON.parse(fs.readFileSync(pointer)).releaseId : 'none', published);
+        if (fs.existsSync(path.join(storage, 'staging'))) assert.deepEqual(fs.readdirSync(path.join(storage, 'staging')), []);
+        assert(!fs.existsSync(path.join(storage, 'upload.lock')));
+    };
+    const reject = async (value, status = 400, headers = allow, message) => {
+        const response = await post(value, headers).response;
+        assert.equal(response.status, status, response.body.toString());
+        // Bare H3 omits message in its HTTP error JSON (Nitro adds it). Capture
+        // the error boundary to check the fixed text without enabling debug.
+        if (message) assert.equal(observedError?.message, message);
+        assert.equal(response.headers['x-wiki-missing-image-count'], undefined);
+        for (const sensitive of [base, auth.authorization, 'missing-one.png', 'secret.png']) {
+            assert(!response.body.toString().includes(sensitive), 'errors must not disclose paths or credentials');
+        }
+        unchanged();
+    };
+    try {
+        for (const enabled of [undefined, '1']) {
+            if (enabled) process.env.WIKI_UPLOAD_ALLOW_MISSING_IMAGES = enabled;
+            else delete process.env.WIKI_UPLOAD_ALLOW_MISSING_IMAGES;
+            const denied = post(missing, { ...allow, authorization: `Bearer ${'f'.repeat(64)}` }, { body: undefined, hold: true });
+            try { assert.equal((await denied.response).status, 401); }
+            finally { denied.req.destroy(); }
+            assert(!fs.existsSync(storage), 'override does not bypass authentication or read a body');
+        }
+        delete process.env.WIKI_UPLOAD_ALLOW_MISSING_IMAGES;
+        const disabled = post(valid, allow, { body: undefined, hold: true });
+        try {
+            const response = await disabled.response;
+            assert.equal(response.status, 403);
+            assert.equal(observedError?.message, 'Missing image override is disabled');
+        } finally { disabled.req.destroy(); }
+        assert(!fs.existsSync(storage), 'disabled override is rejected before publisher state is created');
+        const strict = await post(valid).response;
+        assert.equal(strict.status, 200, strict.body.toString());
+        assert.equal(strict.headers['x-wiki-missing-image-count'], undefined);
+        published = valid.releaseId;
+        await reject(missing, 400, {}, 'Missing or invalid dataset image');
+        await reject(missing, 403, allow, 'Missing image override is disabled');
+        for (const disabledValue of ['0', 'true', '01']) {
+            process.env.WIKI_UPLOAD_ALLOW_MISSING_IMAGES = disabledValue;
+            await reject(missing, 403, allow, 'Missing image override is disabled');
+        }
+        process.env.WIKI_UPLOAD_ALLOW_MISSING_IMAGES = '1';
+        await reject(missing, 400, {}, 'Missing or invalid dataset image');
+        for (const value of ['', '0', 'true', '01', '1, 1']) {
+            await reject(missing, 400, { 'x-wiki-allow-missing-images': value }, 'Invalid missing image override');
+        }
+        await reject(missing, 400, { 'x-wiki-allow-missing-images': ['1', '1'] }, 'Duplicate upload header');
+        for (const image of ['/images/../secret.png', '/images/%2e%2e/secret.png', '/images/a\\secret.png',
+            '/images/a.png?x=1', '/images/a.svg', '/images/C:/secret.png', '/images/a//secret.png', '/images/con.png']) {
+            await reject(snapshot('invalid-ref', files => files.set('common/menu.json', json({ fixture: { icon: image } }))));
+        }
+        const changed = (file, bytes) => bundle(new Map([...missing.files, [file, bytes]]));
+        await reject(changed('images/present.png', Buffer.alloc(png.length)));
+        const corruptPng = Buffer.from(png); corruptPng[29] ^= 1;
+        await reject(changed('images/present.png', corruptPng));
+        await reject(changed('common/maps.json', Buffer.from('{')));
+        await reject(changed('common/maps.json', Buffer.from([0x22, 0xff, 0x22])));
+        await reject(changed('en/book/pages.json', json([{}])));
+        await reject(bundle(missing.files, manifest => { manifest.files[0].sha256 = '0'.repeat(64); }));
+        await reject(bundle(missing.files, manifest => { manifest.files[0].path = '../escape.json'; }));
+        await reject({ bytes: Buffer.concat([missing.bytes.subarray(0, -32), Buffer.alloc(32)]) });
+        process.env.WIKI_UPLOAD_MAX_BYTES = '100';
+        await reject(missing);
+        delete process.env.WIKI_UPLOAD_MAX_BYTES;
+        const accepted = await post(missing, allow).response;
+        assert.equal(accepted.status, 200, accepted.body.toString());
+        assert(isUploadResult(JSON.parse(accepted.body)), 'the closed result contract remains unchanged');
+        assert.equal(JSON.parse(accepted.body).releaseId, missing.releaseId);
+        assert.equal(accepted.headers['x-wiki-missing-image-count'], '2');
+        published = missing.releaseId;
+        unchanged();
+        assert.deepEqual(fs.readFileSync(path.join(storage, 'releases', published, 'common/menu.json')), missing.files.get('common/menu.json'));
+        assert.equal((await checkedRequest('/images/missing-one.png').response).status, 404);
+        assert.equal((await checkedRequest('/images/missing-two.png', { method: 'HEAD' }).response).status, 404);
+        assert.deepEqual((await checkedRequest('/images/present.png').response).body, png);
+        const repeated = await post(missing, allow).response;
+        assert.equal(repeated.status, 200); assert.equal(repeated.headers['x-wiki-missing-image-count'], '2');
+        await reject(missing, 400, {}, 'Missing or invalid dataset image');
+        delete process.env.WIKI_UPLOAD_ALLOW_MISSING_IMAGES;
+        await reject(missing, 400, {}, 'Missing or invalid dataset image');
+        await reject(missing, 403, allow, 'Missing image override is disabled');
+        process.env.WIKI_UPLOAD_ALLOW_MISSING_IMAGES = '1';
+        const complete = await post(valid, allow).response;
+        assert.equal(complete.status, 200); assert.equal(complete.headers['x-wiki-missing-image-count'], '0');
+        published = valid.releaseId; unchanged();
+        console.log(`Upload missing images: ${checkedRequests} HTTP cases passed (authenticated dual opt-in, strict defaults, unique response-header count, 404s, closed result contract, invalid paths/PNG/JSON/hashes/limits rejection and unchanged-release cleanup).`);
+    } finally {
+        await close(instance.server);
+        for (const [name, value] of previous) {
+            if (value === undefined) delete process.env[name];
+            else process.env[name] = value;
+        }
+    }
+}
+
 if (process.argv.includes('--worker')) {
     const instance = await fixtureServer();
     process.send({ port: instance.port });
@@ -499,6 +625,7 @@ if (process.argv.includes('--worker')) {
             assert(trace.slice(pointerRename + 1).some(([action, file]) => action === 'sync' && file === `${durable}.publish`));
         } finally { await close(faults.server); }
         await batchDurabilityChecks(temp, auth);
+        await missingImageChecks(temp, auth);
         console.log('Upload HTTP: auth-before-body, limits, framing/trailer/EOF, hashes, JSON/PNG, full structure, cross-process lock, abort/timeout cleanup, immutable releases, request pinning, symlinks and fresh deployment passed.');
         console.log('Upload durability: bottom-up directory sync ordering and pre-commit fsync/pointer rename failures passed (POSIX calls simulated on Windows).');
     } finally {
