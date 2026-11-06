@@ -31,17 +31,46 @@ function sourceLoader(options = {}) {
         async open(file, ...args) {
             // Exercise POSIX durability ordering on Windows too, without pretending
             // Windows can fsync a real directory handle. Real file I/O remains native.
-            if (options.trace && args[0] === 'r' && fs.statSync(file).isDirectory()) return {
+            const directory = options.trace && args[0] === 'r' && fs.statSync(file).isDirectory();
+            const handle = directory ? {
                 async sync() { options.trace.push(['sync', file]); if (options.failSync?.(file)) throw new Error('Injected fsync failure'); },
                 async close() {},
-            };
-            return io.open(file, ...args);
+            } : await io.open(file, ...args);
+            const state = options.fileIO;
+            if (!state || !file.includes(`${path.sep}staging${path.sep}upload-`)) return handle;
+            const kind = directory ? 'directory' : 'file';
+            state.handles.set(file, kind);
+            state.peak[kind] = Math.max(state.peak[kind], [...state.handles.values()].filter(value => value === kind).length);
+            state.events.push(['open', kind, file]);
+            return new Proxy(handle, { get(target, property) {
+                if (property === 'sync') return async () => {
+                    state.events.push(['sync-start', kind, file]);
+                    await options.beforeSync?.(kind, file);
+                    await target.sync();
+                    state.events.push(['sync-done', kind, file]);
+                };
+                if (property === 'close') return async () => {
+                    await target.close();
+                    state.handles.delete(file); state.events.push(['close', kind, file]);
+                    await options.afterClose?.(kind, file);
+                };
+                const value = Reflect.get(target, property, target);
+                return typeof value === 'function' ? value.bind(target) : value;
+            } });
         },
         async rename(from, to) {
             options.trace?.push(['rename', from, to]);
+            options.fileIO?.events.push(['rename', from, to]);
             if (options.failRename?.(to)) throw new Error('Injected rename failure');
             if (options.transientRename?.(to)) throw Object.assign(new Error('Injected sharing violation'), { code: 'EPERM' });
             return io.rename(from, to);
+        },
+        async rm(file, ...args) {
+            if (options.fileIO) {
+                options.fileIO.cleanup.push(options.fileIO.handles.size);
+                options.fileIO.events.push(['cleanup', file]);
+            }
+            return io.rm(file, ...args);
         },
     };
     function load(file) {
@@ -151,6 +180,138 @@ async function waitFor(test) {
     throw new Error('Synthetic state timeout');
 }
 async function close(server) { await new Promise(resolve => server.close(resolve)); }
+
+function gate() {
+    let release;
+    const promise = new Promise(resolve => { release = resolve; });
+    return { promise, release };
+}
+
+async function batchDurabilityChecks(temp, auth) {
+    const value = snapshot('batch', files => {
+        // Several batches, long shallow names and a short deep path exercise REAL
+        // depth barriers, not accidental descending character-length ordering.
+        for (let i = 0; i < 80; i++) files.set(`images/long-shallow-directory-${i}/icon.png`, png);
+        files.set('images/z/a/b/deep.png', png);
+    });
+    async function scenario(label, hooks, run) {
+        const base = path.join(temp, `batch-${label}`), storage = `${base}.publish`;
+        process.env.WIKI_DATA_ROOT = base;
+        const state = { handles: new Map(), peak: { file: 0, directory: 0 }, events: [], cleanup: [] };
+        const instance = await fixtureServer({ trace: [], fileIO: state, ...hooks });
+        const send = (data = value, options = {}) => request(instance.port, '/api/admin/data', {
+            method: 'POST', body: data.bytes, headers: { ...auth, 'content-type': DATA_UPLOAD_CONTENT_TYPE, 'x-wiki-base-release': 'none' }, ...options,
+        });
+        const uncommitted = () => {
+            assert(!fs.existsSync(path.join(storage, 'current.json')), label);
+            assert.deepEqual(fs.readdirSync(path.join(storage, 'releases')), [], label);
+        };
+        const cleaned = () => {
+            uncommitted(); assert.equal(state.handles.size, 0, label);
+            assert.deepEqual(fs.readdirSync(path.join(storage, 'staging')), [], label);
+            assert(!fs.existsSync(path.join(storage, 'upload.lock')), label);
+            assert.deepEqual(state.cleanup, [0], 'cleanup waits for every outstanding handle');
+        };
+        try { await run({ state, send, storage, uncommitted, cleaned }); }
+        finally { await close(instance.server); }
+    }
+
+    // Even with the complete request already sent, the last file and directory
+    // syncs are publication barriers. Gate them instead of relying on disk speed.
+    const firstBatch = gate(), lastFile = gate(), lastDirectory = gate();
+    const finalFile = value.manifest.files.at(-1).path.split('/').join(path.sep);
+    let fileSyncStarts = 0, finalFileWaiting = false, finalDirectoryWaiting = false;
+    try {
+        await scenario('success', { beforeSync: async (kind, file) => {
+            if (kind === 'file' && ++fileSyncStarts <= 32) await firstBatch.promise;
+            if (kind === 'file' && file.endsWith(path.sep + finalFile)) {
+                finalFileWaiting = true; await lastFile.promise;
+            }
+            if (kind === 'directory' && path.basename(file).startsWith('upload-')) {
+                finalDirectoryWaiting = true; await lastDirectory.promise;
+            }
+            await sleep(2);
+        } }, async ({ state, send, storage, uncommitted }) => {
+            const upload = send(); upload.response.catch(() => {});
+            try {
+                await waitFor(() => fileSyncStarts === 32);
+                assert.equal(state.peak.file, 32); uncommitted(); firstBatch.release();
+                await waitFor(() => finalFileWaiting);
+                assert.equal(fileSyncStarts, value.manifest.files.length, 'every file is individually fsynced');
+                uncommitted(); lastFile.release();
+                await waitFor(() => finalDirectoryWaiting);
+                uncommitted(); lastDirectory.release();
+                const response = await upload.response;
+                assert.equal(response.status, 200, response.body.toString());
+                assert.equal(state.handles.size, 0);
+                assert.equal(state.peak.file, 32);
+                assert.equal(state.peak.directory, 32);
+                assert.equal(JSON.parse(fs.readFileSync(path.join(storage, 'current.json'))).releaseId, value.releaseId);
+                const published = state.events.findIndex(([action, , to]) => action === 'rename' && to.includes(`${path.sep}releases${path.sep}`));
+                const completed = state.events.slice(0, published);
+                assert.equal(completed.filter(([action, kind, file]) => action === 'sync-done' && kind === 'file' && !file.endsWith('.manifest.json')).length,
+                    value.manifest.files.length);
+                assert.equal(completed.filter(([action, kind]) => action === 'open' && kind === 'file').length,
+                    completed.filter(([action, kind]) => action === 'close' && kind === 'file').length);
+                const directories = completed.filter(([action, kind]) => action === 'open' && kind === 'directory').map(([, , file]) => file);
+                for (const file of directories) {
+                    const started = completed.findIndex(([action, kind, name]) => action === 'sync-start' && kind === 'directory' && name === file);
+                    for (const child of directories.filter(child => child.split(path.sep).length > file.split(path.sep).length)) {
+                        const closed = completed.findIndex(([action, kind, name]) => action === 'close' && kind === 'directory' && name === child);
+                        assert(closed >= 0 && closed < started, 'all deeper directories close before any parent-level sync');
+                    }
+                    assert(completed.some(([action, kind, name]) => action === 'sync-done' && kind === 'directory' && name === file));
+                }
+            } finally { firstBatch.release(); lastFile.release(); lastDirectory.release(); upload.req.destroy(); }
+        });
+    } finally { firstBatch.release(); lastFile.release(); lastDirectory.release(); }
+
+    for (const kind of ['file', 'directory']) {
+        const pending = gate(); let started = 0;
+        try {
+            await scenario(`${kind}-sync-failure`, { beforeSync: async (actual, file) => {
+                if (actual !== kind) return;
+                if (kind === 'directory' && !path.basename(file).startsWith('long-shallow-directory-')) return;
+                if (++started === 1) throw new Error('Injected file/directory fsync failure');
+                await pending.promise;
+            } }, async ({ state, send, storage, uncommitted, cleaned }) => {
+                const upload = send(); upload.response.catch(() => {});
+                try {
+                    await waitFor(() => started > 1);
+                    await sleep(25); uncommitted();
+                    assert.equal(state.cleanup.length, 0, 'failure must wait for other pending syncs');
+                    assert(state.handles.size > 0); assert(fs.existsSync(path.join(storage, 'upload.lock')));
+                    pending.release(); assert.equal((await upload.response).status, 503); cleaned();
+                } finally { pending.release(); upload.req.destroy(); }
+            });
+        } finally { pending.release(); }
+    }
+
+    // A close error is also fatal, even when the native descriptor was closed.
+    let closeFailed = false;
+    await scenario('close-failure', { afterClose: kind => {
+        if (kind === 'file' && !closeFailed) { closeFailed = true; throw new Error('Injected close failure'); }
+    } }, async ({ send, cleaned }) => { assert.equal((await send().response).status, 503); cleaned(); });
+
+    const interrupted = gate(); let syncStarts = 0;
+    try {
+        await scenario('aborted', { beforeSync: async kind => {
+            if (kind === 'file') { syncStarts++; await interrupted.promise; }
+        } }, async ({ state, send, storage, cleaned }) => {
+            const upload = send(value, { hold: true }); upload.response.catch(() => {});
+            try {
+                await waitFor(() => syncStarts === 32); upload.req.destroy(); await sleep(25);
+                assert.equal(state.cleanup.length, 0); assert.equal(state.handles.size, 32);
+                interrupted.release(); await waitFor(() => !fs.existsSync(path.join(storage, 'upload.lock'))); cleaned();
+            } finally { interrupted.release(); upload.req.destroy(); }
+        });
+    } finally { interrupted.release(); }
+    await scenario('validation-failure', {}, async ({ send, cleaned }) => {
+        const invalid = snapshot('invalid-batch', files => files.set('common/maps.json', Buffer.from('{')));
+        assert.equal((await send(invalid).response).status, 400); cleaned();
+    });
+    console.log('Upload batches: file sync/close failure, bounded 32 handles, complete-file/directory persistence barriers, depth ordering and pending-I/O abort cleanup passed.');
+}
 
 if (process.argv.includes('--worker')) {
     const instance = await fixtureServer();
@@ -337,6 +498,7 @@ if (process.argv.includes('--worker')) {
             assert(trace.slice(releaseRename + 1, pointerRename).some(([action, file]) => action === 'sync' && file.endsWith(`${path.sep}releases`)));
             assert(trace.slice(pointerRename + 1).some(([action, file]) => action === 'sync' && file === `${durable}.publish`));
         } finally { await close(faults.server); }
+        await batchDurabilityChecks(temp, auth);
         console.log('Upload HTTP: auth-before-body, limits, framing/trailer/EOF, hashes, JSON/PNG, full structure, cross-process lock, abort/timeout cleanup, immutable releases, request pinning, symlinks and fresh deployment passed.');
         console.log('Upload durability: bottom-up directory sync ordering and pre-commit fsync/pointer rename failures passed (POSIX calls simulated on Windows).');
     } finally {
