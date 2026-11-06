@@ -77,9 +77,13 @@ function paint() {
     for (const region of props.regions) {
         const color = region.kind === 'playable-boundary' ? '#d95b65' : region.kind === 'layer-extent' ? '#7eb9eb' : '#dfbf78';
         const label = [region.label, region.extent === 'outside' ? props.excludedLabel : '', region.description].filter(Boolean).join(' · ');
-        const style = { color, weight: 1.5, fillOpacity: 0.04, pane: 'map-vector-pane', interactive:!props.probeMode };
+        const boundary = region.kind === 'playable-boundary';
+        const style = { color, weight: 1.5, fill: !boundary, fillOpacity: 0.04, pane: 'map-vector-pane', interactive:!boundary && !props.probeMode };
         region.rings.forEach((ring, index) => keep(`region:${region.id}:${index}`, JSON.stringify([ring, style, label]),
-            () => leaflet!.polygon(ring.map(point => [point.x, -point.y]), style).bindTooltip(text(label))));
+            () => {
+                const layer = leaflet!.polygon(ring.map(point => [point.x, -point.y]), style);
+                return label && !boundary ? layer.bindTooltip(text(label)) : layer;
+            }));
         (region.circles || []).forEach((circle, index) => keep(`circle:${region.id}:${index}`, JSON.stringify([circle, style, label]),
             () => leaflet!.circle([circle.center.x, -circle.center.y], { ...style, radius: circle.radius }).bindTooltip(text(label))));
     }

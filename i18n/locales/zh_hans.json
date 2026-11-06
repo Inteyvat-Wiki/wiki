@@ -351,6 +351,7 @@
         "all_levels": "显示各楼层标记",
         "mask_groups": {
             "title": "查看地图条件",
+            "reset_all": "还原所有条件",
             "unavailable": "尚未关联图像",
             "order_only": "仅影响任务顺序",
             "inferred": "由后续步骤推定",

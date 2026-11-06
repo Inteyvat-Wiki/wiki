@@ -63,6 +63,9 @@
                     </el-radio-group>
                 </div>
             </template>
+            <template #footer>
+                <el-button :disabled="!scene || loading" @click="reset_map_conditions">{{ $t('map.mask_groups.reset_all') }}</el-button>
+            </template>
         </el-drawer>
         <el-drawer v-model="show_record" :title="$t('map.record_detail')" size="min(720px, 95vw)" destroy-on-close><MapRecordDetail v-if="record_id" :record-id="record_id" /></el-drawer>
     </main>
@@ -143,6 +146,12 @@ function persist_states() {
 }
 function select_state(id: string, value: string) {
     const next = { ...selections.value }; if (value) next[id] = value; else delete next[id]; selections.value = next; persist_states();
+}
+function reset_map_conditions() {
+    if (!scene.value) return;
+    selections.value = valid_map_selections(scene.value.states, null);
+    condition_values.value = valid_map_condition_values(scene.value.maskConditions, null, scene.value.states);
+    persist_states();
 }
 watch(condition_values, value => {
     if (!scene.value) return;

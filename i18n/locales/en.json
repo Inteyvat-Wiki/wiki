@@ -230,6 +230,7 @@
         "all_levels": "Show markers on all floors",
         "mask_groups": {
             "title": "View map conditions",
+            "reset_all": "Reset all conditions",
             "unavailable": "No linked image",
             "order_only": "Affects task order only",
             "inferred": "Inferred from later steps",

@@ -42,6 +42,7 @@ const scene_overlays = computed(() => props.scene.overlays.filter(overlay => vis
 const focus_active = computed(() => scene_overlays.value.some(overlay => overlay.kind === 'layer' && overlay.layerId === props.layer));
 const overlays = computed(() => scene_overlays.value.filter(overlay => overlaps(overlay.bounds)));
 const markers = computed(() => props.scene.markers.filter(marker => props.markerKinds.includes(marker.kind) && visible(marker.condition)
+    && (marker.minZoom === undefined || zoom.value >= marker.minZoom)
     && (marker.kind === 'label' ? zoom.value >= (marker.labelMinZoom ?? -2) : zoom.value >= -3 || marker.kind === 'statue')
     && (props.allLevels || !marker.layerId || marker.layerId === props.layer) && overlaps([marker.position, marker.position])));
 const regions = computed(() => props.scene.regions.filter(region => visible(region.condition)
